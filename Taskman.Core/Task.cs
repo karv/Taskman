@@ -23,7 +23,7 @@ namespace Taskman
 
 		bool IEquatable<Task>.Equals (Task other)
 		{
-			return other?.Id == Id ?? false;
+			return other == null || other?.Id == Id;
 		}
 
 		#endregion
