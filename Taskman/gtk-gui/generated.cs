@@ -17,6 +17,8 @@ namespace Stetic
 
 	internal class ActionGroups
 	{
+		private static global::Gtk.ActionGroup group1;
+
 		public static Gtk.ActionGroup GetActionGroup(System.Type type)
 		{
 			return Stetic.ActionGroups.GetActionGroup(type.FullName);
@@ -24,7 +26,18 @@ namespace Stetic
 
 		public static Gtk.ActionGroup GetActionGroup(string name)
 		{
-			return null;
+			if ((name == "Taskman.DefaultActionGroup"))
+			{
+				if ((global::Stetic.ActionGroups.group1 == null))
+				{
+					global::Stetic.ActionGroups.group1 = new Taskman.DefaultActionGroup();
+				}
+				return global::Stetic.ActionGroups.group1;
+			}
+			else
+			{
+				return null;
+			}
 		}
 	}
 }

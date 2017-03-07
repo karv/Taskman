@@ -1,8 +1,8 @@
-﻿namespace Taskman
+﻿namespace Taskman.Gtk
 {
 	class MainClass
 	{
-		public static void Main()
+		public static void Main ()
 		{
 			/*
 			Application.Init();
