@@ -1,15 +1,15 @@
-﻿namespace Taskman.Gui
+﻿using Gtk;
+
+namespace Taskman.Gui
 {
 	class MainClass
 	{
 		public static void Main ()
 		{
-			/*
-			Application.Init();
-			var win = new MainWindow();
-			win.Show();
-			Application.Run();
-			*/
+			Application.Init ();
+			var win = new MainWin ();
+			win.Show ();
+			Application.Run ();
 		}
 	}
 }
