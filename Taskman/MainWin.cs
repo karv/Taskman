@@ -2,7 +2,6 @@
 
 namespace Taskman.Gui
 {
-
 	public partial class MainWin : Window
 	{
 		public TaskCollection Collection;
@@ -25,6 +24,15 @@ namespace Taskman.Gui
 		{
 			base.OnDestroyed ();
 			Application.Quit ();
+		}
+
+		protected TaskEntry AddTask ()
+		{
+			var task = Task.Create (Collection);
+			var entry = new TaskEntry (task);
+			task.Name = "Tarea " + task.Id;
+			Data.AddNode (entry);
+			return entry;
 		}
 
 		public MainWin () :
@@ -51,7 +59,8 @@ namespace Taskman.Gui
 
 		void newFromRoot (object sender, System.EventArgs e)
 		{
-			var entry = addTask ();
+			var entry = AddTask ();
+			System.Console.WriteLine (entry.Name);
 			TaskList.QueueDraw ();
 		}
 	}

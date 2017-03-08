@@ -15,8 +15,9 @@ namespace Taskman.Gui
 
 		public TaskEntry (Task task)
 		{
+			if (task == null)
+				throw new System.ArgumentNullException ("task");
 			Task = task;
 		}
 	}
-	
 }
