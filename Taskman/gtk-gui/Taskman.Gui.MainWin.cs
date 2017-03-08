@@ -18,7 +18,7 @@ namespace Taskman.Gui
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
-		private global::Gtk.TreeView treeview2;
+		private global::Gtk.TreeView TaskList;
 		
 		private global::Gtk.Statusbar statusbar2;
 
@@ -31,8 +31,8 @@ namespace Taskman.Gui
 			this.newAction = new global::Gtk.Action ("newAction", global::Mono.Unix.Catalog.GetString ("_Nueva tarea"), null, "gtk-new");
 			this.newAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("_Nueva tarea");
 			w1.Add (this.newAction, null);
-			this.deleteAction = new global::Gtk.Action ("deleteAction", null, null, "gtk-delete");
-			w1.Add (this.deleteAction, null);
+			this.deleteAction = new global::Gtk.Action ("deleteAction", null, global::Mono.Unix.Catalog.GetString ("Elimina la tarea seleccionada"), "gtk-delete");
+			w1.Add (this.deleteAction, "<Primary>Delete");
 			this.UIManager.InsertActionGroup (w1, 0);
 			this.AddAccelGroup (this.UIManager.AccelGroup);
 			this.Name = "Taskman.Gui.MainWin";
@@ -66,10 +66,10 @@ namespace Taskman.Gui
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.treeview2 = new global::Gtk.TreeView ();
-			this.treeview2.CanFocus = true;
-			this.treeview2.Name = "treeview2";
-			this.GtkScrolledWindow.Add (this.treeview2);
+			this.TaskList = new global::Gtk.TreeView ();
+			this.TaskList.CanFocus = true;
+			this.TaskList.Name = "TaskList";
+			this.GtkScrolledWindow.Add (this.TaskList);
 			this.vbox2.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.GtkScrolledWindow]));
 			w5.Position = 2;

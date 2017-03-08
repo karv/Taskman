@@ -17,7 +17,7 @@ namespace Taskman
 			int id;
 			do {
 				id = _r.Next ();
-			} while (GetById (id) == null);
+			} while (GetById (id) != null);
 			return id;
 		}
 

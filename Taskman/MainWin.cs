@@ -2,16 +2,20 @@
 
 namespace Taskman.Gui
 {
-	public partial class MainWin : Gtk.Window
+
+	public partial class MainWin : Window
 	{
-		public MainWin () :
-			base (Gtk.WindowType.Toplevel)
+		public TaskCollection Collection;
+		public TreeStore Data;
+		public TreeViewColumn NameColumn;
+
+		void initializeTaskList ()
 		{
-			Build ();
-			deleteAction.Activated += deleteTask;
+			TaskList.Model = Data;
+			NameColumn = new TreeViewColumn ("Nombre", new CellRendererText (), "text", 0);
+			TaskList.AppendColumn (NameColumn);
 		}
 
-		void 
 		void deleteTask (object sender, System.EventArgs e)
 		{
 			System.Console.WriteLine ();
@@ -21,6 +25,34 @@ namespace Taskman.Gui
 		{
 			base.OnDestroyed ();
 			Application.Quit ();
+		}
+
+		public MainWin () :
+			base (WindowType.Toplevel)
+		{
+			Collection = new TaskCollection ();
+			Data = new TreeStore (typeof(Task));
+			Build ();
+			deleteAction.Activated += deleteTask;
+			newAction.Activated += newFromRoot;
+
+			initializeTaskList ();
+		}
+
+		TaskEntry addTask ()
+		{
+			var task = Task.Create (Collection);
+			var entry = new TaskEntry (task);
+			var rootNode = Data.AppendNode ();
+			task.Name = "Tarea " + task.Id;
+			Data.AppendValues (entry);
+			return entry;
+		}
+
+		void newFromRoot (object sender, System.EventArgs e)
+		{
+			var entry = addTask ();
+			TaskList.QueueDraw ();
 		}
 	}
 }

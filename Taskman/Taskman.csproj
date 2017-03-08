@@ -67,6 +67,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MainWin.cs" />
     <Compile Include="gtk-gui\Taskman.Gui.MainWin.cs" />
+    <Compile Include="TaskEntry.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
