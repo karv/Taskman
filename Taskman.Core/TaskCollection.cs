@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Taskman
 {
-	public class TaskCollection : ICollection<Task>
+	public class TaskCollection : IEnumerable<Task>
 	{
 		readonly HashSet<Task> _collection;
 
@@ -15,9 +15,11 @@ namespace Taskman
 		public int GetUnusedId ()
 		{
 			int id;
-			do {
+			do
+			{
 				id = _r.Next ();
-			} while (GetById (id) == null);
+			}
+			while (GetById (id) != null);
 			return id;
 		}
 
@@ -28,34 +30,43 @@ namespace Taskman
 
 		#region ICollection implementation
 
-		public void Add (Task item)
+		internal void Add (Task item)
 		{
 			_collection.Add (item);
 		}
 
+		public Task AddNew ()
+		{
+			var ret = new Task (this);
+			return ret;
+		}
+
 		public void Clear ()
 		{
+			foreach (var task in _collection)
+				task.Dispose ();
 			_collection.Clear ();
 		}
 
 		public bool Contains (Task item)
 		{
+			if (item.IsDisposed)
+				throw new InvalidOperationException ("task is disposed");
 			return _collection.Contains (item);
-		}
-
-		public void CopyTo (Task[] array, int arrayIndex)
-		{
-			_collection.CopyTo (array, arrayIndex);
 		}
 
 		public bool Remove (Task item)
 		{
-			return _collection.Remove (item);
+			if (item.IsDisposed)
+				throw new InvalidOperationException ("task is disposed");
+			
+			var ret = _collection.Remove (item);
+			if (ret)
+				item.Dispose ();
+			return ret;
 		}
 
 		public int Count { get { return _collection.Count; } }
-
-		public bool IsReadOnly { get { return false; } }
 
 		#endregion
 
