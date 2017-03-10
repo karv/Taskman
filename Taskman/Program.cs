@@ -1,4 +1,4 @@
-﻿namespace Taskman.Gtk
+﻿namespace Taskman.Gui
 {
 	class MainClass
 	{

@@ -1,56 +1,180 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Taskman
 {
-
+	/// <summary>
+	/// A task
+	/// </summary>
 	public class Task : IEquatable<Task>
 	{
+		/// <summary>
+		/// Displaying name
+		/// </summary>
 		public string Name;
+		/// <summary>
+		/// Descption on this task
+		/// </summary>
 		public string Descript;
 
-		public int Id { get; private set; }
+		readonly int _id;
 
+		/// <summary>
+		/// Gets the unique identifier in the collection
+		/// </summary>
+		public int Id
+		{
+			get
+			{
+				if (IsDisposed)
+					throw new InvalidOperationException ("Cannot get the Id from a disposed task.");
+				return _id;
+			}
+		}
+
+		/// <summary>
+		/// The creation time
+		/// </summary>
 		public DateTime CreationTime;
+		/// <summary>
+		/// The begin time
+		/// </summary>
 		public DateTime BeginTime;
+		/// <summary>
+		/// The termination time
+		/// </summary>
 		public DateTime TerminationTime;
 
-		public HashSet<Task> Subtasks;
-		public Task MasterTask;
+		readonly HashSet<Task> _subtasks;
+		/// <summary>
+		/// The status if this task
+		/// </summary>
 		public TaskStatus Status;
+
+		/// <summary>
+		/// Gets a value indicating whether this instance is disposed.
+		/// </summary>
+		public bool IsDisposed { get; private set; }
+
+		/// <summary>
+		/// The task collection that manages this task
+		/// </summary>
+		public readonly TaskCollection _collection;
+		/// <summary>
+		/// If not root, returns the master task, <c>null</c> otherwise.
+		/// </summary>
+		public readonly Task MasterTask;
+
+		/// <summary>
+		/// Gets a value indicating whether this task is root.
+		/// </summary>
+		public bool IsRoot { get { return MasterTask == null; } }
+
+		/// <summary>
+		/// Gets a new <see cref="Array"/> containing all the immediate subtasks
+		/// </summary>
+		public Task[] GetSubtasks ()
+		{
+			return _subtasks.ToArray ();
+		}
+
+		/// <summary>
+		/// Enumerate recursively all the subtasks
+		/// </summary>
+		protected IEnumerable<Task> EnumerateRecursiveSubtasks ()
+		{
+			yield return this;
+			foreach (var task in _subtasks)
+			{
+				foreach (var sTask in task.EnumerateRecursiveSubtasks ())
+					yield return sTask;
+			}
+		}
+
+		/// <summary>
+		/// Gets a new <see cref="Array"/> contaning all the (hereditary) subtasks
+		/// </summary>
+		public Task[] GetSubtasksRecursive ()
+		{
+			return EnumerateRecursiveSubtasks ().ToArray ();
+		}
+
+		/// <summary>
+		/// Gets the collection of tasks
+		/// </summary>
+		public TaskCollection Collection
+		{
+			get
+			{
+				if (IsDisposed)
+					throw new InvalidOperationException ("Cannot get the collection from a disposed task.");
+				return _collection;
+			}
+		}
 
 		#region IEquatable implementation
 
 		bool IEquatable<Task>.Equals (Task other)
 		{
-			return other?.Id == Id ?? false;
+			return other == null || other?.Id == Id;
 		}
 
 		#endregion
 
-		public static Task Create (TaskCollection coll)
+		/// <summary>
+		/// Creates and returns a new subtask
+		/// </summary>
+		public Task CreateSubtask ()
 		{
-			var ret = new Task (coll.Comparer) { Id = coll.GetUnusedId () };
-			coll.Add (ret);
+			var ret = new Task (Collection, this);
 			return ret;
 		}
 
-		public static Task Create (TaskCollection coll, Task masterTask)
+		/// <summary>
+		/// Marks this task as disposed, so it cannot have acces to <see cref="Collection"/>
+		/// </summary>
+		public void Dispose ()
+		{
+			IsDisposed = true;
+		}
+
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="Taskman.Task"/>.
+		/// </summary>
+		public override string ToString ()
+		{
+			return string.IsNullOrEmpty (Name) ? Id.ToString () : Name;
+		}
+
+		internal Task (TaskCollection collection)
+		{
+			if (collection == null)
+				throw new ArgumentNullException ("collection");
+			
+			_collection = collection;
+			_collection.Add (this);
+			CreationTime = DateTime.Now;
+			_subtasks = new HashSet<Task> (_collection.Comparer);
+			_id = Collection.GetUnusedId ();
+		}
+
+		internal Task (TaskCollection collection, Task masterTask)
 		{
 			if (masterTask == null)
 				throw new ArgumentNullException ("masterTask");
-			if (!coll.Contains (masterTask))
-				throw new InvalidOperationException ("TaskCollection does not contains master task.");
-			
-			var ret = new Task (coll.Comparer) { Id = coll.GetUnusedId () };
-			coll.Add (ret);
-			return ret;
-		}
+			if (collection == null)
+				throw new ArgumentNullException ("collection");
+			if (!collection.Contains (masterTask))
+				throw new InvalidOperationException ("Master task is not in the collection");
 
-		Task (IEqualityComparer<Task> comparer)
-		{
+			_collection = collection;
+			_collection.Add (this);
 			CreationTime = DateTime.Now;
-			Subtasks = new HashSet<Task> (comparer);
+			MasterTask = masterTask;
+			MasterTask._subtasks.Add (this);
+			_subtasks = new HashSet<Task> (_collection.Comparer);
+			_id = Collection.GetUnusedId ();
 		}
 	}
 }
