@@ -3,7 +3,6 @@ using System.Linq;
 using NUnit.Framework;
 using Taskman;
 using System;
-using System.Collections.ObjectModel;
 
 namespace Test.Core
 {
