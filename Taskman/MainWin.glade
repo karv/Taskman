@@ -13,45 +13,53 @@
   <object class="GtkActionGroup" id="actiongroup1">
     <child>
       <object class="GtkAction" id="actNewTask">
-        <property name="label" translatable="yes">New task</property>
-        <property name="short_label" translatable="yes">New</property>
+        <property name="label" translatable="yes">Nueva _tarea</property>
+        <property name="short_label" translatable="yes">_Nuevo</property>
+        <property name="tooltip" translatable="yes">Agrega una nueva tarea sin padre</property>
         <property name="stock_id">gtk-add</property>
       </object>
       <accelerator key="n" modifiers="GDK_CONTROL_MASK"/>
     </child>
     <child>
       <object class="GtkAction" id="actNewChild">
-        <property name="label" translatable="yes">New child</property>
-        <property name="short_label" translatable="yes">Child</property>
-        <property name="tooltip" translatable="yes">Add a new child task from the selected task</property>
+        <property name="label" translatable="yes">Nueva subtarea</property>
+        <property name="short_label" translatable="yes">_Hijo</property>
+        <property name="tooltip" translatable="yes">Agrega una tarea hija de la tarea seleccionada</property>
         <property name="stock_id">gtk-add</property>
       </object>
       <accelerator key="n" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
     </child>
     <child>
       <object class="GtkAction" id="actRemove">
-        <property name="label" translatable="yes">Remove</property>
-        <property name="short_label" translatable="yes">Remove</property>
+        <property name="label" translatable="yes">_Eliminar</property>
+        <property name="short_label" translatable="yes">Supr</property>
+        <property name="tooltip" translatable="yes">Elimina la tarea seleccionada</property>
         <property name="stock_id">gtk-delete</property>
       </object>
       <accelerator key="Delete" modifiers="GDK_CONTROL_MASK"/>
     </child>
     <child>
       <object class="GtkAction" id="actStart">
-        <property name="label" translatable="yes">Start</property>
+        <property name="label" translatable="yes">_Iniciar tarea</property>
+        <property name="short_label" translatable="yes">_Iniciar</property>
+        <property name="tooltip" translatable="yes">Marcar como activa la tarea seleccionada</property>
         <property name="stock_id">gtk-media-play</property>
       </object>
       <accelerator key="space"/>
     </child>
     <child>
       <object class="GtkAction" id="actStop">
-        <property name="label" translatable="yes">Stop</property>
-        <property name="stock_id">gtk-media-stop</property>
+        <property name="label" translatable="yes">Pausar tarea</property>
+        <property name="short_label" translatable="yes">_Pausar</property>
+        <property name="tooltip" translatable="yes">Marcar como inactiva la tarea seleccionada</property>
+        <property name="stock_id">gtk-media-pause</property>
       </object>
     </child>
     <child>
       <object class="GtkAction" id="actFinish">
-        <property name="label" translatable="yes">Finish</property>
+        <property name="label" translatable="yes">_Completar tarea</property>
+        <property name="short_label" translatable="yes">_Completar</property>
+        <property name="tooltip" translatable="yes">Marcar como completada la tarea seleccionada</property>
         <property name="stock_id">gtk-apply</property>
       </object>
     </child>
@@ -211,6 +219,8 @@
               <object class="GtkMenuItem" id="menu_tareas">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="label" translatable="yes">_Tareas</property>
+                <property name="use_underline">True</property>
                 <child type="submenu">
                   <object class="GtkMenu" id="menu4">
                     <property name="visible">True</property>
@@ -221,7 +231,6 @@
                         <property name="related_action">actNewTask</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">menuitem3</property>
                         <property name="use_underline">True</property>
                       </object>
                     </child>
@@ -231,16 +240,16 @@
                         <property name="related_action">actNewChild</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">menuitem3</property>
                         <property name="use_underline">True</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkMenuItem" id="menu_remove_task">
                         <property name="use_action_appearance">True</property>
-                        <property name="related_action"/>
+                        <property name="related_action">actRemove</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
                       </object>
                     </child>
                     <child>
@@ -255,7 +264,6 @@
                         <property name="related_action">actStart</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">menuitem3</property>
                         <property name="use_underline">True</property>
                       </object>
                     </child>
@@ -265,7 +273,6 @@
                         <property name="related_action">actStop</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">menuitem3</property>
                         <property name="use_underline">True</property>
                       </object>
                     </child>
@@ -275,7 +282,6 @@
                         <property name="related_action">actFinish</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">menuitem3</property>
                         <property name="use_underline">True</property>
                       </object>
                     </child>
@@ -314,6 +320,7 @@
             </child>
             <child>
               <object class="GtkToolButton" id="New child">
+                <property name="use_action_appearance">True</property>
                 <property name="related_action">actNewChild</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -409,6 +416,88 @@
             <property name="fill">True</property>
             <property name="position">2</property>
           </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkFileChooserDialog" id="saveFileDialog">
+    <property name="can_focus">False</property>
+    <property name="resizable">False</property>
+    <property name="modal">True</property>
+    <property name="type_hint">dialog</property>
+    <property name="urgency_hint">True</property>
+    <property name="action">save</property>
+    <property name="do_overwrite_confirmation">True</property>
+    <property name="filter">task_man_files</property>
+    <property name="preview_widget_active">False</property>
+    <property name="use_preview_label">False</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="filechooserdialog-vbox3">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="filechooserdialog-action_area3">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkFileFilter" id="task_man_files">
+    <mime-types>
+      <mime-type>*.tm</mime-type>
+    </mime-types>
+  </object>
+  <object class="GtkFileChooserDialog" id="openFileDialog">
+    <property name="can_focus">False</property>
+    <property name="resizable">False</property>
+    <property name="modal">True</property>
+    <property name="type_hint">dialog</property>
+    <property name="urgency_hint">True</property>
+    <property name="create_folders">False</property>
+    <property name="filter">task_man_files</property>
+    <property name="preview_widget_active">False</property>
+    <property name="use_preview_label">False</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="filechooserdialog-vbox1">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="filechooserdialog-action_area1">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
     </child>
