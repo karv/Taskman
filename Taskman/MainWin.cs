@@ -10,10 +10,11 @@ namespace Taskman.Gui
 
 		void initializeTaskList ()
 		{
-			Glade.XML gxml;
+			/*
 			TaskList.Model = Data;
 			NameColumn = new TreeViewColumn ("Nombre", new CellRendererText (), "text", 0);
 			TaskList.AppendColumn (NameColumn);
+			*/
 		}
 
 		void deleteTask (object sender, System.EventArgs e)
@@ -41,9 +42,6 @@ namespace Taskman.Gui
 		{
 			Collection = new TaskCollection ();
 			Data = new TreeStore (typeof(TaskEntry));
-			Build ();
-			deleteAction.Activated += deleteTask;
-			newAction.Activated += newFromRoot;
 
 			initializeTaskList ();
 		}
@@ -62,7 +60,6 @@ namespace Taskman.Gui
 		{
 			var entry = AddTask ();
 			System.Console.WriteLine (entry.Name);
-			TaskList.QueueDraw ();
 		}
 	}
 }
