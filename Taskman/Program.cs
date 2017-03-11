@@ -5,11 +5,11 @@ namespace Taskman.Gui
 {
 	public class MainClass
 	{
-		public class GtkObjects
+		public class GtkLoader
 		{
 			public readonly Window MainWindow;
 
-			public GtkObjects ()
+			public GtkLoader ()
 			{
 				var gxml = new XML ("MainWin.glade", "", "");
 				gxml.Autoconnect (this);
@@ -25,18 +25,16 @@ namespace Taskman.Gui
 		{
 			GLib.ExceptionManager.UnhandledException += Exception_aru;
 
-			var GtkController = new GtkObjects ();
-
+			var GtkController = new GtkLoader ();
 
 			Application.Init ();
-
 			GtkController.MainWindow.Show ();
-
 			Application.Run ();
 		}
 
 		static void Exception_aru (GLib.UnhandledExceptionArgs args)
 		{
+			args.ExitApplication = false;
 			System.Console.WriteLine (args);
 		}
 	}
