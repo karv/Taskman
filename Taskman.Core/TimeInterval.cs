@@ -72,6 +72,10 @@ namespace Taskman
 			StartTime = startTime;
 			Duration = duration;
 		}
-		
+
+		public TimeInterval (DateTime startTime, DateTime endTime)
+			: this (startTime, endTime - startTime)
+		{
+		}
 	}
 }
