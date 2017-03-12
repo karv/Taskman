@@ -76,9 +76,42 @@ namespace Taskman.Gui
 			NewTaskAction.Activated += newTask;
 			NewChildTask.Activated += newChild;
 			RemoveTask.Activated += removeTask;
+			StartTask.Activated += delegate
+			{
+				setTaskStatus (GetSelectedIter ().Value, TaskStatus.Active);
+			};
+
+			StopTask.Activated += delegate
+			{
+				setTaskStatus (GetSelectedIter ().Value, TaskStatus.Inactive);
+			};
+
+			FinishTask.Activated += delegate
+			{
+				setTaskStatus (GetSelectedIter ().Value, TaskStatus.Completed);
+			};
 
 			update (this, null);
 			TaskSelection.Changed += update;
+		}
+
+		void setTaskStatus (TreeIter iter, TaskStatus status)
+		{
+			getTask (iter).Status = status;
+			reloadIter (iter);
+		}
+
+		void reloadIter (TreeIter iter)
+		{
+			var task = getTask (iter);
+			TaskStore.SetValue (iter, (int)ColAssign.Name, task.Name);
+			TaskStore.SetValue (iter, (int)ColAssign.State, task.Status.ToString ());
+		}
+
+		Task getTask (TreeIter iter)
+		{
+			var id = (int)TaskStore.GetValue (iter, (int)ColAssign.Id);
+			return Tasks.GetById (id);
 		}
 
 		void removeTask (object sender, System.EventArgs e)
