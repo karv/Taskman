@@ -20,6 +20,27 @@ namespace Taskman
 			return intersetcsRight (other) || other.intersetcsRight (this);
 		}
 
+		public TimeInterval Merge (TimeInterval left, TimeInterval right)
+		{
+			if (!left.Intersects (right))
+				throw new InvalidOperationException ("Cannot merge disjoint intervals");
+
+			return new TimeInterval (
+				min (left.StartTime, right.StartTime),
+				max (left.EndTime, right.EndTime));
+		}
+
+		static DateTime max (DateTime a, DateTime b)
+		{
+			return a < b ? b : a;
+		}
+
+		static DateTime min (DateTime a, DateTime b)
+		{
+			return a < b ? a : b;
+		}
+
+
 		bool intersetcsRight (TimeInterval other)
 		{
 			return StartTime <= other.StartTime && other.StartTime <= StartTime + Duration;
