@@ -16,6 +16,16 @@ namespace Taskman.Gui
 			Gtk.Application.Run ();
 		}
 
+		public Task GetSelectedTask ()
+		{
+			TreeIter selIter;
+			if (TaskSelection.GetSelected (out selIter))
+			{
+				var id = (int)TaskStore.GetValue (selIter, 0);
+				return Tasks.GetById (id);
+			}
+			return null;
+		}
 
 		public void Initialize ()
 		{
@@ -26,6 +36,8 @@ namespace Taskman.Gui
 			MainWindow.Destroyed += MainWindow_Destroyed;
 			TaskStore = Builder.GetObject ("TaskStore") as TreeStore;
 			TaskList = (TreeView)Builder.GetObject ("TaskView");
+
+			TaskSelection = (TreeSelection)Builder.GetObject ("TaskSelection");
 
 			TaskStore = new TreeStore (GType.Int, GType.String);
 			TaskList.Model = TaskStore;
@@ -49,8 +61,24 @@ namespace Taskman.Gui
 			//new TreeViewColumn ("Nombre", new CellRendererText (), "text", 0);
 			//TaskList.AppendColumn (NameColumn);
 
-			var actNewTask = Builder.GetObject ("actNewTask") as Action;
-			actNewTask.Activated += newTask;
+			NewTaskAction = Builder.GetObject ("actNewTask") as Action;
+			NewChildTask = Builder.GetObject ("actNewChild") as Action;
+			RemoveTask = Builder.GetObject ("actRemove") as Action;
+			StartTask = Builder.GetObject ("actStart") as Action;
+			StopTask = Builder.GetObject ("actStop") as Action;
+			FinishTask = Builder.GetObject ("actFinish") as Action;
+
+			NewTaskAction.Activated += newTask;
+
+			update (this, null);
+			TaskSelection.Changed += update;
+		}
+
+		void update (object sender, System.EventArgs e)
+		{
+			var selTask = GetSelectedTask ();
+			foreach (var act in new [] {NewChildTask, RemoveTask, StartTask, StopTask, FinishTask})
+				act.Sensitive = selTask != null;
 		}
 
 		void MainWindow_Destroyed (object sender, System.EventArgs e)
@@ -61,7 +89,6 @@ namespace Taskman.Gui
 		void newTask (object sender, System.EventArgs e)
 		{
 			var task = Task.Create (Tasks);
-			System.Console.WriteLine (task);
 			task.Name = "Nueva tarea";
 			TaskStore.AppendValues (task.Id, task.Name);
 		}
@@ -71,6 +98,18 @@ namespace Taskman.Gui
 		public TreeViewColumn IdColumn;
 		public TreeStore TaskStore;
 		public TreeView TaskList;
+		public TreeSelection TaskSelection;
+
+		#region Actions
+
+		public Action NewTaskAction;
+		public Action NewChildTask;
+		public Action RemoveTask;
+		public Action StartTask;
+		public Action StopTask;
+		public Action FinishTask;
+
+		#endregion
 
 		public readonly Builder Builder;
 		Window MainWindow;
