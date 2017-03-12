@@ -27,7 +27,6 @@ namespace Taskman.Gui
 			TaskStore = Builder.GetObject ("TaskStore") as TreeStore;
 			TaskList = (TreeView)Builder.GetObject ("TaskView");
 
-			var r = GType.LookupType (GType.Int.Val);
 			TaskStore = new TreeStore (GType.Int, GType.String);
 			TaskList.Model = TaskStore;
 
@@ -42,8 +41,6 @@ namespace Taskman.Gui
 
 			IdColumn.AddAttribute (idCellRendererText, "text", 0);
 			NameColumn.AddAttribute (nameCellRendererText, "text", 1);
-
-			TaskStore.AppendValues ("oi", "ioi");
 
 
 			TaskList.AppendColumn (IdColumn);
@@ -66,9 +63,6 @@ namespace Taskman.Gui
 			var task = Task.Create (Tasks);
 			System.Console.WriteLine (task);
 			task.Name = "Nueva tarea";
-			GLib.GTypeAttribute a;
-			//var iter = TaskStore.AppendNode ();
-			//TaskStore.AppendValues (iter, task.Id, task.Name);
 			TaskStore.AppendValues (task.Id, task.Name);
 		}
 
