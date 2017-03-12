@@ -1,22 +1,17 @@
 ﻿using Gtk;
 using GLib;
-using Atk;
 
 namespace Taskman.Gui
 {
+	enum ColAssign
+	{
+		Id = 0,
+		Name = 1,
+		State = 2
+	}
+
 	public class MainClass
 	{
-		public static void Main ()
-		{
-			ExceptionManager.UnhandledException += Exception_aru;
-
-			Gtk.Application.Init ();
-			var app = new MainClass ();
-			app.Initialize ();
-			app.MainWindow.Show ();
-			Gtk.Application.Run ();
-		}
-
 		public Task GetSelectedTask ()
 		{
 			TreeIter selIter;
@@ -51,22 +46,25 @@ namespace Taskman.Gui
 
 			IdColumn = new TreeViewColumn { Title = "Id" };
 			NameColumn = new TreeViewColumn { Title = "Nombre" };
+			StateColumn = new TreeViewColumn { Title = "Estado" };
 
 			var idCellRendererText = new CellRendererText ();
 			var nameCellRendererText = new CellRendererText ();
+			var stateCellRendererText = new CellRendererText ();
+
+			nameCellRendererText.Editable = true;
+			nameCellRendererText.Edited += namechanged;
 
 			IdColumn.PackStart (idCellRendererText, true);
 			NameColumn.PackStart (nameCellRendererText, true);
+			StateColumn.PackStart (stateCellRendererText, true);
 
-			IdColumn.AddAttribute (idCellRendererText, "text", 0);
-			NameColumn.AddAttribute (nameCellRendererText, "text", 1);
-
+			IdColumn.AddAttribute (idCellRendererText, "text", (int)ColAssign.Id);
+			NameColumn.AddAttribute (nameCellRendererText, "text", (int)ColAssign.Name);
+			StateColumn.AddAttribute (stateCellRendererText, "text", (int)ColAssign.State);
 
 			TaskList.AppendColumn (IdColumn);
 			TaskList.AppendColumn (NameColumn);
-			//IdColumn = (TreeViewColumn)Builder.GetObject ("IdColumn");
-			//new TreeViewColumn ("Nombre", new CellRendererText (), "text", 0);
-			//TaskList.AppendColumn (NameColumn);
 
 			NewTaskAction = Builder.GetObject ("actNewTask") as Action;
 			NewChildTask = Builder.GetObject ("actNewChild") as Action;
@@ -91,11 +89,23 @@ namespace Taskman.Gui
 			TaskStore.Remove (ref iter);
 		}
 
+		void namechanged (object o, EditedArgs args)
+		{
+			TreeIter iter;
+			TaskStore.GetIterFromString (out iter, args.Path);
+			var id = (int)TaskStore.GetValue (iter, (int)ColAssign.Id);
+			var task = Tasks.GetById (id);
+			task.Name = args.NewText;
+			System.Diagnostics.Debug.WriteLine (string.Format ("renamed task to {0}", task.Name));
+			TaskStore.SetValue (iter, (int)ColAssign.Name, task.Name);
+		}
+
 		void update (object sender, System.EventArgs e)
 		{
 			var selTask = GetSelectedTask ();
 			foreach (var act in new [] {NewChildTask, RemoveTask, StartTask, StopTask, FinishTask})
 				act.Sensitive = selTask != null;
+
 		}
 
 		void MainWindow_Destroyed (object sender, System.EventArgs e)
@@ -115,14 +125,16 @@ namespace Taskman.Gui
 			var iter = GetSelectedIter ();
 			if (!iter.HasValue)
 				throw new System.NullReferenceException ();
-			var task = Task.Create (Tasks, (int)TaskStore.GetValue (iter.Value, 0));
+			var task = Task.Create (Tasks, (int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
 			task.Name = "Nueva tarea";
 			TaskStore.AppendValues (iter.Value, task.Id, task.Name);
 		}
 
 		public readonly TaskCollection Tasks;
+
 		public TreeViewColumn NameColumn;
 		public TreeViewColumn IdColumn;
+		public TreeViewColumn StateColumn;
 		public TreeStore TaskStore;
 		public TreeView TaskList;
 		public TreeSelection TaskSelection;
@@ -147,11 +159,32 @@ namespace Taskman.Gui
 			Tasks = new TaskCollection ();
 		}
 
+		public static readonly CellRenderer NameRenderer;
+
+		static MainClass ()
+		{
+			NameRenderer = new CellRendererText ();
+			NameRenderer = new CellRendererText
+			{
+				Style = Pango.Style.Normal
+			};
+		}
+
+		public static void Main ()
+		{
+			ExceptionManager.UnhandledException += Exception_aru;
+
+			Gtk.Application.Init ();
+			var app = new MainClass ();
+			app.Initialize ();
+			app.MainWindow.Show ();
+			Gtk.Application.Run ();
+		}
+
+
 		static void Exception_aru (UnhandledExceptionArgs args)
 		{
-			//args.ExitApplication = false;
-			System.Console.WriteLine (args);
+			throw new System.Exception (args.ToString ());
 		}
 	}
-
 }
