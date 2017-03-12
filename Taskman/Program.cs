@@ -64,6 +64,7 @@ namespace Taskman.Gui
 			StateColumn.AddAttribute (stateCellRendererText, "text", (int)ColAssign.State);
 
 			TaskList.AppendColumn (IdColumn);
+			TaskList.AppendColumn (StateColumn);
 			TaskList.AppendColumn (NameColumn);
 
 			NewTaskAction = Builder.GetObject ("actNewTask") as Action;
@@ -135,13 +136,13 @@ namespace Taskman.Gui
 			{
 				task = Task.Create (Tasks);
 				task.Name = "Nueva tarea";
-				return TaskStore.AppendValues (task.Id, task.Name);
+				return TaskStore.AppendValues (task.Id, task.Name, task.Status.ToString ());
 			}
 			else
 			{
 				task = Task.Create (Tasks, (int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
 				task.Name = task.MasterTask.Name + ".Nueva tarea";
-				return TaskStore.AppendValues (iter.Value, task.Id, task.Name);
+				return TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
 			}
 		}
 
