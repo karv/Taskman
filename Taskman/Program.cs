@@ -31,7 +31,6 @@ namespace Taskman.Gui
 
 		public void Initialize ()
 		{
-			GType.Register (GType.Int, typeof (int));
 			Builder.AddFromFile ("MainWin.glade");
 
 			MainWindow = Builder.GetObject ("MainWindow") as Window;
@@ -41,7 +40,7 @@ namespace Taskman.Gui
 
 			TaskSelection = (TreeSelection)Builder.GetObject ("TaskSelection");
 
-			TaskStore = new TreeStore (GType.Int, GType.String);
+			TaskStore = new TreeStore (GType.Int, GType.String, GType.String);
 			TaskList.Model = TaskStore;
 
 			IdColumn = new TreeViewColumn { Title = "Id" };
@@ -173,17 +172,6 @@ namespace Taskman.Gui
 		{
 			Builder = new Builder ();
 			Tasks = new TaskCollection ();
-		}
-
-		public static readonly CellRenderer NameRenderer;
-
-		static MainClass ()
-		{
-			NameRenderer = new CellRendererText ();
-			NameRenderer = new CellRendererText
-			{
-				Style = Pango.Style.Normal
-			};
 		}
 
 		public static void Main ()
