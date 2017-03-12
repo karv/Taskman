@@ -1,5 +1,6 @@
 ﻿using Gtk;
 using GLib;
+using Atk;
 
 namespace Taskman.Gui
 {
@@ -25,6 +26,12 @@ namespace Taskman.Gui
 				return Tasks.GetById (id);
 			}
 			return null;
+		}
+
+		public TreeIter? GetSelectedIter ()
+		{
+			TreeIter selIter;
+			return TaskSelection.GetSelected (out selIter) ? new TreeIter? (selIter) : null;
 		}
 
 		public void Initialize ()
@@ -69,9 +76,19 @@ namespace Taskman.Gui
 			FinishTask = Builder.GetObject ("actFinish") as Action;
 
 			NewTaskAction.Activated += newTask;
+			NewChildTask.Activated += newChild;
+			RemoveTask.Activated += removeTask;
 
 			update (this, null);
 			TaskSelection.Changed += update;
+		}
+
+		void removeTask (object sender, System.EventArgs e)
+		{
+			var task = GetSelectedTask ();
+			var iter = GetSelectedIter ().Value;
+			Tasks.Remove (task);
+			TaskStore.Remove (ref iter);
 		}
 
 		void update (object sender, System.EventArgs e)
@@ -91,6 +108,16 @@ namespace Taskman.Gui
 			var task = Task.Create (Tasks);
 			task.Name = "Nueva tarea";
 			TaskStore.AppendValues (task.Id, task.Name);
+		}
+
+		void newChild (object sender, System.EventArgs e)
+		{
+			var iter = GetSelectedIter ();
+			if (!iter.HasValue)
+				throw new System.NullReferenceException ();
+			var task = Task.Create (Tasks, (int)TaskStore.GetValue (iter.Value, 0));
+			task.Name = "Nueva tarea";
+			TaskStore.AppendValues (iter.Value, task.Id, task.Name);
 		}
 
 		public readonly TaskCollection Tasks;

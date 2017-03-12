@@ -47,6 +47,16 @@ namespace Taskman
 			return ret;
 		}
 
+		// TEST
+		public static Task Create (TaskCollection coll, int parentId)
+		{
+			var parent = coll.GetById (parentId);
+			if (parent == null)
+				throw new InvalidOperationException ("Id " + parentId + " not found.");
+
+			return Create (coll, parent);
+		}
+
 
 		public override string ToString ()
 		{
