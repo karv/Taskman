@@ -47,6 +47,12 @@ namespace Taskman
 			return ret;
 		}
 
+
+		public override string ToString ()
+		{
+			return string.Format ("{0} - {1}", Id, Name);
+		}
+
 		Task (IEqualityComparer<Task> comparer)
 		{
 			CreationTime = DateTime.Now;
