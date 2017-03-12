@@ -3,6 +3,9 @@
 <interface>
   <requires lib="gtk+" version="3.12"/>
   <object class="GtkTreeStore" id="TaskStore"/>
+  <object class="GtkTreeModelFilter" id="TreeFilter">
+    <property name="child_model">TaskStore</property>
+  </object>
   <object class="GtkActionGroup" id="actiongroup1">
     <child>
       <object class="GtkAction" id="actNewTask">
@@ -54,6 +57,22 @@
         <property name="short_label" translatable="yes">_Completar</property>
         <property name="tooltip" translatable="yes">Marcar como completada la tarea seleccionada</property>
         <property name="stock_id">gtk-apply</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actFilterAll">
+        <property name="label" translatable="yes">_No filtrar</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actFilterActive">
+        <property name="label" translatable="yes">Filtrar _Activos</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actFilterUnfinished">
+        <property name="label" translatable="yes">Filtrar _incompletos</property>
+        <property name="short_label" translatable="yes">Incompletos</property>
       </object>
     </child>
   </object>
@@ -186,29 +205,6 @@
               </object>
             </child>
             <child>
-              <object class="GtkMenuItem" id="menuitem4">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Ay_uda</property>
-                <property name="use_underline">True</property>
-                <child type="submenu">
-                  <object class="GtkMenu" id="menu3">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem10">
-                        <property name="label">gtk-about</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
               <object class="GtkMenuItem" id="menu_tareas">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -276,6 +272,74 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="menuFilter">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">_Filtros</property>
+                <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menu5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkRadioMenuItem" id="menuApplyFilterAll">
+                        <property name="use_action_appearance">True</property>
+                        <property name="related_action">actFilterAll</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="active">True</property>
+                        <property name="draw_as_radio">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkRadioMenuItem" id="menuApplyFilterActive">
+                        <property name="use_action_appearance">True</property>
+                        <property name="related_action">actFilterActive</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="draw_as_radio">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkRadioMenuItem" id="menuApplyFilterUnfinished">
+                        <property name="use_action_appearance">True</property>
+                        <property name="related_action">actFilterUnfinished</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="draw_as_radio">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="menuitem4">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Ay_uda</property>
+                <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menu3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkImageMenuItem" id="imagemenuitem10">
+                        <property name="label">gtk-about</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
                       </object>
                     </child>
                   </object>

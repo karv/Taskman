@@ -73,6 +73,28 @@ namespace Taskman.Gui
 			StopTask = Builder.GetObject ("actStop") as Action;
 			FinishTask = Builder.GetObject ("actFinish") as Action;
 
+			OnlyActiveFilter = (model, iter) => getTask (iter).Status == TaskStatus.Active;
+			UnfinishedFilter = (model, iter) => getTask (iter).Status != TaskStatus.Completed;
+
+			((Action)Builder.GetObject ("actFilterAll")).Activated += delegate
+			{
+				TaskList.Model = new TreeModelFilter (TaskStore, null);
+			};
+			((Action)Builder.GetObject ("actFilterActive")).Activated += delegate
+			{
+				TaskList.Model = new TreeModelFilter (TaskStore, null)
+				{
+					VisibleFunc = OnlyActiveFilter
+				};
+			};
+			((Action)Builder.GetObject ("actFilterUnfinished")).Activated += delegate
+			{
+				TaskList.Model = new TreeModelFilter (TaskStore, null)
+				{
+					VisibleFunc = UnfinishedFilter
+				};
+			};
+
 			NewTaskAction.Activated += newTask;
 			NewChildTask.Activated += newChild;
 			RemoveTask.Activated += removeTask;
@@ -198,6 +220,13 @@ namespace Taskman.Gui
 
 		#endregion
 
+		#region TaskFilter
+
+		public TreeModelFilterVisibleFunc OnlyActiveFilter;
+		public TreeModelFilterVisibleFunc UnfinishedFilter;
+
+		#endregion
+
 		public readonly Builder Builder;
 		Window MainWindow;
 
@@ -221,7 +250,7 @@ namespace Taskman.Gui
 
 		static void Exception_aru (UnhandledExceptionArgs args)
 		{
-			throw new System.Exception (args.ToString ());
+			//throw new System.Exception (args.ToString ());
 		}
 	}
 }
