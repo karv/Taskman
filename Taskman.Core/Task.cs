@@ -42,7 +42,8 @@ namespace Taskman
 			if (!coll.Contains (masterTask))
 				throw new InvalidOperationException ("TaskCollection does not contains master task.");
 			
-			var ret = new Task (coll.Comparer) { Id = coll.GetUnusedId () };
+			var ret = new Task (coll.Comparer) { Id = coll.GetUnusedId (), MasterTask = masterTask };
+			masterTask.Subtasks.Add (ret);
 			coll.Add (ret);
 			return ret;
 		}

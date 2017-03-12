@@ -53,7 +53,7 @@ namespace Taskman.Gui
 			var stateCellRendererText = new CellRendererText ();
 
 			nameCellRendererText.Editable = true;
-			nameCellRendererText.Edited += namechanged;
+			nameCellRendererText.Edited += nameChanged;
 
 			IdColumn.PackStart (idCellRendererText, true);
 			NameColumn.PackStart (nameCellRendererText, true);
@@ -89,7 +89,7 @@ namespace Taskman.Gui
 			TaskStore.Remove (ref iter);
 		}
 
-		void namechanged (object o, EditedArgs args)
+		void nameChanged (object o, EditedArgs args)
 		{
 			TreeIter iter;
 			TaskStore.GetIterFromString (out iter, args.Path);
@@ -105,7 +105,6 @@ namespace Taskman.Gui
 			var selTask = GetSelectedTask ();
 			foreach (var act in new [] {NewChildTask, RemoveTask, StartTask, StopTask, FinishTask})
 				act.Sensitive = selTask != null;
-
 		}
 
 		void MainWindow_Destroyed (object sender, System.EventArgs e)
@@ -115,19 +114,35 @@ namespace Taskman.Gui
 
 		void newTask (object sender, System.EventArgs e)
 		{
-			var task = Task.Create (Tasks);
-			task.Name = "Nueva tarea";
-			TaskStore.AppendValues (task.Id, task.Name);
+			var iter = addTask (null);
+			var path = TaskStore.GetPath (iter);
+			TaskList.ExpandToPath (path);
+			TaskSelection.SelectIter (iter);
 		}
 
 		void newChild (object sender, System.EventArgs e)
 		{
-			var iter = GetSelectedIter ();
-			if (!iter.HasValue)
-				throw new System.NullReferenceException ();
-			var task = Task.Create (Tasks, (int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
-			task.Name = "Nueva tarea";
-			TaskStore.AppendValues (iter.Value, task.Id, task.Name);
+			var iter = addTask (GetSelectedIter ());
+			var path = TaskStore.GetPath (iter);
+			TaskList.ExpandToPath (path);
+			TaskSelection.SelectIter (iter);
+		}
+
+		TreeIter addTask (TreeIter? iter)
+		{
+			Task task;
+			if (iter == null)
+			{
+				task = Task.Create (Tasks);
+				task.Name = "Nueva tarea";
+				return TaskStore.AppendValues (task.Id, task.Name);
+			}
+			else
+			{
+				task = Task.Create (Tasks, (int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
+				task.Name = task.MasterTask.Name + ".Nueva tarea";
+				return TaskStore.AppendValues (iter.Value, task.Id, task.Name);
+			}
 		}
 
 		public readonly TaskCollection Tasks;
