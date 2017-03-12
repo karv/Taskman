@@ -1,40 +1,35 @@
-﻿using Glade;
-using Gtk;
+﻿using Gtk;
 
 namespace Taskman.Gui
 {
 	public class MainClass
 	{
-		public class GtkLoader
-		{
-			public readonly Window MainWindow;
-
-			public GtkLoader ()
-			{
-				var gxml = new XML ("MainWin.glade", "", "");
-				gxml.Autoconnect (this);
-
-				var winfo = new WidgetInfo ();
-				//var w2 = gxml.BuildWidget (winfo);
-				var w = gxml.GetWidget ("MainWindow");
-				MainWindow = w as Window;
-			}
-		}
-
 		public static void Main ()
 		{
 			GLib.ExceptionManager.UnhandledException += Exception_aru;
 
-			var GtkController = new GtkLoader ();
-
 			Application.Init ();
-			GtkController.MainWindow.Show ();
+			var app = new MainClass ();
+			app.Initialize ();
+			app.MainWindow.Show ();
 			Application.Run ();
 		}
 
+		public void Initialize ()
+		{
+			var builder = new Builder ();
+			builder.AddFromFile ("MainWin.glade");
+
+			MainWindow = builder.GetObject ("MainWindow") as Window;
+			//var gxml = new Glade.XML ("MainWin.glade", "", "");
+			//gxml.Autoconnect (this);
+		}
+
+		Window MainWindow;
+
 		static void Exception_aru (GLib.UnhandledExceptionArgs args)
 		{
-			args.ExitApplication = false;
+			//args.ExitApplication = false;
 			System.Console.WriteLine (args);
 		}
 	}
