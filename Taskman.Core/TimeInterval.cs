@@ -36,10 +36,18 @@ namespace Taskman
 		}
 
 		/// <summary>
+		/// Returns a new interval representing the union of this and other <see cref="TimeInterval"/>
+		/// </summary>
+		public TimeInterval Merge (TimeInterval other)
+		{
+			return Merge (this, other);
+		}
+
+		/// <summary>
 		/// Returns a new interval representing the union of other two
 		/// </summary>
 		/// <exception cref="InvalidOperationException">Throws when the intervals do not intersect</exception>
-		public TimeInterval Merge (TimeInterval left, TimeInterval right)
+		public static TimeInterval Merge (TimeInterval left, TimeInterval right)
 		{
 			if (!left.Intersects (right))
 				throw new InvalidOperationException ("Cannot merge disjoint intervals");
