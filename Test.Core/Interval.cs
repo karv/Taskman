@@ -56,5 +56,17 @@ namespace Test.Core
 				inter2.Merge (inter3);
 			});
 		}
+
+		[Test]
+		public void Equality ()
+		{
+			var t0 = DateTime.Now;
+
+			var interval = new TimeInterval (t0, TimeSpan.FromSeconds (1));
+			var clone = new TimeInterval (t0, TimeSpan.FromSeconds (1));
+			Assert.AreEqual (interval, clone);
+
+			Assert.True (interval == clone);
+		}
 	}
 }
