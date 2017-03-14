@@ -1,4 +1,4 @@
-﻿using Gtk;
+using Gtk;
 using GLib;
 
 namespace Taskman.Gui
@@ -188,13 +188,15 @@ namespace Taskman.Gui
 			Task task;
 			if (iter == null)
 			{
-				task = Task.Create (Tasks);
+				task = Tasks.AddNew ();
 				task.Name = "Nueva tarea";
 				return TaskStore.AppendValues (task.Id, task.Name, task.Status.ToString ());
 			}
 			else
 			{
-				task = Task.Create (Tasks, (int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
+				var master = Tasks.GetById ((int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
+				task = master.CreateSubtask ();
+
 				task.Name = task.MasterTask.Name + ".Nueva tarea";
 				return TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
 			}

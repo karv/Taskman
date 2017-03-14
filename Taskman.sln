@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taskman", "Taskman\Taskman.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taskman.Core", "Taskman.Core\Taskman.Core.csproj", "{3A26DED5-483B-4FBB-9743-F9365FCF9FD8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Core", "Test.Core\Test.Core.csproj", "{D73DAF67-8844-4F67-8A7D-1837201ED537}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -19,6 +21,10 @@ Global
 		{A3C44A1A-5A01-4B5D-B1C4-884E2F9DD01C}.Debug|x86.Build.0 = Debug|x86
 		{A3C44A1A-5A01-4B5D-B1C4-884E2F9DD01C}.Release|x86.ActiveCfg = Release|x86
 		{A3C44A1A-5A01-4B5D-B1C4-884E2F9DD01C}.Release|x86.Build.0 = Release|x86
+		{D73DAF67-8844-4F67-8A7D-1837201ED537}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D73DAF67-8844-4F67-8A7D-1837201ED537}.Debug|x86.Build.0 = Debug|Any CPU
+		{D73DAF67-8844-4F67-8A7D-1837201ED537}.Release|x86.ActiveCfg = Release|Any CPU
+		{D73DAF67-8844-4F67-8A7D-1837201ED537}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
