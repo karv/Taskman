@@ -36,6 +36,9 @@ namespace Taskman
 			return intersetcsRight (other) || other.intersetcsRight (this);
 		}
 
+		/// <summary>
+		/// Determines wheter a <see cref="DateTime"/> is in this interval.
+		/// </summary>
 		public bool Contains (DateTime time)
 		{
 			return StartTime <= time && time <= EndTime;
@@ -78,6 +81,10 @@ namespace Taskman
 			return StartTime <= other.StartTime && other.StartTime <= StartTime + Duration;
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether this instance is empty.
+		/// </summary>
+		/// <value><c>true</c> if this instance is empty; otherwise, <c>false</c>.</value>
 		public bool IsEmpty { get { return Duration == TimeSpan.Zero; } }
 
 		#region IEquatable implementation
@@ -165,6 +172,9 @@ namespace Taskman
 		{
 		}
 
+		/// <summary>
+		/// The empty value
+		/// </summary>
 		public static readonly TimeInterval Empty;
 
 		static TimeInterval ()

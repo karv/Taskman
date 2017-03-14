@@ -33,6 +33,9 @@ namespace Taskman
 			}
 		}
 
+		/// <summary>
+		/// Adds a <see cref="TimeInterval"/>
+		/// </summary>
 		public void Add (TimeInterval interval)
 		{
 			var I = segments.Where (interval.Intersects);
@@ -47,28 +50,53 @@ namespace Taskman
 			checkForEmpty ();
 		}
 
+		/// <summary>
+		/// Gets an array containing the convex component.
+		/// </summary>
 		public TimeInterval[] GetComponents ()
 		{
 			return segments.ToArray ();
 		}
 
+		/// <summary>
+		/// Gets the convex hull
+		/// </summary>
+		/// <returns>The hull.</returns>
 		public TimeInterval ConvexHull ()
 		{
 			return new TimeInterval (Min (), Max ());
 		}
 
+		/// <summary>
+		/// Gets the min
+		/// </summary>
 		public DateTime Min ()
 		{
 			return segments.Min (z => z.StartTime);
 		}
 
+		/// <summary>
+		/// Get the max.
+		/// </summary>
 		public DateTime Max ()
 		{
 			return segments.Max (z => z.EndTime);
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether this instance is empty.
+		/// </summary>
+		/// <value><c>true</c> if this instance is empty; otherwise, <c>false</c>.</value>
 		public bool IsEmpty
 		{ get { return !segments.Any (); } }
+
+		/// <summary>
+		/// Determines whether a <see cref="DateTime"/> is included in this class
+		/// </summary>
+		public bool Contains (DateTime t)
+		{
+			return segments.Any (z => z.Contains (t));
+		}
 
 		/// <summary>
 		/// </summary>
@@ -77,7 +105,10 @@ namespace Taskman
 			segments = new List<TimeInterval> ();
 		}
 
-		public static readonly TimeInterval Empty;
+		/// <summary>
+		/// The empty value
+		/// </summary>
+		public static readonly SegmentedTimeSpan Empty;
 
 		/// <param name="interval">A time interval E</param>
 		public static implicit operator SegmentedTimeSpan (TimeInterval interval)
@@ -86,6 +117,11 @@ namespace Taskman
 			if (!interval.IsEmpty)
 				ret.segments.Add (interval);
 			return ret;
+		}
+
+		static SegmentedTimeSpan ()
+		{
+			Empty = new SegmentedTimeSpan ();
 		}
 	}
 }
