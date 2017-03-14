@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 
 namespace Taskman
 {
@@ -63,7 +64,7 @@ namespace Taskman
 		{
 			get
 			{
-				if (Status == TaskStatus.Completed)
+				if (status == TaskStatus.Completed)
 					return ActivityTime.Max ();
 
 				throw new Exception ("Cannot get the finished time from an unfinished task.");
@@ -74,7 +75,28 @@ namespace Taskman
 		/// <summary>
 		/// The status if this task
 		/// </summary>
-		public TaskStatus Status;
+		public TaskStatus status;
+
+		public TaskStatus Status
+		{
+			get
+			{
+				return status;
+			}
+			set
+			{
+				SetStatus (value);
+			}
+		}
+
+		public void SetStatus (TaskStatus newStatus)
+		{
+			// THINK
+			if (Status == newStatus)
+				return;
+
+
+		}
 
 		/// <summary>
 		/// Gets a value indicating whether this instance is disposed.
