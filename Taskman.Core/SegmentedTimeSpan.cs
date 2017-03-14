@@ -39,7 +39,7 @@ namespace Taskman
 		public void Add (TimeInterval interval)
 		{
 			var I = segments.Where (interval.Intersects);
-			var newInt = TimeInterval.Empty;
+			var newInt = interval;
 			foreach (var intr in I)
 				newInt = newInt.Merge (intr);
 			segments.RemoveAll (I.Contains);
