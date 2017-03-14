@@ -37,14 +37,38 @@ namespace Taskman
 		/// The creation time
 		/// </summary>
 		public DateTime CreationTime;
+
+		/// <summary>
+		/// The time of this task as active
+		/// </summary>
+		public SegmentedTimeSpan ActivityTime;
+
+		/// <summary>
+		/// Gets a <see cref="TimeSpan"/> representing the tile this task being active.
+		/// </summary>
+		public TimeSpan TotalActivityTime
+		{
+			get{ return ActivityTime.Duration; }
+		}
+
 		/// <summary>
 		/// The begin time
 		/// </summary>
-		public DateTime BeginTime;
+		public DateTime BeginTime { get { return ActivityTime.Min (); } }
+
 		/// <summary>
 		/// The termination time
 		/// </summary>
-		public DateTime TerminationTime;
+		public DateTime TerminationTime
+		{
+			get
+			{
+				if (Status == TaskStatus.Completed)
+					return ActivityTime.Max ();
+
+				throw new Exception ("Cannot get the finished time from an unfinished task.");
+			}
+		}
 
 		readonly HashSet<Task> _subtasks;
 		/// <summary>
