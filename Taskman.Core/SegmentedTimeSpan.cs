@@ -59,6 +59,20 @@ namespace Taskman
 		}
 
 		/// <summary>
+		/// Gets the total duration
+		/// </summary>
+		public TimeSpan Duration
+		{
+			get
+			{
+				var ret = TimeSpan.Zero;
+				foreach (var s in segments)
+					ret += s.Duration;
+				return ret;
+			}
+		}
+
+		/// <summary>
 		/// Gets the convex hull
 		/// </summary>
 		/// <returns>The hull.</returns>
