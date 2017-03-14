@@ -1,4 +1,5 @@
 using System;
+using Taskman;
 
 namespace Taskman
 {
@@ -33,6 +34,11 @@ namespace Taskman
 		public bool Intersects (TimeInterval other)
 		{
 			return intersetcsRight (other) || other.intersetcsRight (this);
+		}
+
+		public bool Contains (DateTime time)
+		{
+			return StartTime <= time && time <= EndTime;
 		}
 
 		/// <summary>
@@ -72,6 +78,8 @@ namespace Taskman
 			return StartTime <= other.StartTime && other.StartTime <= StartTime + Duration;
 		}
 
+		public bool IsEmpty { get { return Duration == TimeSpan.Zero; } }
+
 		#region IEquatable implementation
 
 		/// <summary>
@@ -80,6 +88,8 @@ namespace Taskman
 		/// </summary>
 		public bool Equals (TimeInterval other)
 		{
+			if (Duration == TimeSpan.Zero)
+				return other.Duration == TimeSpan.Zero;
 			return StartTime == other.StartTime && Duration == other.Duration;
 		}
 
@@ -102,6 +112,8 @@ namespace Taskman
 		/// </summary>
 		public override int GetHashCode ()
 		{
+			if (Duration == TimeSpan.Zero)
+				return 0;
 			return StartTime.GetHashCode () ^ Duration.GetHashCode ();
 		}
 
@@ -138,7 +150,7 @@ namespace Taskman
 		{
 			if (duration < TimeSpan.Zero)
 				throw new InvalidOperationException ("Duration cannot be negative.");
-			
+
 			StartTime = startTime;
 			Duration = duration;
 		}
@@ -151,6 +163,13 @@ namespace Taskman
 		public TimeInterval (DateTime startTime, DateTime endTime)
 			: this (startTime, endTime - startTime)
 		{
+		}
+
+		public static readonly TimeInterval Empty;
+
+		static TimeInterval ()
+		{
+			Empty = new TimeInterval (DateTime.MinValue, TimeSpan.Zero);
 		}
 	}
 }

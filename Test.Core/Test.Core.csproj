@@ -36,6 +36,7 @@
   <ItemGroup>
     <Compile Include="CollectionTests.cs" />
     <Compile Include="Interval.cs" />
+    <Compile Include="Segmented.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

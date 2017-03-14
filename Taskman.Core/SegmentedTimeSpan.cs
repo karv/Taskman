@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Taskman
 {
@@ -23,6 +24,52 @@ namespace Taskman
 						throw new Exception ();
 		}
 
+		void checkForEmpty ()
+		{
+			foreach (var s in segments)
+			{
+				if (s.IsEmpty)
+					throw new Exception ();
+			}
+		}
+
+		public void Add (TimeInterval interval)
+		{
+			var I = segments.Where (interval.Intersects);
+			var newInt = TimeInterval.Empty;
+			foreach (var intr in I)
+				newInt = newInt.Merge (intr);
+			segments.RemoveAll (I.Contains);
+			if (!newInt.IsEmpty)
+				segments.Add (newInt);
+
+			checkOverlaps ();
+			checkForEmpty ();
+		}
+
+		public TimeInterval[] GetComponents ()
+		{
+			return segments.ToArray ();
+		}
+
+		public TimeInterval ConvexHull ()
+		{
+			return new TimeInterval (Min (), Max ());
+		}
+
+		public DateTime Min ()
+		{
+			return segments.Min (z => z.StartTime);
+		}
+
+		public DateTime Max ()
+		{
+			return segments.Max (z => z.EndTime);
+		}
+
+		public bool IsEmpty
+		{ get { return !segments.Any (); } }
+
 		/// <summary>
 		/// </summary>
 		public SegmentedTimeSpan ()
@@ -30,11 +77,14 @@ namespace Taskman
 			segments = new List<TimeInterval> ();
 		}
 
+		public static readonly TimeInterval Empty;
+
 		/// <param name="interval">A time interval E</param>
 		public static implicit operator SegmentedTimeSpan (TimeInterval interval)
 		{
 			var ret = new SegmentedTimeSpan ();
-			ret.segments.Add (interval);
+			if (!interval.IsEmpty)
+				ret.segments.Add (interval);
 			return ret;
 		}
 	}
