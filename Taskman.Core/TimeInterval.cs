@@ -137,7 +137,7 @@ namespace Taskman
 		public TimeInterval (DateTime startTime, TimeSpan duration)
 		{
 			if (duration < TimeSpan.Zero)
-				throw new InvalidOperationException ("duration cannot be negative.");
+				throw new InvalidOperationException ("Duration cannot be negative.");
 			
 			StartTime = startTime;
 			Duration = duration;
