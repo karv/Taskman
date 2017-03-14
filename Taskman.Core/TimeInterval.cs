@@ -113,7 +113,7 @@ namespace Taskman
 		}
 
 		/// <param name="left">Left.</param>
-		/// <param name="right">Right.</param>
+		/// <param name="right">Right.</param>0
 		public static bool operator != (TimeInterval left, TimeInterval right)
 		{
 			return !left.Equals (right);
