@@ -1,6 +1,7 @@
 using Gtk;
 using GLib;
 using System.Diagnostics;
+using System.IO;
 
 namespace Taskman.Gui
 {
@@ -77,6 +78,7 @@ namespace Taskman.Gui
 			FinishTask = Builder.GetObject ("actFinish") as Action;
 
 			((Action)Builder.GetObject ("actSave")).Activated += save;
+			((Action)Builder.GetObject ("actSaveAs")).Activated += saveAs;
 			((Action)Builder.GetObject ("actLoad")).Activated += load;
 
 			OnlyActiveFilter = (model, iter) => getTask (iter).Status == TaskStatus.Active;
@@ -130,15 +132,14 @@ namespace Taskman.Gui
 			fileChooser.AddButton ("_Cancelar", ResponseType.Cancel);
 			fileChooser.DefaultResponse = ResponseType.Ok;
 			var resp = (ResponseType)fileChooser.Run ();
-			// i = -5 : Ok
-			// i = -4 : esc
-			// i = -6 : cancel button
+
 			if (resp == ResponseType.Ok)
 			{
 				try
 				{
 					Tasks = TaskCollection.Load (fileChooser.Filename);
 					rebuildStore ();
+					CurrentFile = fileChooser.Filename;
 					StatusBar.Push (0, "Archivo cargado");
 				}
 				catch (System.Exception ex)
@@ -166,18 +167,53 @@ namespace Taskman.Gui
 				addHerTaskToStore (child, iter);
 		}
 
-		void save (object sender, System.EventArgs e)
+		void saveAs (object sender, System.EventArgs e)
+		{
+			var fileChooser = new  FileChooserDialog ("Guardar...", null, FileChooserAction.Save);
+			fileChooser.AddButton ("_Guardar", ResponseType.Ok);
+			fileChooser.AddButton ("_Cancelar", ResponseType.Cancel);
+			fileChooser.DefaultResponse = ResponseType.Ok;
+			fileChooser.DoOverwriteConfirmation = true;
+			var resp = (ResponseType)fileChooser.Run ();
+
+			if (resp == ResponseType.Ok)
+			{
+				try
+				{
+					CurrentFile = fileChooser.Filename;
+					Tasks.Save (CurrentFile);
+					StatusBar.Push (0, "Guardado");
+				}
+				catch (System.Exception ex)
+				{
+					StatusBar.Push (0, "Error guardando archivo");
+					Debug.WriteLine (ex);
+				}
+			}
+			fileChooser.Destroy ();
+
+		}
+
+		void saveOn (string fileName)
 		{
 			try
 			{
-				Tasks.Save ("tasks");
+				Tasks.Save (fileName);
 				StatusBar.Push (0, "Guardado");
 			}
 			catch (System.Exception ex)
 			{
-				StatusBar.Push (0, "Algo salió mal al guardar archivo");
+				StatusBar.Push (0, "Algo salió mal al guardar");
 				Debug.WriteLine (ex);
 			}
+		}
+
+		void save (object sender, System.EventArgs e)
+		{
+			if (string.IsNullOrEmpty (CurrentFile))
+				saveAs (sender, e);
+			else
+				saveOn (CurrentFile);
 		}
 
 		void setTaskStatus (TreeIter iter, TaskStatus status)
@@ -306,6 +342,7 @@ namespace Taskman.Gui
 
 		#endregion
 
+		public string CurrentFile;
 		public readonly Builder Builder;
 		Window MainWindow;
 
