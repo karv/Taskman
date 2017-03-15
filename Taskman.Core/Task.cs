@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Taskman
 {
@@ -18,6 +19,7 @@ namespace Taskman
 		/// </summary>
 		public string Descript;
 
+		[JsonIgnore]
 		readonly int _id;
 
 		/// <summary>
@@ -70,7 +72,14 @@ namespace Taskman
 			}
 		}
 
+		[JsonIgnore]
 		readonly HashSet<Task> _subtasks;
+
+		IEnumerable<int> subTaskId
+		{
+			get { return _subtasks.Select (z => z.Id); }
+		}
+
 		/// <summary>
 		/// The status if this task
 		/// </summary>
@@ -84,6 +93,7 @@ namespace Taskman
 		/// <summary>
 		/// The task collection that manages this task
 		/// </summary>
+		[JsonProperty ("Collection")]
 		public readonly TaskCollection _collection;
 		/// <summary>
 		/// If not root, returns the master task, <c>null</c> otherwise.
@@ -183,20 +193,21 @@ namespace Taskman
 			_id = Collection.GetUnusedId ();
 		}
 
-		internal Task (TaskCollection collection, Task masterTask)
+		[JsonConstructor]
+		internal Task (TaskCollection Collection, Task MasterTask)
 		{
-			if (masterTask == null)
-				throw new ArgumentNullException ("masterTask");
-			if (collection == null)
-				throw new ArgumentNullException ("collection");
-			if (!collection.Contains (masterTask))
+			if (MasterTask == null)
+				throw new ArgumentNullException ("MasterTask");
+			if (Collection == null)
+				throw new ArgumentNullException ("Collection");
+			if (!Collection.Contains (MasterTask))
 				throw new InvalidOperationException ("Master task is not in the collection");
 
-			_collection = collection;
+			_collection = Collection;
 			_collection.Add (this);
 			CreationTime = DateTime.Now;
-			MasterTask = masterTask;
-			MasterTask._subtasks.Add (this);
+			this.MasterTask = MasterTask;
+			this.MasterTask._subtasks.Add (this);
 			_subtasks = new HashSet<Task> (_collection.Comparer);
 			_id = Collection.GetUnusedId ();
 		}

@@ -1,5 +1,6 @@
 using System;
 using Taskman;
+using Newtonsoft.Json;
 
 namespace Taskman
 {
@@ -20,6 +21,7 @@ namespace Taskman
 		/// <summary>
 		/// Gets the end time
 		/// </summary>
+		[JsonIgnore]
 		public DateTime EndTime
 		{
 			get
@@ -153,6 +155,7 @@ namespace Taskman
 		/// </summary>
 		/// <param name="startTime">Start time</param>
 		/// <param name="duration">Duration</param>
+		[JsonConstructor]
 		public TimeInterval (DateTime startTime, TimeSpan duration)
 		{
 			if (duration < TimeSpan.Zero)

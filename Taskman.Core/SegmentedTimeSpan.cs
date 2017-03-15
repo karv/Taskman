@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Taskman
 {
@@ -13,6 +14,7 @@ namespace Taskman
 		/// <summary>
 		/// A mutable list of segments. Assumed sorted and disjoint
 		/// </summary>
+		[JsonProperty ("Segments")]
 		readonly List<TimeInterval> segments;
 
 		[Conditional ("DEBUG")]
@@ -117,6 +119,12 @@ namespace Taskman
 		public SegmentedTimeSpan ()
 		{
 			segments = new List<TimeInterval> ();
+		}
+
+		[JsonConstructor]
+		SegmentedTimeSpan (TimeInterval [] Segments)
+		{
+			segments = new List<TimeInterval> (Segments);
 		}
 
 		/// <summary>
