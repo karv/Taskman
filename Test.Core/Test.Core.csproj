@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D73DAF67-8844-4F67-8A7D-1837201ED537}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Test.Core</RootNamespace>
+    <RootNamespace>Test</RootNamespace>
     <AssemblyName>Test.Core</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
@@ -37,6 +37,8 @@
     <Compile Include="CollectionTests.cs" />
     <Compile Include="Interval.cs" />
     <Compile Include="Segmented.cs" />
+    <Compile Include="LoadSave.cs" />
+    <Compile Include="TaskProps.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -4,7 +4,7 @@ using NUnit.Framework;
 using Taskman;
 using System;
 
-namespace Test.Core
+namespace Test
 {
 	[TestFixture]
 	public class CollectionTests

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Taskman
 {
@@ -18,6 +19,7 @@ namespace Taskman
 		/// </summary>
 		public string Descript;
 
+		[JsonIgnore]
 		readonly int _id;
 
 		/// <summary>
@@ -54,11 +56,13 @@ namespace Taskman
 		/// <summary>
 		/// The begin time
 		/// </summary>
+		[JsonIgnore]
 		public DateTime BeginTime { get { return ActivityTime.Min (); } }
 
 		/// <summary>
 		/// The termination time
 		/// </summary>
+		[JsonIgnore]
 		public DateTime TerminationTime
 		{
 			get
@@ -70,7 +74,14 @@ namespace Taskman
 			}
 		}
 
+		[JsonIgnore]
 		readonly HashSet<Task> _subtasks;
+
+		IEnumerable<int> subTaskId
+		{
+			get { return _subtasks.Select (z => z.Id); }
+		}
+
 		/// <summary>
 		/// The status if this task
 		/// </summary>
@@ -84,6 +95,7 @@ namespace Taskman
 		/// <summary>
 		/// The task collection that manages this task
 		/// </summary>
+		[JsonProperty ("Collection")]
 		public readonly TaskCollection _collection;
 		/// <summary>
 		/// If not root, returns the master task, <c>null</c> otherwise.
@@ -127,6 +139,7 @@ namespace Taskman
 		/// <summary>
 		/// Gets the collection of tasks
 		/// </summary>
+		[JsonIgnore]
 		public TaskCollection Collection
 		{
 			get
@@ -179,8 +192,18 @@ namespace Taskman
 			_collection = collection;
 			_collection.Add (this);
 			CreationTime = DateTime.Now;
+			ActivityTime = new SegmentedTimeSpan ();
 			_subtasks = new HashSet<Task> (_collection.Comparer);
 			_id = Collection.GetUnusedId ();
+		}
+
+		[JsonConstructor]
+		Task (TaskCollection Collection, Task MasterTask, SegmentedTimeSpan ActivityTime)
+		{
+			_collection = Collection;
+			this.MasterTask = MasterTask;
+			this.ActivityTime = ActivityTime;
+			_subtasks = new HashSet<Task> (_collection.Comparer);
 		}
 
 		internal Task (TaskCollection collection, Task masterTask)
@@ -198,7 +221,7 @@ namespace Taskman
 			MasterTask = masterTask;
 			MasterTask._subtasks.Add (this);
 			_subtasks = new HashSet<Task> (_collection.Comparer);
-			_id = Collection.GetUnusedId ();
+			_id = collection.GetUnusedId ();
 		}
 	}
 }

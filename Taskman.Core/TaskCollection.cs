@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace Taskman
 {
@@ -9,6 +11,7 @@ namespace Taskman
 	/// </summary>
 	public class TaskCollection : IEnumerable<Task>
 	{
+		[JsonProperty ("Collection")]
 		readonly HashSet<Task> _collection;
 
 		/// <summary>
@@ -64,6 +67,21 @@ namespace Taskman
 			foreach (var task in _collection)
 				task.Dispose ();
 			_collection.Clear ();
+		}
+
+		public void Save (string fileName)
+		{
+			var f = new StreamWriter (fileName, false);
+			var str = JsonConvert.SerializeObject (this, jsonSets);
+			f.WriteLine (str);
+			f.Close ();
+		}
+
+		public static TaskCollection Load (string fileName)
+		{
+			var f = new StreamReader (fileName);
+			var str = f.ReadToEnd ();
+			return JsonConvert.DeserializeObject<TaskCollection> (str);
 		}
 
 		/// <summary>
@@ -129,12 +147,29 @@ namespace Taskman
 			return task.IsRoot;
 		}
 
+		static JsonSerializerSettings jsonSets = new JsonSerializerSettings ()
+		{
+			TypeNameHandling = TypeNameHandling.Auto,
+			ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
+			PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+			ObjectCreationHandling = ObjectCreationHandling.Reuse,
+			NullValueHandling = NullValueHandling.Ignore,
+			Formatting = Formatting.Indented
+		};
+
 		/// <summary>
 		/// </summary>
 		public TaskCollection ()
 		{
 			Comparer = EqualityComparer<Task>.Default;
 			_collection = new HashSet<Task> (Comparer);
+		}
+
+		[JsonConstructor]
+		TaskCollection (IEnumerable <Task> Collection)
+		{
+			Comparer = EqualityComparer<Task>.Default;
+			_collection = new HashSet<Task> (Collection, Comparer);
 		}
 	}
 }
