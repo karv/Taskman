@@ -33,5 +33,22 @@ namespace Test
 
 			Assert.AreEqual (oldTask.Id, f.Id);
 		}
+
+		[Test]
+		public void SaveChild ()
+		{
+			const string fn = "test02";
+			var tc = new TaskCollection ();
+			var oldTask = tc.AddNew ();
+			var child = oldTask.CreateSubtask ();
+
+			tc.Save (fn);
+			var tc2 = TaskCollection.Load (fn);
+			var f = tc2.EnumerateRoots ().First ();
+
+			Assert.AreEqual (tc.Count, tc2.Count);
+			Assert.AreEqual (tc.EnumerateRoots ().Count (), tc2.EnumerateRoots ().Count ());
+			Assert.IsTrue (tc2.GetById (oldTask.Id).GetSubtasks ().Any ());
+		}
 	}
 }

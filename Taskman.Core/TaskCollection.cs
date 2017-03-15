@@ -31,7 +31,7 @@ namespace Taskman
 			{
 				id = _r.Next ();
 			}
-			while (GetById (id) != null);
+			while (id != 0 && GetById (id) != null);
 			return id;
 		}
 
@@ -43,11 +43,18 @@ namespace Taskman
 			return _collection.FirstOrDefault (z => z.Id == id);
 		}
 
+		public void Initialize ()
+		{
+			foreach (var c in _collection)
+				c.Initialize (this);
+		}
+
 		#region ICollection implementation
 
 		internal void Add (Task item)
 		{
 			_collection.Add (item);
+			item.Initialize (this);
 		}
 
 		/// <summary>
@@ -56,6 +63,7 @@ namespace Taskman
 		public Task AddNew ()
 		{
 			var ret = new Task (this);
+			Add (ret); 
 			return ret;
 		}
 
@@ -147,11 +155,11 @@ namespace Taskman
 			return task.IsRoot;
 		}
 
-		static JsonSerializerSettings jsonSets = new JsonSerializerSettings ()
+		static JsonSerializerSettings jsonSets = new JsonSerializerSettings
 		{
 			TypeNameHandling = TypeNameHandling.Auto,
 			ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
-			PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+			PreserveReferencesHandling = PreserveReferencesHandling.None,
 			ObjectCreationHandling = ObjectCreationHandling.Reuse,
 			NullValueHandling = NullValueHandling.Ignore,
 			Formatting = Formatting.Indented
@@ -170,6 +178,8 @@ namespace Taskman
 		{
 			Comparer = EqualityComparer<Task>.Default;
 			_collection = new HashSet<Task> (Collection, Comparer);
+
+			Initialize ();
 		}
 	}
 }
