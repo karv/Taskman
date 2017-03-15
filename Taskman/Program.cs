@@ -176,6 +176,7 @@ namespace Taskman.Gui
 			catch (System.Exception ex)
 			{
 				StatusBar.Push (0, "Algo salió mal al guardar archivo");
+				Debug.WriteLine (ex);
 			}
 		}
 
