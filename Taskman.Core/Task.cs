@@ -48,6 +48,7 @@ namespace Taskman
 		/// <summary>
 		/// Gets a <see cref="TimeSpan"/> representing the tile this task being active.
 		/// </summary>
+		[JsonIgnore]
 		public TimeSpan TotalActivityTime
 		{
 			get{ return ActivityTime.Duration; }
@@ -74,13 +75,8 @@ namespace Taskman
 			}
 		}
 
-		[JsonIgnore]
-		readonly HashSet<Task> _subtasks;
-
-		IEnumerable<int> subTaskId
-		{
-			get { return _subtasks.Select (z => z.Id); }
-		}
+		[JsonProperty ("Subtasks")]
+		readonly HashSet<int> _subtasks;
 
 		/// <summary>
 		/// The status if this task
@@ -90,29 +86,42 @@ namespace Taskman
 		/// <summary>
 		/// Gets a value indicating whether this instance is disposed.
 		/// </summary>
+		[JsonIgnore]
 		public bool IsDisposed { get; private set; }
+
+		public void Initialize (TaskCollection coll)
+		{
+			_collection = coll;
+		}
 
 		/// <summary>
 		/// The task collection that manages this task
 		/// </summary>
-		[JsonProperty ("Collection")]
-		public readonly TaskCollection _collection;
+		[JsonIgnore]
+		TaskCollection _collection;
+
 		/// <summary>
 		/// If not root, returns the master task, <c>null</c> otherwise.
 		/// </summary>
-		public readonly Task MasterTask;
+		[JsonIgnore]
+		public Task MasterTask { get { return masterId == 0 ? null : Collection.GetById (masterId); } }
+
+		[JsonProperty ("MasterId")]
+		readonly int masterId;
 
 		/// <summary>
 		/// Gets a value indicating whether this task is root.
 		/// </summary>
-		public bool IsRoot { get { return MasterTask == null; } }
+		[JsonIgnore]
+		public bool IsRoot { get { return masterId == 0; } }
 
 		/// <summary>
 		/// Gets a new <see cref="Array"/> containing all the immediate subtasks
 		/// </summary>
 		public Task[] GetSubtasks ()
 		{
-			return _subtasks.ToArray ();
+			var ret = _subtasks.Select (z => Collection.GetById (z)).ToArray ();
+			return ret;
 		}
 
 		/// <summary>
@@ -121,7 +130,7 @@ namespace Taskman
 		protected IEnumerable<Task> EnumerateRecursiveSubtasks ()
 		{
 			yield return this;
-			foreach (var task in _subtasks)
+			foreach (var task in GetSubtasks ())
 			{
 				foreach (var sTask in task.EnumerateRecursiveSubtasks ())
 					yield return sTask;
@@ -165,6 +174,7 @@ namespace Taskman
 		public Task CreateSubtask ()
 		{
 			var ret = new Task (Collection, this);
+			Collection.Add (ret);
 			return ret;
 		}
 
@@ -190,21 +200,19 @@ namespace Taskman
 				throw new ArgumentNullException ("collection");
 			
 			_collection = collection;
-			_collection.Add (this);
 			CreationTime = DateTime.Now;
 			ActivityTime = new SegmentedTimeSpan ();
-			_subtasks = new HashSet<Task> (_collection.Comparer);
+			_subtasks = new HashSet<int> ();
 			_id = Collection.GetUnusedId ();
 		}
 
 		[JsonConstructor]
-		Task (TaskCollection Collection, Task MasterTask, SegmentedTimeSpan ActivityTime, int Id)
+		Task (int MasterId, SegmentedTimeSpan ActivityTime, int Id, int [] Subtasks)
 		{
-			_collection = Collection;
 			_id = Id;
-			this.MasterTask = MasterTask;
+			masterId = MasterId;
 			this.ActivityTime = ActivityTime;
-			_subtasks = new HashSet<Task> (_collection.Comparer);
+			_subtasks = new HashSet<int> (Subtasks);
 		}
 
 		internal Task (TaskCollection collection, Task masterTask)
@@ -216,13 +224,11 @@ namespace Taskman
 			if (!collection.Contains (masterTask))
 				throw new InvalidOperationException ("Master task is not in the collection");
 
-			_collection = collection;
-			_collection.Add (this);
-			CreationTime = DateTime.Now;
-			MasterTask = masterTask;
-			MasterTask._subtasks.Add (this);
-			_subtasks = new HashSet<Task> (_collection.Comparer);
 			_id = collection.GetUnusedId ();
+			CreationTime = DateTime.Now;
+			masterId = masterTask.Id;
+			masterTask._subtasks.Add (Id);
+			_subtasks = new HashSet<int> ();
 		}
 	}
 }
