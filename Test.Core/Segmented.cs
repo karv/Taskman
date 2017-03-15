@@ -16,5 +16,20 @@ namespace Test.Core
 			sg.Add (new TimeInterval (sg.Max (), TimeSpan.FromSeconds (1)));
 			Assert.AreEqual (1, sg.GetComponents ().Length);
 		}
+
+		[Test]
+		public void MaxMinEmptySegment ()
+		{
+			var sg = SegmentedTimeSpan.Empty;
+			Assert.Throws<InvalidOperationException> (delegate
+			{
+				sg.Max ();
+			});
+			Assert.Throws<InvalidOperationException> (delegate
+			{
+				sg.Min ();
+			});
+
+		}
 	}
 }

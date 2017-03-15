@@ -56,11 +56,13 @@ namespace Taskman
 		/// <summary>
 		/// The begin time
 		/// </summary>
+		[JsonIgnore]
 		public DateTime BeginTime { get { return ActivityTime.Min (); } }
 
 		/// <summary>
 		/// The termination time
 		/// </summary>
+		[JsonIgnore]
 		public DateTime TerminationTime
 		{
 			get
@@ -196,22 +198,30 @@ namespace Taskman
 		}
 
 		[JsonConstructor]
-		internal Task (TaskCollection Collection, Task MasterTask)
+		Task (TaskCollection Collection, Task MasterTask, SegmentedTimeSpan ActivityTime)
 		{
-			if (MasterTask == null)
-				throw new ArgumentNullException ("MasterTask");
-			if (Collection == null)
-				throw new ArgumentNullException ("Collection");
-			if (!Collection.Contains (MasterTask))
+			_collection = Collection;
+			this.MasterTask = MasterTask;
+			this.ActivityTime = ActivityTime;
+			_subtasks = new HashSet<Task> (_collection.Comparer);
+		}
+
+		internal Task (TaskCollection collection, Task masterTask)
+		{
+			if (masterTask == null)
+				throw new ArgumentNullException ("masterTask");
+			if (collection == null)
+				throw new ArgumentNullException ("collection");
+			if (!collection.Contains (masterTask))
 				throw new InvalidOperationException ("Master task is not in the collection");
 
-			_collection = Collection;
+			_collection = collection;
 			_collection.Add (this);
 			CreationTime = DateTime.Now;
-			this.MasterTask = MasterTask;
-			this.MasterTask._subtasks.Add (this);
+			MasterTask = masterTask;
+			MasterTask._subtasks.Add (this);
 			_subtasks = new HashSet<Task> (_collection.Comparer);
-			_id = Collection.GetUnusedId ();
+			_id = collection.GetUnusedId ();
 		}
 	}
 }

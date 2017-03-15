@@ -88,7 +88,11 @@ namespace Taskman
 		/// </summary>
 		public DateTime Min ()
 		{
-			return segments.Min (z => z.StartTime);
+		
+			if (segments.Any ())
+				return segments.Min (z => z.StartTime);
+
+			throw new InvalidOperationException ("No max exists.");
 		}
 
 		/// <summary>
@@ -96,7 +100,10 @@ namespace Taskman
 		/// </summary>
 		public DateTime Max ()
 		{
-			return segments.Max (z => z.EndTime);
+			if (segments.Any ())
+				return segments.Max (z => z.EndTime);
+
+			throw new InvalidOperationException ("No max exists.");
 		}
 
 		/// <summary>

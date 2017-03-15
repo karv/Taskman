@@ -23,8 +23,7 @@ Global
 		{A3C44A1A-5A01-4B5D-B1C4-884E2F9DD01C}.Release|x86.Build.0 = Release|x86
 		{D73DAF67-8844-4F67-8A7D-1837201ED537}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{D73DAF67-8844-4F67-8A7D-1837201ED537}.Debug|x86.Build.0 = Debug|Any CPU
-		{D73DAF67-8844-4F67-8A7D-1837201ED537}.Release|x86.ActiveCfg = Release|Any CPU
-		{D73DAF67-8844-4F67-8A7D-1837201ED537}.Release|x86.Build.0 = Release|Any CPU
+		{D73DAF67-8844-4F67-8A7D-1837201ED537}.Release|x86.ActiveCfg = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0

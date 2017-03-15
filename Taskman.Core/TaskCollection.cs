@@ -151,7 +151,7 @@ namespace Taskman
 		{
 			TypeNameHandling = TypeNameHandling.Auto,
 			ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
-			PreserveReferencesHandling = PreserveReferencesHandling.All,
+			PreserveReferencesHandling = PreserveReferencesHandling.Objects,
 			ObjectCreationHandling = ObjectCreationHandling.Reuse,
 			NullValueHandling = NullValueHandling.Ignore,
 			Formatting = Formatting.Indented
@@ -166,7 +166,7 @@ namespace Taskman
 		}
 
 		[JsonConstructor]
-		TaskCollection (Task [] Collection)
+		TaskCollection (IEnumerable <Task> Collection)
 		{
 			Comparer = EqualityComparer<Task>.Default;
 			_collection = new HashSet<Task> (Collection, Comparer);
