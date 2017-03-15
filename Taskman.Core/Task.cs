@@ -198,9 +198,10 @@ namespace Taskman
 		}
 
 		[JsonConstructor]
-		Task (TaskCollection Collection, Task MasterTask, SegmentedTimeSpan ActivityTime)
+		Task (TaskCollection Collection, Task MasterTask, SegmentedTimeSpan ActivityTime, int Id)
 		{
 			_collection = Collection;
+			_id = Id;
 			this.MasterTask = MasterTask;
 			this.ActivityTime = ActivityTime;
 			_subtasks = new HashSet<Task> (_collection.Comparer);
