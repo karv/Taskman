@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using Taskman;
 
-namespace Test.Core
+namespace Test
 {
 	[TestFixture]
 	public class Segmented
