@@ -89,6 +89,7 @@ namespace Taskman
 		{
 			var f = new StreamReader (fileName);
 			var str = f.ReadToEnd ();
+			f.Close ();
 			return JsonConvert.DeserializeObject<TaskCollection> (str);
 		}
 
