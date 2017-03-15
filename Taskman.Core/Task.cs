@@ -137,6 +137,7 @@ namespace Taskman
 		/// <summary>
 		/// Gets the collection of tasks
 		/// </summary>
+		[JsonIgnore]
 		public TaskCollection Collection
 		{
 			get
@@ -189,6 +190,7 @@ namespace Taskman
 			_collection = collection;
 			_collection.Add (this);
 			CreationTime = DateTime.Now;
+			ActivityTime = new SegmentedTimeSpan ();
 			_subtasks = new HashSet<Task> (_collection.Comparer);
 			_id = Collection.GetUnusedId ();
 		}

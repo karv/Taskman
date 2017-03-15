@@ -37,6 +37,8 @@
     <Compile Include="CollectionTests.cs" />
     <Compile Include="Interval.cs" />
     <Compile Include="Segmented.cs" />
+    <Compile Include="LoadSave.cs" />
+    <Compile Include="TaskProps.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
