@@ -66,12 +66,16 @@ namespace Taskman.Gui
 			TaskList.AppendColumn (StateColumn);
 			TaskList.AppendColumn (NameColumn);
 
+			StatusBar = Builder.GetObject ("Status bar") as Statusbar;
+
 			NewTaskAction = Builder.GetObject ("actNewTask") as Action;
 			NewChildTask = Builder.GetObject ("actNewChild") as Action;
 			RemoveTask = Builder.GetObject ("actRemove") as Action;
 			StartTask = Builder.GetObject ("actStart") as Action;
 			StopTask = Builder.GetObject ("actStop") as Action;
 			FinishTask = Builder.GetObject ("actFinish") as Action;
+
+			((Action)Builder.GetObject ("actSave")).Activated += save;
 
 			OnlyActiveFilter = (model, iter) => getTask (iter).Status == TaskStatus.Active;
 			UnfinishedFilter = (model, iter) => getTask (iter).Status != TaskStatus.Completed;
@@ -115,6 +119,12 @@ namespace Taskman.Gui
 
 			update (this, null);
 			TaskSelection.Changed += update;
+		}
+
+		void save (object sender, System.EventArgs e)
+		{
+			Tasks.Save ("tasks");
+			StatusBar.Push (0, "Guardado.");
 		}
 
 		void setTaskStatus (TreeIter iter, TaskStatus status)
@@ -204,6 +214,7 @@ namespace Taskman.Gui
 
 		public readonly TaskCollection Tasks;
 
+		public Statusbar StatusBar;
 		public TreeViewColumn NameColumn;
 		public TreeViewColumn IdColumn;
 		public TreeViewColumn StateColumn;
