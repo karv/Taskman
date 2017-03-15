@@ -1,5 +1,6 @@
 using Gtk;
 using GLib;
+using System.Diagnostics;
 
 namespace Taskman.Gui
 {
@@ -76,6 +77,7 @@ namespace Taskman.Gui
 			FinishTask = Builder.GetObject ("actFinish") as Action;
 
 			((Action)Builder.GetObject ("actSave")).Activated += save;
+			((Action)Builder.GetObject ("actLoad")).Activated += load;
 
 			OnlyActiveFilter = (model, iter) => getTask (iter).Status == TaskStatus.Active;
 			UnfinishedFilter = (model, iter) => getTask (iter).Status != TaskStatus.Completed;
@@ -121,10 +123,60 @@ namespace Taskman.Gui
 			TaskSelection.Changed += update;
 		}
 
+		void load (object sender, System.EventArgs e)
+		{
+			var fileChooser = new  FileChooserDialog ("Abrir...", null, FileChooserAction.Open);
+			fileChooser.AddButton ("_Abrir", ResponseType.Ok);
+			fileChooser.AddButton ("_Cancelar", ResponseType.Cancel);
+			fileChooser.DefaultResponse = ResponseType.Ok;
+			var resp = (ResponseType)fileChooser.Run ();
+			// i = -5 : Ok
+			// i = -4 : esc
+			// i = -6 : cancel button
+			if (resp == ResponseType.Ok)
+			{
+				try
+				{
+					Tasks = TaskCollection.Load (fileChooser.Filename);
+					rebuildStore ();
+					StatusBar.Push (0, "Archivo cargado");
+				}
+				catch (System.Exception ex)
+				{
+					StatusBar.Push (0, "Error cargando archivo");
+					Debug.WriteLine ("Something wrong.\n" + ex);
+				}
+			}
+			fileChooser.Destroy ();
+		}
+
+		void rebuildStore ()
+		{
+			TaskStore.Clear ();
+			foreach (var task in Tasks)
+			{
+				addHerTaskToStore (task);
+			}
+		}
+
+		void addHerTaskToStore (Task task, TreeIter? father = null)
+		{
+			var iter = addTask (father, task);
+			foreach (var child in task.GetSubtasks ())
+				addHerTaskToStore (child, iter);
+		}
+
 		void save (object sender, System.EventArgs e)
 		{
-			Tasks.Save ("tasks");
-			StatusBar.Push (0, "Guardado.");
+			try
+			{
+				Tasks.Save ("tasks");
+				StatusBar.Push (0, "Guardado");
+			}
+			catch (System.Exception ex)
+			{
+				StatusBar.Push (0, "Algo salió mal al guardar archivo");
+			}
 		}
 
 		void setTaskStatus (TreeIter iter, TaskStatus status)
@@ -161,7 +213,7 @@ namespace Taskman.Gui
 			var id = (int)TaskStore.GetValue (iter, (int)ColAssign.Id);
 			var task = Tasks.GetById (id);
 			task.Name = args.NewText;
-			System.Diagnostics.Debug.WriteLine (string.Format ("renamed task to {0}", task.Name));
+			Debug.WriteLine (string.Format ("renamed task to {0}", task.Name));
 			TaskStore.SetValue (iter, (int)ColAssign.Name, task.Name);
 		}
 
@@ -212,7 +264,20 @@ namespace Taskman.Gui
 			}
 		}
 
-		public readonly TaskCollection Tasks;
+		TreeIter addTask (TreeIter? iter, Task task)
+		{
+			if (iter == null)
+			{
+				return TaskStore.AppendValues (task.Id, task.Name, task.Status.ToString ());
+			}
+			else
+			{
+				var master = Tasks.GetById ((int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
+				return TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
+			}
+		}
+
+		public TaskCollection Tasks;
 
 		public Statusbar StatusBar;
 		public TreeViewColumn NameColumn;
