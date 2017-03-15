@@ -153,7 +153,7 @@ namespace Taskman.Gui
 		void rebuildStore ()
 		{
 			TaskStore.Clear ();
-			foreach (var task in Tasks)
+			foreach (var task in Tasks.EnumerateRoots ())
 			{
 				addHerTaskToStore (task);
 			}
