@@ -75,6 +75,33 @@
         <property name="short_label" translatable="yes">Incompletos</property>
       </object>
     </child>
+    <child>
+      <object class="GtkAction" id="actSave">
+        <property name="label" translatable="yes">Guardar</property>
+        <property name="stock_id">gtk-save</property>
+        <property name="hide_if_empty">False</property>
+      </object>
+      <accelerator key="s" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actSaveAs">
+        <property name="stock_id">gtk-save-as</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actLoad">
+        <property name="stock_id">gtk-open</property>
+      </object>
+      <accelerator key="o" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actNew">
+        <property name="label" translatable="yes">_Nueva colección</property>
+        <property name="short_label" translatable="yes">_Nuevo</property>
+        <property name="stock_id">gtk-new</property>
+      </object>
+      <accelerator key="n" modifiers="GDK_CONTROL_MASK"/>
+    </child>
   </object>
   <object class="GtkApplicationWindow" id="MainWindow">
     <property name="can_focus">False</property>
@@ -111,6 +138,8 @@
                     <child>
                       <object class="GtkImageMenuItem" id="imagemenuitem2">
                         <property name="label">gtk-open</property>
+                        <property name="use_action_appearance">True</property>
+                        <property name="related_action">actLoad</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
@@ -120,6 +149,8 @@
                     <child>
                       <object class="GtkImageMenuItem" id="imagemenuitem3">
                         <property name="label">gtk-save</property>
+                        <property name="use_action_appearance">True</property>
+                        <property name="related_action">actSave</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
@@ -129,6 +160,8 @@
                     <child>
                       <object class="GtkImageMenuItem" id="imagemenuitem4">
                         <property name="label">gtk-save-as</property>
+                        <property name="use_action_appearance">True</property>
+                        <property name="related_action">actSaveAs</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
