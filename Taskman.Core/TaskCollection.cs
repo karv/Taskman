@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace Taskman
 {
@@ -9,6 +11,7 @@ namespace Taskman
 	/// </summary>
 	public class TaskCollection : IEnumerable<Task>
 	{
+		[JsonProperty ("Collection")]
 		readonly HashSet<Task> _collection;
 
 		/// <summary>
@@ -28,7 +31,7 @@ namespace Taskman
 			{
 				id = _r.Next ();
 			}
-			while (GetById (id) != null);
+			while (id != 0 && GetById (id) != null);
 			return id;
 		}
 
@@ -40,11 +43,21 @@ namespace Taskman
 			return _collection.FirstOrDefault (z => z.Id == id);
 		}
 
+		/// <summary>
+		/// Initialize this instance.
+		/// </summary>
+		public void Initialize ()
+		{
+			foreach (var c in _collection)
+				c.Initialize (this);
+		}
+
 		#region ICollection implementation
 
 		internal void Add (Task item)
 		{
 			_collection.Add (item);
+			item.Initialize (this);
 		}
 
 		/// <summary>
@@ -53,6 +66,7 @@ namespace Taskman
 		public Task AddNew ()
 		{
 			var ret = new Task (this);
+			Add (ret); 
 			return ret;
 		}
 
@@ -64,6 +78,30 @@ namespace Taskman
 			foreach (var task in _collection)
 				task.Dispose ();
 			_collection.Clear ();
+		}
+
+		/// <summary>
+		/// Saves this collection
+		/// </summary>
+		/// <param name="fileName">File name</param>
+		public void Save (string fileName)
+		{
+			var f = new StreamWriter (fileName, false);
+			var str = JsonConvert.SerializeObject (this, jsonSets);
+			f.WriteLine (str);
+			f.Close ();
+		}
+
+		/// <summary>
+		/// Load from the specified fileName.
+		/// </summary>
+		/// <param name="fileName">File name.</param>
+		public static TaskCollection Load (string fileName)
+		{
+			var f = new StreamReader (fileName);
+			var str = f.ReadToEnd ();
+			f.Close ();
+			return JsonConvert.DeserializeObject<TaskCollection> (str);
 		}
 
 		/// <summary>
@@ -129,12 +167,31 @@ namespace Taskman
 			return task.IsRoot;
 		}
 
+		static JsonSerializerSettings jsonSets = new JsonSerializerSettings
+		{
+			TypeNameHandling = TypeNameHandling.Auto,
+			ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
+			PreserveReferencesHandling = PreserveReferencesHandling.None,
+			ObjectCreationHandling = ObjectCreationHandling.Reuse,
+			NullValueHandling = NullValueHandling.Ignore,
+			Formatting = Formatting.Indented
+		};
+
 		/// <summary>
 		/// </summary>
 		public TaskCollection ()
 		{
 			Comparer = EqualityComparer<Task>.Default;
 			_collection = new HashSet<Task> (Comparer);
+		}
+
+		[JsonConstructor]
+		TaskCollection (IEnumerable <Task> Collection)
+		{
+			Comparer = EqualityComparer<Task>.Default;
+			_collection = new HashSet<Task> (Collection, Comparer);
+
+			Initialize ();
 		}
 	}
 }

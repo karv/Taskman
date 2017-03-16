@@ -1,0 +1,10 @@
+language: csharp
+solution: Taskman.sln
+
+install:
+    - sudo apt-get install nunit-console
+    - nuget restore Taskman.sln
+
+script:
+    - xbuild Taskman.sln
+    - nunit-console Test.Core/bin/Debug/Test.Core.dll

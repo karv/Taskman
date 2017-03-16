@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Taskman
 {
@@ -13,6 +14,7 @@ namespace Taskman
 		/// <summary>
 		/// A mutable list of segments. Assumed sorted and disjoint
 		/// </summary>
+		[JsonProperty ("Segments")]
 		readonly List<TimeInterval> segments;
 
 		[Conditional ("DEBUG")]
@@ -86,7 +88,11 @@ namespace Taskman
 		/// </summary>
 		public DateTime Min ()
 		{
-			return segments.Min (z => z.StartTime);
+		
+			if (segments.Any ())
+				return segments.Min (z => z.StartTime);
+
+			throw new InvalidOperationException ("No max exists.");
 		}
 
 		/// <summary>
@@ -94,7 +100,10 @@ namespace Taskman
 		/// </summary>
 		public DateTime Max ()
 		{
-			return segments.Max (z => z.EndTime);
+			if (segments.Any ())
+				return segments.Max (z => z.EndTime);
+
+			throw new InvalidOperationException ("No max exists.");
 		}
 
 		/// <summary>
@@ -117,6 +126,12 @@ namespace Taskman
 		public SegmentedTimeSpan ()
 		{
 			segments = new List<TimeInterval> ();
+		}
+
+		[JsonConstructor]
+		SegmentedTimeSpan (TimeInterval [] Segments)
+		{
+			segments = new List<TimeInterval> (Segments);
 		}
 
 		/// <summary>
