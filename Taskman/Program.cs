@@ -151,8 +151,8 @@ namespace Taskman.Gui
 			CurrentFilter = new TreeModelFilter (TaskStore, null);
 			TaskList.Model = CurrentFilter;
 
-			update (this, null);
-			TaskSelection.Changed += update;
+			updateSensibility (this, null);
+			TaskSelection.Changed += updateSensibility;
 		}
 
 		void load (object sender, System.EventArgs e)
@@ -285,7 +285,7 @@ namespace Taskman.Gui
 			TaskStore.SetValue (iter, (int)ColAssign.Name, task.Name);
 		}
 
-		void update (object sender, System.EventArgs e)
+		void updateSensibility (object sender, System.EventArgs e)
 		{
 			var selTask = GetSelectedTask ();
 			foreach (var act in new [] {NewChildTask, RemoveTask, StartTask, StopTask, FinishTask})
@@ -314,9 +314,11 @@ namespace Taskman.Gui
 		void newChild (object sender, System.EventArgs e)
 		{
 			var iter = addTask (GetSelectedIter ());
+
 			var path = TaskStore.GetPath (iter);
 			TaskList.ExpandToPath (path);
 			TaskSelection.SelectIter (iter);
+			TaskList.SetCursor (path, NameColumn, true);
 		}
 
 		TreeIter addTask (TreeIter? iter)
@@ -326,27 +328,27 @@ namespace Taskman.Gui
 			{
 				task = Tasks.AddNew ();
 				task.Name = "Nueva tarea";
-				return TaskStore.AppendValues (task.Id, task.Name, task.Status.ToString ());
+				var ret = TaskStore.AppendValues (task.Id, task.Name, task.Status.ToString ());
+				var filteredRet = CurrentFilter.ConvertChildIterToIter (ret);
+				var path = CurrentFilter.GetPath (filteredRet);
+				TaskList.SetCursor (path, NameColumn, true);
+				return ret;
 			}
 			else
 			{
 				var master = Tasks.GetById ((int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
 				task = master.CreateSubtask ();
 				task.Name = task.MasterTask.Name + ".Nueva tarea";
-				return TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
+				var ret = TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
+				return ret;
 			}
 		}
 
 		TreeIter addTask (TreeIter? iter, Task task)
 		{
-			if (iter == null)
-			{
-				return TaskStore.AppendValues (task.Id, task.Name, task.Status.ToString ());
-			}
-			else
-			{
-				return TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
-			}
+			return iter == null ? 
+				TaskStore.AppendValues (task.Id, task.Name, task.Status.ToString ()) : 
+				TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
 		}
 
 		/// <summary>
