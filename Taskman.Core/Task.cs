@@ -96,9 +96,11 @@ namespace Taskman
 			}
 		}
 
-		public void SetStatus (TaskStatus newStatus)
+		/// <summary>
+		/// Sets the specified status, and updates <see cref="ActivityTime"/>
+		/// </summary>
+		protected void SetStatus (TaskStatus newStatus)
 		{
-			// THINK
 			if (Status == newStatus)
 				return;
 
