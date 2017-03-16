@@ -113,9 +113,11 @@ namespace Taskman
 			if (item.IsDisposed)
 				throw new ObjectDisposedException ("task is disposed");
 			
+			item.MasterTask?._subtasks.Remove (item.Id);
 			var ret = _collection.Remove (item);
 			if (ret)
 				item.Dispose ();
+
 			return ret;
 		}
 
