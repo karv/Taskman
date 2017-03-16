@@ -95,6 +95,16 @@ namespace Taskman.Gui
 			((Action)Builder.GetObject ("actLoad")).Activated += load;
 			((Action)Builder.GetObject ("actExit")).Activated += app_quit;
 
+			((Action)Builder.GetObject ("actContractAll")).Activated += delegate
+			{
+				TaskList.CollapseAll ();
+			};
+
+			((Action)Builder.GetObject ("actExpandAll")).Activated += delegate
+			{
+				TaskList.ExpandAll ();
+			};
+
 			OnlyActiveFilter = delegate(ITreeModel model, TreeIter iter)
 			{
 				var baseTask = getTask (iter);

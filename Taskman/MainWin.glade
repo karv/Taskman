@@ -21,7 +21,7 @@
         <property name="label" translatable="yes">Nueva subtarea</property>
         <property name="short_label" translatable="yes">_Hijo</property>
         <property name="tooltip" translatable="yes">Agrega una tarea hija de la tarea seleccionada</property>
-        <property name="stock_id">gtk-add</property>
+        <property name="stock_id">gtk-indent</property>
       </object>
       <accelerator key="n" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
     </child>
@@ -106,6 +106,27 @@
       <object class="GtkAction" id="actExit">
         <property name="label" translatable="yes">_Salir</property>
         <property name="stock_id">gtk-quit</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actFilterLeaf">
+        <property name="label" translatable="yes">Mostrar sólo _hojas</property>
+        <property name="short_label" translatable="yes">Sólo _hojas</property>
+        <property name="icon_name">view-restore</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actContractAll">
+        <property name="label" translatable="yes">_Contraer todo</property>
+        <property name="short_label" translatable="yes">_Contraer</property>
+        <property name="icon_name">go-first</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actExpandAll">
+        <property name="label" translatable="yes">_Expandir todo</property>
+        <property name="short_label" translatable="yes">_Expandir</property>
+        <property name="icon_name">go-last</property>
       </object>
     </child>
   </object>
@@ -339,7 +360,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="active">True</property>
-                        <property name="draw_as_radio">True</property>
+                        <property name="group">menuApplyFilterActive</property>
                       </object>
                     </child>
                     <child>
@@ -349,7 +370,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
-                        <property name="draw_as_radio">True</property>
                       </object>
                     </child>
                     <child>
@@ -359,7 +379,16 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
-                        <property name="draw_as_radio">True</property>
+                        <property name="group">menuApplyFilterActive</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkRadioMenuItem" id="radiomenuitem1">
+                        <property name="use_action_appearance">True</property>
+                        <property name="related_action">actFilterLeaf</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
                       </object>
                     </child>
                   </object>
@@ -425,7 +454,6 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="use_underline">True</property>
-                <property name="stock_id">gtk-go-forward</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -486,6 +514,42 @@
               <object class="GtkToolButton" id="finish">
                 <property name="use_action_appearance">True</property>
                 <property name="related_action">actFinish</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_underline">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparatorToolItem" id="separatortoolitem1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="contract">
+                <property name="use_action_appearance">True</property>
+                <property name="related_action">actContractAll</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_underline">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="toolbutton2">
+                <property name="use_action_appearance">True</property>
+                <property name="related_action">actExpandAll</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="use_underline">True</property>
