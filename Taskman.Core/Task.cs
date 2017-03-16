@@ -127,7 +127,7 @@ namespace Taskman
 		/// <summary>
 		/// Enumerate recursively all the subtasks
 		/// </summary>
-		protected IEnumerable<Task> EnumerateRecursiveSubtasks ()
+		public IEnumerable<Task> EnumerateRecursiveSubtasks ()
 		{
 			yield return this;
 			foreach (var task in GetSubtasks ())

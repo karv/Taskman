@@ -1,6 +1,7 @@
-using Gtk;
-using GLib;
 using System.Diagnostics;
+using System.Linq;
+using GLib;
+using Gtk;
 
 namespace Taskman.Gui
 {
@@ -18,6 +19,7 @@ namespace Taskman.Gui
 			TreeIter selIter;
 			if (TaskSelection.GetSelected (out selIter))
 			{
+				selIter = CurrentFilter.ConvertIterToChildIter (selIter);
 				var id = (int)TaskStore.GetValue (selIter, 0);
 				return Tasks.GetById (id);
 			}
@@ -27,7 +29,12 @@ namespace Taskman.Gui
 		public TreeIter? GetSelectedIter ()
 		{
 			TreeIter selIter;
-			return TaskSelection.GetSelected (out selIter) ? new TreeIter? (selIter) : null;
+			if (TaskSelection.GetSelected (out selIter))
+			{
+				selIter = CurrentFilter.ConvertIterToChildIter (selIter);
+				return selIter;
+			}
+			return null;
 		}
 
 		public void Initialize ()
@@ -82,26 +89,39 @@ namespace Taskman.Gui
 			((Action)Builder.GetObject ("actLoad")).Activated += load;
 			((Action)Builder.GetObject ("actExit")).Activated += app_quit;
 
-			OnlyActiveFilter = (model, iter) => getTask (iter).Status == TaskStatus.Active;
-			UnfinishedFilter = (model, iter) => getTask (iter).Status != TaskStatus.Completed;
+			OnlyActiveFilter = delegate(ITreeModel model, TreeIter iter)
+			{
+				var baseTask = getTask (iter);
+				return baseTask.Status == TaskStatus.Active ||
+				baseTask.EnumerateRecursiveSubtasks ().Any (z => z.Status == TaskStatus.Active);
+			};
+			UnfinishedFilter = delegate(ITreeModel model, TreeIter iter)
+			{
+				var baseTask = getTask (iter);
+				return baseTask.Status != TaskStatus.Completed ||
+				baseTask.EnumerateRecursiveSubtasks ().Any (z => z.Status != TaskStatus.Active);
+			};
 
 			((Action)Builder.GetObject ("actFilterAll")).Activated += delegate
 			{
-				TaskList.Model = new TreeModelFilter (TaskStore, null);
+				CurrentFilter = new TreeModelFilter (TaskStore, null);
+				TaskList.Model = CurrentFilter;
 			};
 			((Action)Builder.GetObject ("actFilterActive")).Activated += delegate
 			{
-				TaskList.Model = new TreeModelFilter (TaskStore, null)
+				CurrentFilter = new TreeModelFilter (TaskStore, null)
 				{
 					VisibleFunc = OnlyActiveFilter
 				};
+				TaskList.Model = CurrentFilter;
 			};
 			((Action)Builder.GetObject ("actFilterUnfinished")).Activated += delegate
 			{
-				TaskList.Model = new TreeModelFilter (TaskStore, null)
+				CurrentFilter = new TreeModelFilter (TaskStore, null)
 				{
 					VisibleFunc = UnfinishedFilter
 				};
+				TaskList.Model = CurrentFilter;
 			};
 
 			NewTaskAction.Activated += newTask;
@@ -121,6 +141,9 @@ namespace Taskman.Gui
 			{
 				setTaskStatus (GetSelectedIter ().Value, TaskStatus.Completed);
 			};
+
+			CurrentFilter = new TreeModelFilter (TaskStore, null);
+			TaskList.Model = CurrentFilter;
 
 			update (this, null);
 			TaskSelection.Changed += update;
@@ -303,7 +326,6 @@ namespace Taskman.Gui
 			{
 				var master = Tasks.GetById ((int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
 				task = master.CreateSubtask ();
-
 				task.Name = task.MasterTask.Name + ".Nueva tarea";
 				return TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
 			}
@@ -347,6 +369,8 @@ namespace Taskman.Gui
 
 		public TreeModelFilterVisibleFunc OnlyActiveFilter;
 		public TreeModelFilterVisibleFunc UnfinishedFilter;
+
+		public TreeModelFilter CurrentFilter;
 
 		#endregion
 
