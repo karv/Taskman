@@ -30,7 +30,7 @@ namespace Taskman
 			get
 			{
 				if (IsDisposed)
-					throw new InvalidOperationException ("Cannot get the Id from a disposed task.");
+					throw new ObjectDisposedException ("Cannot get the Id from a disposed task.");
 				return _id;
 			}
 		}
@@ -220,7 +220,7 @@ namespace Taskman
 			get
 			{
 				if (IsDisposed)
-					throw new InvalidOperationException ("Cannot get the collection from a disposed task.");
+					throw new ObjectDisposedException ("Cannot get the collection from a disposed task.");
 				return _collection;
 			}
 		}
@@ -247,9 +247,14 @@ namespace Taskman
 		/// <summary>
 		/// Marks this task as disposed, so it cannot have acces to <see cref="Collection"/>
 		/// </summary>
-		public void Dispose ()
+		internal void Dispose ()
 		{
 			IsDisposed = true;
+		}
+
+		public void Remove ()
+		{
+			Collection.Remove (this);
 		}
 
 		/// <summary>
