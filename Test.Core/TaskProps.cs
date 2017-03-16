@@ -7,11 +7,18 @@ namespace Test
 	[TestFixture]
 	public class TaskProps
 	{
+		TaskCollection Collection;
+
+		[TestFixtureSetUp]
+		public void Setup ()
+		{
+			Collection = new TaskCollection ();
+		}
+
 		[Test]
 		public void NoNullCtor ()
 		{
-			var col = new TaskCollection ();
-			var task = col.AddNew ();
+			var task = Collection.AddNew ();
 			Assert.IsNotNull (task);
 			Assert.NotNull (task.ActivityTime);
 		}
@@ -25,8 +32,7 @@ namespace Test
 		[Test]
 		public void StatusSetter ()
 		{
-			var col = new TaskCollection ();
-			var task = col.AddNew ();
+			var task = Collection.AddNew ();
 
 			switchAndTest (task, TaskStatus.Active);
 			switchAndTest (task, TaskStatus.Completed);
@@ -37,6 +43,29 @@ namespace Test
 			switchAndTest (task, TaskStatus.Active);
 			switchAndTest (task, TaskStatus.Inactive);
 			Assert.Greater (task.TotalActivityTime, acc0);
+		}
+
+		[Test]
+		public void DisposedTask ()
+		{
+			var task = Collection.AddNew ();
+			Assert.False (task.IsDisposed);
+			task.Remove ();
+
+			Assert.True (task.IsDisposed);
+			Assert.Throws<ObjectDisposedException> (delegate
+			{
+				Console.WriteLine (task.Id);
+			});
+			Assert.Throws<ObjectDisposedException> (delegate
+			{
+				Console.WriteLine (task.Collection);
+			});
+			Assert.Throws<ObjectDisposedException> (delegate
+			{
+				Collection.Remove (task);
+			});
+
 		}
 	}
 }
