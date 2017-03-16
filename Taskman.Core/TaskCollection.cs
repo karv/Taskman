@@ -104,15 +104,6 @@ namespace Taskman
 			return JsonConvert.DeserializeObject<TaskCollection> (str);
 		}
 
-		/// <summary>
-		/// Determines whether a task is contained in this collection
-		/// </summary>
-		public bool Contains (Task item)
-		{
-			if (item.IsDisposed)
-				throw new InvalidOperationException ("task is disposed");
-			return _collection.Contains (item);
-		}
 
 		/// <summary>
 		/// Removes a task from this collection
@@ -120,7 +111,7 @@ namespace Taskman
 		public bool Remove (Task item)
 		{
 			if (item.IsDisposed)
-				throw new InvalidOperationException ("task is disposed");
+				throw new ObjectDisposedException ("task is disposed");
 			
 			var ret = _collection.Remove (item);
 			if (ret)
