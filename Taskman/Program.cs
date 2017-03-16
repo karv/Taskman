@@ -1,7 +1,6 @@
 using Gtk;
 using GLib;
 using System.Diagnostics;
-using System.IO;
 
 namespace Taskman.Gui
 {
@@ -36,7 +35,8 @@ namespace Taskman.Gui
 			Builder.AddFromFile ("MainWin.glade");
 
 			MainWindow = Builder.GetObject ("MainWindow") as Window;
-			MainWindow.Destroyed += MainWindow_Destroyed;
+			MainWindow.Destroyed += app_quit;
+
 			TaskStore = Builder.GetObject ("TaskStore") as TreeStore;
 			TaskList = (TreeView)Builder.GetObject ("TaskView");
 
@@ -80,6 +80,7 @@ namespace Taskman.Gui
 			((Action)Builder.GetObject ("actSave")).Activated += save;
 			((Action)Builder.GetObject ("actSaveAs")).Activated += saveAs;
 			((Action)Builder.GetObject ("actLoad")).Activated += load;
+			((Action)Builder.GetObject ("actExit")).Activated += app_quit;
 
 			OnlyActiveFilter = (model, iter) => getTask (iter).Status == TaskStatus.Active;
 			UnfinishedFilter = (model, iter) => getTask (iter).Status != TaskStatus.Completed;
@@ -165,11 +166,12 @@ namespace Taskman.Gui
 			var iter = addTask (father, task);
 			foreach (var child in task.GetSubtasks ())
 				addHerTaskToStore (child, iter);
+			
 		}
 
 		void saveAs (object sender, System.EventArgs e)
 		{
-			var fileChooser = new  FileChooserDialog ("Guardar...", null, FileChooserAction.Save);
+			var fileChooser = new  FileChooserDialog ("Guardar...", MainWindow, FileChooserAction.Save);
 			fileChooser.AddButton ("_Guardar", ResponseType.Ok);
 			fileChooser.AddButton ("_Cancelar", ResponseType.Cancel);
 			fileChooser.DefaultResponse = ResponseType.Ok;
@@ -261,8 +263,14 @@ namespace Taskman.Gui
 				act.Sensitive = selTask != null;
 		}
 
-		void MainWindow_Destroyed (object sender, System.EventArgs e)
+		void app_quit (object sender, System.EventArgs e)
 		{
+			var saveDial = (Dialog)Builder.GetObject ("SaveQuit Dialog");
+			var r = (ResponseType)(saveDial.Run ());
+
+			if (r == ResponseType.Yes)
+				save (sender, e);
+			
 			Gtk.Application.Quit ();
 		}
 
