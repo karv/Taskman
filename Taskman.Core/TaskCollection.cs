@@ -43,6 +43,9 @@ namespace Taskman
 			return _collection.FirstOrDefault (z => z.Id == id);
 		}
 
+		/// <summary>
+		/// Initialize this instance.
+		/// </summary>
 		public void Initialize ()
 		{
 			foreach (var c in _collection)
@@ -77,6 +80,10 @@ namespace Taskman
 			_collection.Clear ();
 		}
 
+		/// <summary>
+		/// Saves this collection
+		/// </summary>
+		/// <param name="fileName">File name</param>
 		public void Save (string fileName)
 		{
 			var f = new StreamWriter (fileName, false);
@@ -85,6 +92,10 @@ namespace Taskman
 			f.Close ();
 		}
 
+		/// <summary>
+		/// Load from the specified fileName.
+		/// </summary>
+		/// <param name="fileName">File name.</param>
 		public static TaskCollection Load (string fileName)
 		{
 			var f = new StreamReader (fileName);

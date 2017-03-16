@@ -5,15 +5,15 @@ using Gtk;
 
 namespace Taskman.Gui
 {
-	enum ColAssign
-	{
-		Id = 0,
-		Name = 1,
-		State = 2
-	}
-
+	/// <summary>
+	/// The main class
+	/// </summary>
 	public class MainClass
 	{
+		/// <summary>
+		/// Gets the selected task.
+		/// If no task is selected, return <c>null</c>
+		/// </summary>
 		public Task GetSelectedTask ()
 		{
 			TreeIter selIter;
@@ -26,6 +26,9 @@ namespace Taskman.Gui
 			return null;
 		}
 
+		/// <summary>
+		/// Gets the iter or null
+		/// </summary>
 		public TreeIter? GetSelectedIter ()
 		{
 			TreeIter selIter;
@@ -37,6 +40,9 @@ namespace Taskman.Gui
 			return null;
 		}
 
+		/// <summary>
+		/// Initializes
+		/// </summary>
 		public void Initialize ()
 		{
 			Builder.AddFromFile ("MainWin.glade");
@@ -339,51 +345,113 @@ namespace Taskman.Gui
 			}
 			else
 			{
-				var master = Tasks.GetById ((int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
 				return TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
 			}
 		}
 
+		/// <summary>
+		/// The collecion of <see cref="Task"/>
+		/// </summary>
 		public TaskCollection Tasks;
 
+		/// <summary>
+		/// The status bar.
+		/// </summary>
 		public Statusbar StatusBar;
+		/// <summary>
+		/// The name column
+		/// </summary>
 		public TreeViewColumn NameColumn;
+		/// <summary>
+		/// The Id column
+		/// </summary>
 		public TreeViewColumn IdColumn;
+		/// <summary>
+		/// The status column
+		/// </summary>
 		public TreeViewColumn StateColumn;
+		/// <summary>
+		/// The tree model
+		/// </summary>
 		public TreeStore TaskStore;
+		/// <summary>
+		/// The widged that displays <see cref="TaskStore"/>
+		/// </summary>
 		public TreeView TaskList;
+		/// <summary>
+		/// The selection of <see cref="TaskList"/>
+		/// </summary>
 		public TreeSelection TaskSelection;
 
 		#region Actions
 
+		/// <summary>
+		/// New task
+		/// </summary>
 		public Action NewTaskAction;
+		/// <summary>
+		/// New child
+		/// </summary>
 		public Action NewChildTask;
+		/// <summary>
+		/// Remove selected task
+		/// </summary>
 		public Action RemoveTask;
+		/// <summary>
+		/// Change status to active
+		/// </summary>
 		public Action StartTask;
+		/// <summary>
+		/// Change status to inactive
+		/// </summary>
 		public Action StopTask;
+		/// <summary>
+		/// Marks the selected task as finished
+		/// </summary>
 		public Action FinishTask;
 
 		#endregion
 
 		#region TaskFilter
 
+		/// <summary>
+		/// The filter visibility Only Active
+		/// </summary>
 		public TreeModelFilterVisibleFunc OnlyActiveFilter;
+		/// <summary>
+		/// The filter visibility Show only unfinished
+		/// </summary>
 		public TreeModelFilterVisibleFunc UnfinishedFilter;
 
+		/// <summary>
+		/// The current filter
+		/// </summary>
 		public TreeModelFilter CurrentFilter;
 
 		#endregion
 
+		/// <summary>
+		/// The current editing file, <c>null</c> if not set
+		/// </summary>
 		public string CurrentFile;
+
+		/// <summary>
+		/// The link from glade
+		/// </summary>
 		public readonly Builder Builder;
 		Window MainWindow;
 
+		/// <summary>
+		/// </summary>
 		public MainClass ()
 		{
 			Builder = new Builder ();
 			Tasks = new TaskCollection ();
 		}
 
+		/// <summary>
+		/// The entry point of the program, where the program control starts and ends.
+		/// </summary>
 		public static void Main ()
 		{
 			ExceptionManager.UnhandledException += Exception_aru;

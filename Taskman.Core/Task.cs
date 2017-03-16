@@ -89,6 +89,10 @@ namespace Taskman
 		[JsonIgnore]
 		public bool IsDisposed { get; private set; }
 
+		/// <summary>
+		/// Initialize this task
+		/// </summary>
+		/// <param name="coll">Coll.</param>
 		public void Initialize (TaskCollection coll)
 		{
 			_collection = coll;
