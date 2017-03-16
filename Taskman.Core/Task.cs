@@ -77,7 +77,7 @@ namespace Taskman
 		}
 
 		[JsonProperty ("Subtasks")]
-		readonly HashSet<int> _subtasks;
+		internal readonly HashSet<int> _subtasks;
 
 		TaskStatus status;
 
