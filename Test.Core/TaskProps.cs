@@ -65,7 +65,17 @@ namespace Test
 			{
 				Collection.Remove (task);
 			});
+		}
 
+		[Test]
+		public void RemoveChilds ()
+		{
+			var master = Collection.AddNew ();
+			var child = master.CreateSubtask ();
+			child.Remove ();
+
+			foreach (var z in master.GetSubtasks ())
+				Assert.NotNull (z);
 		}
 	}
 }
