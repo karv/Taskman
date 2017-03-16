@@ -35,6 +35,7 @@ namespace Taskman
 			}
 		}
 
+		DateTime contextualTime;
 		/// <summary>
 		/// The creation time
 		/// </summary>
@@ -101,7 +102,45 @@ namespace Taskman
 			if (Status == newStatus)
 				return;
 
-
+			switch (Status)
+			{
+				case TaskStatus.Active:
+					if (newStatus == TaskStatus.Completed)
+					{
+						var tInter = new TimeInterval (contextualTime, DateTime.Now);
+						ActivityTime.Add (tInter);
+						status = TaskStatus.Completed;
+					}
+					else
+					{
+						var tInter = new TimeInterval (contextualTime, DateTime.Now);
+						ActivityTime.Add (tInter);
+						status = TaskStatus.Inactive;
+					}
+					return;
+				case TaskStatus.Completed:
+					if (newStatus == TaskStatus.Active)
+					{
+						contextualTime = DateTime.Now;
+						status = TaskStatus.Active;
+					}
+					else
+					{
+						status = TaskStatus.Inactive;
+					}
+					return;
+				case TaskStatus.Inactive:
+					if (newStatus == TaskStatus.Active)
+					{
+						contextualTime = DateTime.Now;
+						status = TaskStatus.Active;
+					}
+					else
+					{
+						status = TaskStatus.Completed;
+					}
+					return;
+			}
 		}
 
 		/// <summary>

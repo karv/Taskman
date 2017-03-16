@@ -26,6 +26,7 @@ namespace Taskman
 						throw new Exception ();
 		}
 
+		[Conditional ("DEBUG")]
 		void checkForEmpty ()
 		{
 			foreach (var s in segments)
