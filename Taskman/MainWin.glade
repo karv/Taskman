@@ -539,7 +539,6 @@
                 <property name="related_action">actContractAll</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">toolbutton2</property>
                 <property name="use_underline">True</property>
               </object>
               <packing>
@@ -553,7 +552,6 @@
                 <property name="related_action">actExpandAll</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">toolbutton2</property>
                 <property name="use_underline">True</property>
               </object>
               <packing>
