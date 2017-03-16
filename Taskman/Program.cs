@@ -1,6 +1,7 @@
-using Gtk;
-using GLib;
 using System.Diagnostics;
+using System.Linq;
+using GLib;
+using Gtk;
 
 namespace Taskman.Gui
 {
@@ -18,7 +19,7 @@ namespace Taskman.Gui
 			TreeIter selIter;
 			if (TaskSelection.GetSelected (out selIter))
 			{
-				var id = (int)TaskStore.GetValue (selIter, 0);
+				var id = (int)TaskList.Model.GetValue (selIter, 0);
 				return Tasks.GetById (id);
 			}
 			return null;
@@ -82,8 +83,18 @@ namespace Taskman.Gui
 			((Action)Builder.GetObject ("actLoad")).Activated += load;
 			((Action)Builder.GetObject ("actExit")).Activated += app_quit;
 
-			OnlyActiveFilter = (model, iter) => getTask (iter).Status == TaskStatus.Active;
-			UnfinishedFilter = (model, iter) => getTask (iter).Status != TaskStatus.Completed;
+			OnlyActiveFilter = delegate(ITreeModel model, TreeIter iter)
+			{
+				var baseTask = getTask (iter);
+				return baseTask.Status == TaskStatus.Active ||
+				baseTask.EnumerateRecursiveSubtasks ().Any (z => z.Status == TaskStatus.Active);
+			};
+			UnfinishedFilter = delegate(ITreeModel model, TreeIter iter)
+			{
+				var baseTask = getTask (iter);
+				return baseTask.Status != TaskStatus.Completed ||
+				baseTask.EnumerateRecursiveSubtasks ().Any (z => z.Status != TaskStatus.Active);
+			};
 
 			((Action)Builder.GetObject ("actFilterAll")).Activated += delegate
 			{
