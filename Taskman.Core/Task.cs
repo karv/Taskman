@@ -35,6 +35,7 @@ namespace Taskman
 			}
 		}
 
+		DateTime contextualTime;
 		/// <summary>
 		/// The creation time
 		/// </summary>
@@ -68,7 +69,7 @@ namespace Taskman
 		{
 			get
 			{
-				if (Status == TaskStatus.Completed)
+				if (status == TaskStatus.Completed)
 					return ActivityTime.Max ();
 
 				throw new Exception ("Cannot get the finished time from an unfinished task.");
@@ -78,10 +79,69 @@ namespace Taskman
 		[JsonProperty ("Subtasks")]
 		readonly HashSet<int> _subtasks;
 
+		TaskStatus status;
+
 		/// <summary>
 		/// The status if this task
 		/// </summary>
-		public TaskStatus Status;
+		public TaskStatus Status
+		{
+			get
+			{
+				return status;
+			}
+			set
+			{
+				SetStatus (value);
+			}
+		}
+
+		public void SetStatus (TaskStatus newStatus)
+		{
+			// THINK
+			if (Status == newStatus)
+				return;
+
+			switch (Status)
+			{
+				case TaskStatus.Active:
+					if (newStatus == TaskStatus.Completed)
+					{
+						var tInter = new TimeInterval (contextualTime, DateTime.Now);
+						ActivityTime.Add (tInter);
+						status = TaskStatus.Completed;
+					}
+					else
+					{
+						var tInter = new TimeInterval (contextualTime, DateTime.Now);
+						ActivityTime.Add (tInter);
+						status = TaskStatus.Inactive;
+					}
+					return;
+				case TaskStatus.Completed:
+					if (newStatus == TaskStatus.Active)
+					{
+						contextualTime = DateTime.Now;
+						status = TaskStatus.Active;
+					}
+					else
+					{
+						status = TaskStatus.Inactive;
+					}
+					return;
+				case TaskStatus.Inactive:
+					if (newStatus == TaskStatus.Active)
+					{
+						contextualTime = DateTime.Now;
+						status = TaskStatus.Active;
+					}
+					else
+					{
+						status = TaskStatus.Completed;
+					}
+					return;
+			}
+		}
 
 		/// <summary>
 		/// Gets a value indicating whether this instance is disposed.
