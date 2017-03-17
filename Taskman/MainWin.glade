@@ -2,12 +2,31 @@
 <!-- Generated with glade 3.18.3 -->
 <interface>
   <requires lib="gtk+" version="3.12"/>
+  <object class="GtkListStore" id="CatStore">
+    <columns>
+      <!-- column-name Id -->
+      <column type="gint"/>
+      <!-- column-name Estado -->
+      <column type="gint"/>
+      <!-- column-name Nombre -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkFileFilter" id="FileFilter">
     <patterns>
       <pattern>*.tm</pattern>
     </patterns>
   </object>
-  <object class="GtkTreeStore" id="TaskStore"/>
+  <object class="GtkTreeStore" id="TaskStore">
+    <columns>
+      <!-- column-name Id -->
+      <column type="gint"/>
+      <!-- column-name Nombre -->
+      <column type="gchararray"/>
+      <!-- column-name Status -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkTreeModelFilter" id="TreeFilter">
     <property name="child_model">TaskStore</property>
   </object>
@@ -577,16 +596,105 @@
           </packing>
         </child>
         <child>
-          <object class="GtkTreeView" id="TaskView">
-            <property name="height_request">299</property>
+          <object class="GtkPaned" id="paned1">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="model">TaskStore</property>
-            <property name="reorderable">True</property>
-            <property name="search_column">0</property>
-            <property name="enable_tree_lines">True</property>
-            <child internal-child="selection">
-              <object class="GtkTreeSelection" id="TaskSelection"/>
+            <child>
+              <object class="GtkTreeView" id="TaskView">
+                <property name="height_request">299</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="hscroll_policy">natural</property>
+                <property name="expander_column">TaskIdColumn</property>
+                <property name="reorderable">True</property>
+                <property name="search_column">2</property>
+                <property name="enable_tree_lines">True</property>
+                <child internal-child="selection">
+                  <object class="GtkTreeSelection" id="TaskSelection"/>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="TaskIdColumn">
+                    <property name="sizing">fixed</property>
+                    <property name="fixed_width">80</property>
+                    <property name="title" translatable="yes">Id</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="TaskStatusColumn">
+                    <property name="sizing">fixed</property>
+                    <property name="fixed_width">100</property>
+                    <property name="title" translatable="yes">Estado</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="TaskNameColumn">
+                    <property name="resizable">True</property>
+                    <property name="sizing">autosize</property>
+                    <property name="title" translatable="yes">Nombre</property>
+                    <property name="clickable">True</property>
+                    <property name="reorderable">True</property>
+                    <property name="sort_indicator">True</property>
+                    <property name="sort_column_id">2</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="resize">False</property>
+                <property name="shrink">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="box2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkToolbar" id="toolbar1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="toolbar_style">icons</property>
+                    <property name="icon_size">2</property>
+                    <child>
+                      <object class="GtkToolButton" id="toolbutton3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="is_important">True</property>
+                        <property name="label" translatable="yes">toolbutton</property>
+                        <property name="use_underline">True</property>
+                        <property name="stock_id">gtk-add</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkTreeView" id="CatView">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="model">CatStore</property>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection" id="treeview-selection2"/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="resize">False</property>
+                <property name="shrink">False</property>
+              </packing>
             </child>
           </object>
           <packing>

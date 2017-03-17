@@ -40,6 +40,12 @@ namespace Taskman.Gui
 			return null;
 		}
 
+		void buildCats ()
+		{
+			foreach (var z in Tasks.OfType<Category> ())
+				CatStore.AppendValues (false, z.Name);
+		}
+
 		/// <summary>
 		/// Initializes
 		/// </summary>
@@ -55,19 +61,19 @@ namespace Taskman.Gui
 
 			TaskSelection = (TreeSelection)Builder.GetObject ("TaskSelection");
 
-			TaskStore = new TreeStore (GType.Int, GType.String, GType.String);
+			//TaskStore = new TreeStore (GType.Int, GType.String, GType.String);
+			TaskStore = (TreeStore)Builder.GetObject ("TaskStore");
+			CatStore = (ListStore)Builder.GetObject ("CatStore");
+			buildCats ();
 			TaskList.Model = TaskStore;
 
-			IdColumn = new TreeViewColumn { Title = "Id" };
-			NameColumn = new TreeViewColumn { Title = "Nombre" };
-			StateColumn = new TreeViewColumn { Title = "Estado" };
+			IdColumn = (TreeViewColumn)Builder.GetObject ("TaskIdColumn");
+			NameColumn = (TreeViewColumn)Builder.GetObject ("TaskNameColumn");
+			StateColumn = (TreeViewColumn)Builder.GetObject ("TaskStatusColumn");
 
 			var idCellRendererText = new CellRendererText ();
 			var nameCellRendererText = new CellRendererText ();
 			var stateCellRendererText = new CellRendererText ();
-
-			nameCellRendererText.Editable = true;
-			nameCellRendererText.Edited += nameChanged;
 
 			IdColumn.PackStart (idCellRendererText, true);
 			NameColumn.PackStart (nameCellRendererText, true);
@@ -77,9 +83,8 @@ namespace Taskman.Gui
 			NameColumn.AddAttribute (nameCellRendererText, "text", (int)ColAssign.Name);
 			StateColumn.AddAttribute (stateCellRendererText, "text", (int)ColAssign.State);
 
-			TaskList.AppendColumn (IdColumn);
-			TaskList.AppendColumn (StateColumn);
-			TaskList.AppendColumn (NameColumn);
+			nameCellRendererText.Editable = true;
+			nameCellRendererText.Edited += nameChanged;
 
 			StatusBar = Builder.GetObject ("Status bar") as Statusbar;
 
@@ -325,7 +330,7 @@ namespace Taskman.Gui
 			var iter = addTask (null);
 			var path = TaskStore.GetPath (iter);
 			TaskList.ExpandToPath (path);
-			TaskSelection.SelectIter (iter);
+			//TaskSelection.SelectIter (iter);
 		}
 
 		void newChild (object sender, System.EventArgs e)
@@ -377,6 +382,7 @@ namespace Taskman.Gui
 		/// The status bar.
 		/// </summary>
 		public Statusbar StatusBar;
+
 		/// <summary>
 		/// The name column
 		/// </summary>
@@ -401,6 +407,9 @@ namespace Taskman.Gui
 		/// The selection of <see cref="TaskList"/>
 		/// </summary>
 		public TreeSelection TaskSelection;
+
+
+		public ListStore CatStore;
 
 		#region Actions
 
