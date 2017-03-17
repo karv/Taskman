@@ -47,7 +47,7 @@ namespace Test
 
 			Assert.AreEqual (tc.Count, tc2.Count);
 			Assert.AreEqual (tc.EnumerateRoots ().Count (), tc2.EnumerateRoots ().Count ());
-			Assert.IsTrue (tc2.GetById (oldTask.Id).GetSubtasks ().Any ());
+			Assert.IsTrue (tc2.GetById<Task> (oldTask.Id).GetSubtasks ().Any ());
 		}
 	}
 }

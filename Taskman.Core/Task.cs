@@ -8,7 +8,7 @@ namespace Taskman
 	/// <summary>
 	/// A task
 	/// </summary>
-	public class Task : IEquatable<Task>
+	public class Task : IEquatable<Task>, IIdentificable
 	{
 		/// <summary>
 		/// Displaying name
@@ -34,6 +34,9 @@ namespace Taskman
 				return _id;
 			}
 		}
+
+		[JsonProperty ("Categories")]
+		readonly HashSet<int> _cats;
 
 		DateTime contextualTime;
 		/// <summary>
@@ -74,6 +77,16 @@ namespace Taskman
 
 				throw new Exception ("Cannot get the finished time from an unfinished task.");
 			}
+		}
+
+		public void RemoveCategory (int catId)
+		{
+			_cats.Remove (catId);
+		}
+
+		public void AddCategory (int catId)
+		{
+			_cats.Add (catId);
 		}
 
 		[JsonProperty ("Subtasks")]
@@ -170,7 +183,7 @@ namespace Taskman
 		/// If not root, returns the master task, <c>null</c> otherwise.
 		/// </summary>
 		[JsonIgnore]
-		public Task MasterTask { get { return masterId == 0 ? null : Collection.GetById (masterId); } }
+		public Task MasterTask { get { return masterId == 0 ? null : Collection.GetById<Task> (masterId); } }
 
 		[JsonProperty ("MasterId")]
 		readonly int masterId;
@@ -186,7 +199,7 @@ namespace Taskman
 		/// </summary>
 		public Task[] GetSubtasks ()
 		{
-			var ret = _subtasks.Select (z => Collection.GetById (z)).ToArray ();
+			var ret = _subtasks.Select (z => Collection.GetById<Task> (z)).ToArray ();
 			return ret;
 		}
 
@@ -252,9 +265,25 @@ namespace Taskman
 			IsDisposed = true;
 		}
 
+		public bool HasCategory (Category cat)
+		{
+			return _cats.Contains (cat.Id);
+		}
+
+		public bool HasCategory (int catId)
+		{
+			return _cats.Contains (catId);
+		}
+
 		public void Remove ()
 		{
-			Collection.Remove (this);
+			if (IsDisposed)
+				throw new ObjectDisposedException ("task is disposed");
+
+			MasterTask?._subtasks.Remove (Id);
+			var ret = _collection._collection.Remove (this);
+			if (ret)
+				Dispose ();
 		}
 
 		/// <summary>
@@ -274,15 +303,21 @@ namespace Taskman
 			CreationTime = DateTime.Now;
 			ActivityTime = SegmentedTimeSpan.Empty;
 			_subtasks = new HashSet<int> ();
+			_cats = new HashSet<int> ();
 			_id = Collection.GetUnusedId ();
 		}
 
 		[JsonConstructor]
-		Task (int MasterId, SegmentedTimeSpan ActivityTime, int Id, int [] Subtasks)
+		Task (int MasterId, 
+		      SegmentedTimeSpan ActivityTime, 
+		      int Id, 
+		      int [] Subtasks, 
+		      int [] Categories)
 		{
 			_id = Id;
 			masterId = MasterId;
 			this.ActivityTime = ActivityTime ?? SegmentedTimeSpan.Empty;
+			_cats = new HashSet<int> (Categories);
 			_subtasks = new HashSet<int> (Subtasks);
 		}
 
@@ -299,6 +334,7 @@ namespace Taskman
 			CreationTime = DateTime.Now;
 			masterId = masterTask.Id;
 			masterTask._subtasks.Add (Id);
+			_cats = new HashSet<int> ();
 			_subtasks = new HashSet<int> ();
 		}
 	}

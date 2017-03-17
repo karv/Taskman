@@ -21,7 +21,7 @@ namespace Taskman.Gui
 			{
 				selIter = CurrentFilter.ConvertIterToChildIter (selIter);
 				var id = (int)TaskStore.GetValue (selIter, 0);
-				return Tasks.GetById (id);
+				return Tasks.GetById<Task> (id);
 			}
 			return null;
 		}
@@ -280,7 +280,7 @@ namespace Taskman.Gui
 		Task getTask (TreeIter iter)
 		{
 			var id = (int)TaskStore.GetValue (iter, (int)ColAssign.Id);
-			return Tasks.GetById (id);
+			return Tasks.GetById<Task> (id);
 		}
 
 		void removeTask (object sender, System.EventArgs e)
@@ -296,7 +296,7 @@ namespace Taskman.Gui
 			TreeIter iter;
 			TaskStore.GetIterFromString (out iter, args.Path);
 			var id = (int)TaskStore.GetValue (iter, (int)ColAssign.Id);
-			var task = Tasks.GetById (id);
+			var task = Tasks.GetById<Task> (id);
 			task.Name = args.NewText;
 			Debug.WriteLine (string.Format ("renamed task to {0}", task.Name));
 			TaskStore.SetValue (iter, (int)ColAssign.Name, task.Name);
@@ -353,7 +353,7 @@ namespace Taskman.Gui
 			}
 			else
 			{
-				var master = Tasks.GetById ((int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
+				var master = Tasks.GetById<Task> ((int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
 				task = master.CreateSubtask ();
 				task.Name = task.MasterTask.Name + ".Nueva tarea";
 				var ret = TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
