@@ -26,6 +26,18 @@ namespace Taskman.Gui
 			return null;
 		}
 
+		public Category GetSelectedCat ()
+		{
+			TreeIter selIter;
+			if (TaskSelection.GetSelected (out selIter))
+			{
+				selIter = CurrentFilter.ConvertIterToChildIter (selIter);
+				var id = (int)TaskStore.GetValue (selIter, 0);
+				return Tasks.GetById<Category> (id);
+			}
+			return null;
+		}
+
 		/// <summary>
 		/// Gets the iter or null
 		/// </summary>
@@ -99,6 +111,41 @@ namespace Taskman.Gui
 			((Action)Builder.GetObject ("actSaveAs")).Activated += saveAs;
 			((Action)Builder.GetObject ("actLoad")).Activated += load;
 			((Action)Builder.GetObject ("actExit")).Activated += app_quit;
+			((Action)Builder.GetObject ("cat.AddCat")).Activated += delegate
+			{
+				var newCat = Tasks.AddCategory ();
+				newCat.Name = "Cat";
+
+				CatStore.AppendValues (newCat.Id, newCat.Name, true, true);
+			};
+
+			var toggleCatRender = ((CellRendererToggle)Builder.GetObject ("CatStatusCellRender"));
+			toggleCatRender.Toggled += delegate(object o, ToggledArgs args)
+			{
+				TreeIter iter;
+				if (!CatStore.GetIterFromString (out iter, args.Path))
+					return;
+
+				var state = (bool)CatStore.GetValue (iter, 3);
+				var indet = (bool)CatStore.GetValue (iter, 2);
+
+				if (indet)
+				{
+					indet = false;
+					state = false;
+				}
+				else
+				{
+					if (state)
+						indet = true;
+					else
+						state = true;
+				}
+
+				CatStore.SetValue (iter, 3, state);
+				CatStore.SetValue (iter, 2, indet);
+
+			};
 
 			((Action)Builder.GetObject ("actContractAll")).Activated += delegate
 			{
@@ -166,8 +213,8 @@ namespace Taskman.Gui
 			CurrentFilter = new TreeModelFilter (TaskStore, null);
 			TaskList.Model = CurrentFilter;
 
-			updateSensibility (this, null);
 			TaskSelection.Changed += updateSensibility;
+			updateSensibility (this, null);
 		}
 
 		void load (object sender, System.EventArgs e)
@@ -408,8 +455,8 @@ namespace Taskman.Gui
 		/// </summary>
 		public TreeSelection TaskSelection;
 
-
 		public ListStore CatStore;
+		public TreeSelection CatSelector;
 
 		#region Actions
 

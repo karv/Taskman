@@ -2,14 +2,34 @@
 <!-- Generated with glade 3.18.3 -->
 <interface>
   <requires lib="gtk+" version="3.12"/>
+  <object class="GtkActionGroup" id="CatAction">
+    <child>
+      <object class="GtkAction" id="cat.AddCat">
+        <property name="label" translatable="yes">Agregar categoría</property>
+        <property name="short_label" translatable="yes">Nueva categoría</property>
+        <property name="tooltip" translatable="yes">Agrega una categoría</property>
+        <property name="icon_name">list-add</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="cat.RemoveCat">
+        <property name="label" translatable="yes">Eliminar categoría</property>
+        <property name="short_label" translatable="yes">Eliminar</property>
+        <property name="tooltip" translatable="yes">Elimina categoría seleccionada</property>
+        <property name="icon_name">list-remove</property>
+      </object>
+    </child>
+  </object>
   <object class="GtkListStore" id="CatStore">
     <columns>
       <!-- column-name Id -->
       <column type="gint"/>
-      <!-- column-name Estado -->
-      <column type="gint"/>
       <!-- column-name Nombre -->
       <column type="gchararray"/>
+      <!-- column-name Indeterminado -->
+      <column type="gboolean"/>
+      <!-- column-name Estado -->
+      <column type="gboolean"/>
     </columns>
   </object>
   <object class="GtkFileFilter" id="FileFilter">
@@ -656,10 +676,11 @@
                     <property name="icon_size">2</property>
                     <child>
                       <object class="GtkToolButton" id="toolbutton3">
+                        <property name="use_action_appearance">True</property>
+                        <property name="related_action">cat.AddCat</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="is_important">True</property>
-                        <property name="label" translatable="yes">toolbutton</property>
                         <property name="use_underline">True</property>
                         <property name="stock_id">gtk-add</property>
                       </object>
@@ -681,7 +702,25 @@
                     <property name="can_focus">True</property>
                     <property name="model">CatStore</property>
                     <child internal-child="selection">
-                      <object class="GtkTreeSelection" id="treeview-selection2"/>
+                      <object class="GtkTreeSelection" id="CatSelector"/>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="CatStatus">
+                        <property name="title" translatable="yes">column</property>
+                        <child>
+                          <object class="GtkCellRendererToggle" id="CatStatusCellRender"/>
+                          <attributes>
+                            <attribute name="active">3</attribute>
+                            <attribute name="inconsistent">2</attribute>
+                          </attributes>
+                        </child>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                          <attributes>
+                            <attribute name="text">1</attribute>
+                          </attributes>
+                        </child>
+                      </object>
                     </child>
                   </object>
                   <packing>
