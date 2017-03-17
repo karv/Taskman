@@ -63,7 +63,6 @@
     <Compile Include="ColAssign.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\gtk-sharp3.3.22.0.0\build\gtk-sharp3.targets" Condition="Exists('..\packages\gtk-sharp3.3.22.0.0\build\gtk-sharp3.targets')" />
   <Import Project="..\packages\gtk-sharp.Linux.3.14.3.14.7\build\net40\gtk-sharp.Linux.3.14.targets" Condition="Exists('..\packages\gtk-sharp.Linux.3.14.3.14.7\build\net40\gtk-sharp.Linux.3.14.targets')" />
   <ProjectExtensions>
     <MonoDevelop>
