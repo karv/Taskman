@@ -167,10 +167,13 @@ namespace Taskman.Gui
 
 		void load (object sender, System.EventArgs e)
 		{
+			var filter = (FileFilter)Builder.GetObject ("FileFilter");
+			filter.Name = "TaskManager";
 			var fileChooser = new  FileChooserDialog ("Abrir...", null, FileChooserAction.Open);
 			fileChooser.AddButton ("_Abrir", ResponseType.Ok);
 			fileChooser.AddButton ("_Cancelar", ResponseType.Cancel);
 			fileChooser.DefaultResponse = ResponseType.Ok;
+			fileChooser.AddFilter (filter);
 			var resp = (ResponseType)fileChooser.Run ();
 
 			if (resp == ResponseType.Ok)
@@ -210,11 +213,14 @@ namespace Taskman.Gui
 
 		void saveAs (object sender, System.EventArgs e)
 		{
+			var filter = (FileFilter)Builder.GetObject ("FileFilter");
+			filter.Name = "TaskManager";
 			var fileChooser = new  FileChooserDialog ("Guardar...", MainWindow, FileChooserAction.Save);
 			fileChooser.AddButton ("_Guardar", ResponseType.Ok);
 			fileChooser.AddButton ("_Cancelar", ResponseType.Cancel);
 			fileChooser.DefaultResponse = ResponseType.Ok;
 			fileChooser.DoOverwriteConfirmation = true;
+			fileChooser.AddFilter (filter);
 			var resp = (ResponseType)fileChooser.Run ();
 
 			if (resp == ResponseType.Ok)
