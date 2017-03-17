@@ -259,7 +259,8 @@ namespace Taskman.Gui
 
 		void setTaskStatus (TreeIter iter, TaskStatus status)
 		{
-			getTask (iter).Status = status;
+			var task = getTask (iter);
+			task.Status = status;
 			reloadIter (iter);
 		}
 

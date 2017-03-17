@@ -272,7 +272,7 @@ namespace Taskman
 			
 			_collection = collection;
 			CreationTime = DateTime.Now;
-			ActivityTime = new SegmentedTimeSpan ();
+			ActivityTime = SegmentedTimeSpan.Empty;
 			_subtasks = new HashSet<int> ();
 			_id = Collection.GetUnusedId ();
 		}
@@ -282,7 +282,7 @@ namespace Taskman
 		{
 			_id = Id;
 			masterId = MasterId;
-			this.ActivityTime = ActivityTime;
+			this.ActivityTime = ActivityTime ?? SegmentedTimeSpan.Empty;
 			_subtasks = new HashSet<int> (Subtasks);
 		}
 
