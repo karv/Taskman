@@ -2,6 +2,8 @@ using System.Diagnostics;
 using System.Linq;
 using GLib;
 using Gtk;
+using System.Collections.Generic;
+using System;
 
 namespace Taskman.Gui
 {
@@ -100,18 +102,18 @@ namespace Taskman.Gui
 
 			StatusBar = Builder.GetObject ("Status bar") as Statusbar;
 
-			NewTaskAction = Builder.GetObject ("actNewTask") as Action;
-			NewChildTask = Builder.GetObject ("actNewChild") as Action;
-			RemoveTask = Builder.GetObject ("actRemove") as Action;
-			StartTask = Builder.GetObject ("actStart") as Action;
-			StopTask = Builder.GetObject ("actStop") as Action;
-			FinishTask = Builder.GetObject ("actFinish") as Action;
+			NewTaskAction = Builder.GetObject ("actNewTask") as Gtk.Action;
+			NewChildTask = Builder.GetObject ("actNewChild") as Gtk.Action;
+			RemoveTask = Builder.GetObject ("actRemove") as Gtk.Action;
+			StartTask = Builder.GetObject ("actStart") as Gtk.Action;
+			StopTask = Builder.GetObject ("actStop") as Gtk.Action;
+			FinishTask = Builder.GetObject ("actFinish") as Gtk.Action;
 
-			((Action)Builder.GetObject ("actSave")).Activated += save;
-			((Action)Builder.GetObject ("actSaveAs")).Activated += saveAs;
-			((Action)Builder.GetObject ("actLoad")).Activated += load;
-			((Action)Builder.GetObject ("actExit")).Activated += app_quit;
-			((Action)Builder.GetObject ("cat.AddCat")).Activated += delegate
+			((Gtk.Action)Builder.GetObject ("actSave")).Activated += save;
+			((Gtk.Action)Builder.GetObject ("actSaveAs")).Activated += saveAs;
+			((Gtk.Action)Builder.GetObject ("actLoad")).Activated += load;
+			((Gtk.Action)Builder.GetObject ("actExit")).Activated += app_quit;
+			((Gtk.Action)Builder.GetObject ("cat.AddCat")).Activated += delegate
 			{
 				var newCat = Tasks.AddCategory ();
 				newCat.Name = "Cat";
@@ -147,12 +149,12 @@ namespace Taskman.Gui
 
 			};
 
-			((Action)Builder.GetObject ("actContractAll")).Activated += delegate
+			((Gtk.Action)Builder.GetObject ("actContractAll")).Activated += delegate
 			{
 				TaskList.CollapseAll ();
 			};
 
-			((Action)Builder.GetObject ("actExpandAll")).Activated += delegate
+			((Gtk.Action)Builder.GetObject ("actExpandAll")).Activated += delegate
 			{
 				TaskList.ExpandAll ();
 			};
@@ -170,22 +172,22 @@ namespace Taskman.Gui
 				baseTask.EnumerateRecursiveSubtasks ().Any (z => z.Status != TaskStatus.Active);
 			};
 
-			((Action)Builder.GetObject ("actFilterAll")).Activated += delegate
+			((Gtk.Action)Builder.GetObject ("actFilterAll")).Activated += delegate
 			{
-				CurrentFilter = new TreeModelFilter (TaskStore, null);
+				CurrentFilter = new TreeModelFilter (CatFilter, null);
 				TaskList.Model = CurrentFilter;
 			};
-			((Action)Builder.GetObject ("actFilterActive")).Activated += delegate
+			((Gtk.Action)Builder.GetObject ("actFilterActive")).Activated += delegate
 			{
-				CurrentFilter = new TreeModelFilter (TaskStore, null)
+				CurrentFilter = new TreeModelFilter (CatFilter, null)
 				{
 					VisibleFunc = OnlyActiveFilter
 				};
 				TaskList.Model = CurrentFilter;
 			};
-			((Action)Builder.GetObject ("actFilterUnfinished")).Activated += delegate
+			((Gtk.Action)Builder.GetObject ("actFilterUnfinished")).Activated += delegate
 			{
-				CurrentFilter = new TreeModelFilter (TaskStore, null)
+				CurrentFilter = new TreeModelFilter (CatFilter, null)
 				{
 					VisibleFunc = UnfinishedFilter
 				};
@@ -210,11 +212,42 @@ namespace Taskman.Gui
 				setTaskStatus (GetSelectedIter ().Value, TaskStatus.Completed);
 			};
 
-			CurrentFilter = new TreeModelFilter (TaskStore, null);
+			CatFilter = new TreeModelFilter (TaskStore, null);
+			CatFilter.VisibleFunc = catVisFunc;
+			CurrentFilter = new TreeModelFilter (CatFilter, null);
 			TaskList.Model = CurrentFilter;
 
 			TaskSelection.Changed += updateSensibility;
 			updateSensibility (this, null);
+		}
+
+		bool catVisFunc (ITreeModel model, TreeIter iter)
+		{
+			var taskId = (int)model.GetValue (iter, 0);
+			var task = Tasks.GetById<Task> (taskId);
+			var filter = getCurrentCatFilter ();
+			return filter.All (z => task.HasCategory (z.Item1) == z.Item2);
+		}
+
+		List<Tuple<Category, bool>> getCurrentCatFilter ()
+		{
+			var ret = new List<Tuple<Category, bool>> ();
+			CatStore.Foreach (
+				delegate(ITreeModel model, TreePath path, TreeIter iter)
+				{
+					var indet = (bool)model.GetValue (iter, 2);
+					if (!indet)
+					{
+						var state = (bool)model.GetValue (iter, 3);
+						var catId = (int)model.GetValue (iter, 0);
+						var cat = Tasks.GetById<Category> (catId);
+						ret.Add (new Tuple<Category, bool> (cat, state));
+					}
+					return false;
+				}
+			);
+
+			return ret;
 		}
 
 		void load (object sender, System.EventArgs e)
@@ -463,27 +496,27 @@ namespace Taskman.Gui
 		/// <summary>
 		/// New task
 		/// </summary>
-		public Action NewTaskAction;
+		public Gtk.Action NewTaskAction;
 		/// <summary>
 		/// New child
 		/// </summary>
-		public Action NewChildTask;
+		public Gtk.Action NewChildTask;
 		/// <summary>
 		/// Remove selected task
 		/// </summary>
-		public Action RemoveTask;
+		public Gtk.Action RemoveTask;
 		/// <summary>
 		/// Change status to active
 		/// </summary>
-		public Action StartTask;
+		public Gtk.Action StartTask;
 		/// <summary>
 		/// Change status to inactive
 		/// </summary>
-		public Action StopTask;
+		public Gtk.Action StopTask;
 		/// <summary>
 		/// Marks the selected task as finished
 		/// </summary>
-		public Action FinishTask;
+		public Gtk.Action FinishTask;
 
 		#endregion
 
@@ -502,6 +535,7 @@ namespace Taskman.Gui
 		/// The current filter
 		/// </summary>
 		public TreeModelFilter CurrentFilter;
+		public TreeModelFilter CatFilter;
 
 		#endregion
 
