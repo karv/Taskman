@@ -34,6 +34,12 @@ namespace Taskman
 		[JsonIgnore]
 		TaskCollection _collection;
 
+		[JsonConstructor]
+		Category (int Id)
+		{
+			id = Id;
+		}
+
 		internal Category (TaskCollection collection)
 		{
 			if (collection == null)
