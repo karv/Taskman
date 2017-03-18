@@ -108,6 +108,7 @@ namespace Taskman.Gui
 			StartTask = Builder.GetObject ("actStart") as Gtk.Action;
 			StopTask = Builder.GetObject ("actStop") as Gtk.Action;
 			FinishTask = Builder.GetObject ("actFinish") as Gtk.Action;
+			EditTask = Builder.GetObject ("actEditTask") as Gtk.Action;
 
 			((Gtk.Action)Builder.GetObject ("actSave")).Activated += save;
 			((Gtk.Action)Builder.GetObject ("actSaveAs")).Activated += saveAs;
@@ -390,7 +391,7 @@ namespace Taskman.Gui
 		void updateSensibility (object sender, System.EventArgs e)
 		{
 			var selTask = GetSelectedTask ();
-			foreach (var act in new [] {NewChildTask, RemoveTask, StartTask, StopTask, FinishTask})
+			foreach (var act in new [] {NewChildTask, RemoveTask, StartTask, StopTask, FinishTask, EditTask})
 				act.Sensitive = selTask != null;
 		}
 
@@ -517,6 +518,8 @@ namespace Taskman.Gui
 		/// Marks the selected task as finished
 		/// </summary>
 		public Gtk.Action FinishTask;
+
+		public Gtk.Action EditTask;
 
 		#endregion
 

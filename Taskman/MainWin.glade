@@ -185,6 +185,14 @@
         <property name="icon_name">go-last</property>
       </object>
     </child>
+    <child>
+      <object class="GtkAction" id="actEditTask">
+        <property name="label" translatable="yes">_Editar tarea...</property>
+        <property name="short_label" translatable="yes">_Editar...</property>
+        <property name="tooltip" translatable="yes">Editar tarea seleccionada</property>
+        <property name="icon_name">preferences-desktop-peripherals</property>
+      </object>
+    </child>
   </object>
   <object class="GtkApplicationWindow" id="MainWindow">
     <property name="can_focus">False</property>
@@ -533,6 +541,19 @@
               </packing>
             </child>
             <child>
+              <object class="GtkToolButton" id="toolbutton4">
+                <property name="use_action_appearance">True</property>
+                <property name="related_action">actEditTask</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_underline">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkSeparatorToolItem" id="toolbutton1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -716,7 +737,7 @@
                     </child>
                     <child>
                       <object class="GtkTreeViewColumn" id="CatStatus">
-                        <property name="title" translatable="yes">column</property>
+                        <property name="title" translatable="yes">Categorías</property>
                         <child>
                           <object class="GtkCellRendererToggle" id="CatStatusCellRender"/>
                           <attributes>
@@ -847,7 +868,7 @@
       <action-widget response="-9">button2</action-widget>
     </action-widgets>
   </object>
-  <template class="TaskPropertyDialog" parent="GtkDialog">
+  <object class="GtkDialog" id="TaskPropertyDialog">
     <property name="can_focus">False</property>
     <property name="type">popup</property>
     <property name="modal">True</property>
@@ -1073,5 +1094,5 @@
       <action-widget response="-6">button4</action-widget>
       <action-widget response="-5">button3</action-widget>
     </action-widgets>
-  </template>
+  </object>
 </interface>
