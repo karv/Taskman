@@ -175,22 +175,25 @@ namespace Taskman.Gui
 
 			((Gtk.Action)Builder.GetObject ("actFilterAll")).Activated += delegate
 			{
-				CurrentFilter = new TreeModelFilter (CatFilter, null);
+				CurrentFilter = new TreeModelFilter (TaskStore, null)
+				{
+					VisibleFunc = catVisFunc
+				};
 				TaskList.Model = CurrentFilter;
 			};
 			((Gtk.Action)Builder.GetObject ("actFilterActive")).Activated += delegate
 			{
-				CurrentFilter = new TreeModelFilter (CatFilter, null)
+				CurrentFilter = new TreeModelFilter (TaskStore, null)
 				{
-					VisibleFunc = OnlyActiveFilter
+					VisibleFunc = (m, r) => OnlyActiveFilter (m, r) && catVisFunc (m, r)
 				};
 				TaskList.Model = CurrentFilter;
 			};
 			((Gtk.Action)Builder.GetObject ("actFilterUnfinished")).Activated += delegate
 			{
-				CurrentFilter = new TreeModelFilter (CatFilter, null)
+				CurrentFilter = new TreeModelFilter (TaskStore, null)
 				{
-					VisibleFunc = UnfinishedFilter
+					VisibleFunc = (m, r) => UnfinishedFilter (m, r) && catVisFunc (m, r)
 				};
 				TaskList.Model = CurrentFilter;
 			};
@@ -215,7 +218,7 @@ namespace Taskman.Gui
 
 			CatFilter = new TreeModelFilter (TaskStore, null);
 			CatFilter.VisibleFunc = catVisFunc;
-			CurrentFilter = new TreeModelFilter (CatFilter, null);
+			CurrentFilter = new TreeModelFilter (TaskStore, null);
 			TaskList.Model = CurrentFilter;
 
 			TaskSelection.Changed += updateSensibility;
