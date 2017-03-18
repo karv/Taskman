@@ -847,7 +847,7 @@
       <action-widget response="-9">button2</action-widget>
     </action-widgets>
   </object>
-  <object class="GtkDialog" id="TaskPropertyDialog">
+  <template class="TaskPropertyDialog" parent="GtkDialog">
     <property name="can_focus">False</property>
     <property name="type">popup</property>
     <property name="modal">True</property>
@@ -933,7 +933,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entry1">
+                  <object class="GtkEntry" id="EntryNombre">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                   </object>
@@ -943,7 +943,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entry2">
+                  <object class="GtkEntry" id="EntryDescrip">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                   </object>
@@ -1073,5 +1073,5 @@
       <action-widget response="-6">button4</action-widget>
       <action-widget response="-5">button3</action-widget>
     </action-widgets>
-  </object>
+  </template>
 </interface>
