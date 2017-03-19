@@ -935,7 +935,8 @@
                   <object class="GtkLabel" id="label2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Nombre</property>
+                    <property name="label" translatable="yes">_Nombre</property>
+                    <property name="use_underline">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -946,7 +947,9 @@
                   <object class="GtkLabel" id="label3">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Descripción</property>
+                    <property name="label" translatable="yes">_Descripción</property>
+                    <property name="use_underline">True</property>
+                    <property name="mnemonic_widget">EntryDescrip</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -967,6 +970,7 @@
                   <object class="GtkEntry" id="EntryDescrip">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="placeholder_text" translatable="yes">Descripción</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -979,7 +983,8 @@
               <object class="GtkLabel" id="label4">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">General</property>
+                <property name="label" translatable="yes">_General</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="tab_fill">False</property>
@@ -1022,7 +1027,8 @@
               <object class="GtkLabel" id="label5">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Estadísticas</property>
+                <property name="label" translatable="yes">_Estadísticas</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="position">1</property>
@@ -1074,7 +1080,8 @@
               <object class="GtkLabel" id="label7">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Categorías</property>
+                <property name="label" translatable="yes">_Categorías</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="position">2</property>
