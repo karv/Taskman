@@ -8,6 +8,8 @@ namespace Taskman.Gui
 		public readonly Builder Builder;
 		public readonly Task Task;
 
+		public bool AutoUpdateTask = true;
+
 		public Dialog Dialog { get; private set; }
 
 		public void BuildWindow ()
@@ -19,13 +21,14 @@ namespace Taskman.Gui
 			Dialog.Title = string.Format ("Editando {0}", Task.Name);
 			((Entry)Builder.GetObject ("EntryNombre")).Text = Task.Name;
 			((Entry)Builder.GetObject ("EntryDescrip")).Text = Task.Descript;
+			((Entry)Builder.GetObject ("EntryDuración")).Text = Task.TotalActivityTime.ToString ();
 
 			Dialog.Response += dialog_Response;
 		}
 
 		void dialog_Response (object o, ResponseArgs args)
 		{
-			if (args.ResponseId == ResponseType.Ok)
+			if (AutoUpdateTask && args.ResponseId == ResponseType.Ok)
 			{
 				Task.Name = ((Entry)Builder.GetObject ("EntryNombre")).Text;
 				Task.Descript = ((Entry)Builder.GetObject ("EntryDescrip")).Text;
