@@ -162,6 +162,7 @@ namespace Taskman.Gui
 				CatStore.SetValue (iter, 3, state);
 				CatStore.SetValue (iter, 2, indet);
 
+				CurrentFilter.Refilter ();
 			};
 
 			((Gtk.Action)Builder.GetObject ("actContractAll")).Activated += delegate
@@ -174,42 +175,21 @@ namespace Taskman.Gui
 				TaskList.ExpandAll ();
 			};
 
-			OnlyActiveFilter = delegate(ITreeModel model, TreeIter iter)
-			{
-				var baseTask = getTask (iter);
-				return baseTask.Status == TaskStatus.Active ||
-				baseTask.EnumerateRecursiveSubtasks ().Any (z => z.Status == TaskStatus.Active);
-			};
-			UnfinishedFilter = delegate(ITreeModel model, TreeIter iter)
-			{
-				var baseTask = getTask (iter);
-				return baseTask.Status != TaskStatus.Completed ||
-				baseTask.EnumerateRecursiveSubtasks ().Any (z => z.Status != TaskStatus.Active);
-			};
-
 			((Gtk.Action)Builder.GetObject ("actFilterAll")).Activated += delegate
 			{
-				CurrentFilter = new TreeModelFilter (TaskStore, null)
-				{
-					VisibleFunc = catVisFunc
-				};
-				TaskList.Model = CurrentFilter;
+				FilterOptions.ShowCompleted = true;
+				FilterOptions.ShowInactive = true;
+				CurrentFilter.Refilter ();
 			};
 			((Gtk.Action)Builder.GetObject ("actFilterActive")).Activated += delegate
 			{
-				CurrentFilter = new TreeModelFilter (TaskStore, null)
-				{
-					VisibleFunc = (m, r) => OnlyActiveFilter (m, r) && catVisFunc (m, r)
-				};
-				TaskList.Model = CurrentFilter;
+				FilterOptions.ShowInactive = !FilterOptions.ShowInactive;
+				CurrentFilter.Refilter ();
 			};
 			((Gtk.Action)Builder.GetObject ("actFilterUnfinished")).Activated += delegate
 			{
-				CurrentFilter = new TreeModelFilter (TaskStore, null)
-				{
-					VisibleFunc = (m, r) => UnfinishedFilter (m, r) && catVisFunc (m, r)
-				};
-				TaskList.Model = CurrentFilter;
+				FilterOptions.ShowCompleted = !FilterOptions.ShowCompleted;
+				CurrentFilter.Refilter ();
 			};
 
 			NewTaskAction.Activated += newTask;
@@ -243,21 +223,14 @@ namespace Taskman.Gui
 				setTaskStatus (GetSelectedIter ().Value, TaskStatus.Completed);
 			};
 
-			CatFilter = new TreeModelFilter (TaskStore, null);
-			CatFilter.VisibleFunc = catVisFunc;
+			FilterOptions = new TaskFilter (Tasks);
+			FilterOptions.CatRules = getCurrentCatFilter;
 			CurrentFilter = new TreeModelFilter (TaskStore, null);
+			CurrentFilter.VisibleFunc = FilterOptions.ApplyFilter;
 			TaskList.Model = CurrentFilter;
 
 			TaskSelection.Changed += updateSensibility;
 			updateSensibility (this, null);
-		}
-
-		bool catVisFunc (ITreeModel model, TreeIter iter)
-		{
-			var taskId = (int)model.GetValue (iter, 0);
-			var task = Tasks.GetById<Task> (taskId);
-			var filter = getCurrentCatFilter ();
-			return filter.All (z => task.HasCategory (z.Item1) == z.Item2);
 		}
 
 		List<Tuple<Category, bool>> getCurrentCatFilter ()
@@ -568,7 +541,8 @@ namespace Taskman.Gui
 		/// The current filter
 		/// </summary>
 		public TreeModelFilter CurrentFilter;
-		public TreeModelFilter CatFilter;
+
+		public TaskFilter FilterOptions;
 
 		#endregion
 
