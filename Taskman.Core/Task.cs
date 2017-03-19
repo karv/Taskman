@@ -14,10 +14,24 @@ namespace Taskman
 		/// Displaying name
 		/// </summary>
 		public string Name;
+
+		string descript;
+
 		/// <summary>
 		/// Descption on this task
 		/// </summary>
-		public string Descript;
+		public string Descript
+		{
+			get
+			{
+				return descript ?? string.Empty;
+			}
+			set
+			{
+				descript = value;
+			}
+		}
+
 
 		[JsonIgnore]
 		readonly int _id;
