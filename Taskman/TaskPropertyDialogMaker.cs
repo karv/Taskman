@@ -17,7 +17,26 @@ namespace Taskman.Gui
 			
 			Dialog = (Dialog)Builder.GetObject ("TaskPropertyDialog");
 			Dialog.Title = string.Format ("Editando {0}", Task.Name);
+			((Entry)Builder.GetObject ("EntryNombre")).Text = Task.Name;
+			((Entry)Builder.GetObject ("EntryDescrip")).Text = Task.Descript;
+
+			Dialog.Response += dialog_Response;
 		}
+
+		void dialog_Response (object o, ResponseArgs args)
+		{
+			if (args.ResponseId == ResponseType.Ok)
+			{
+				Task.Name = ((Entry)Builder.GetObject ("EntryNombre")).Text;
+				Task.Descript = ((Entry)Builder.GetObject ("EntryDescrip")).Text;
+			}
+			Dialog.Hide ();
+			Dialog.Response -= dialog_Response;
+			AfterResponse?.Invoke ();
+			Dialog = null;
+		}
+
+		public System.Action AfterResponse;
 
 		public static Dialog GetDialog (Builder builder, Task task)
 		{

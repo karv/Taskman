@@ -201,6 +201,19 @@ namespace Taskman.Gui
 			NewTaskAction.Activated += newTask;
 			NewChildTask.Activated += newChild;
 			RemoveTask.Activated += removeTask;
+			EditTask.Activated += delegate
+			{
+				var maker = new TaskPropertyDialogMaker (Builder, GetSelectedTask ());
+				maker.BuildWindow ();
+				maker.AfterResponse = delegate
+				{
+					// iter.HasValue is asserted
+					var iter = GetSelectedIter ().Value;
+					reloadIter (iter);
+				};
+
+				maker.Dialog.Run ();
+			};
 			StartTask.Activated += delegate
 			{
 				setTaskStatus (GetSelectedIter ().Value, TaskStatus.Active);
