@@ -1,53 +1,67 @@
 ﻿using System;
+using System.Linq;
 using Gtk;
 
 namespace Taskman.Gui
 {
-	public class TaskPropertyDialogMaker
+	public static class TaskPropertyDialogMaker
 	{
-		public readonly Builder Builder;
-		public readonly Task Task;
+		public static Builder Builder;
+		public static Task Task;
 
-		public bool AutoUpdateTask = true;
+		public static bool AutoUpdateTask = true;
 
-		public Dialog Dialog { get; private set; }
+		public static Dialog Dialog { get; private set; }
 
-		public void BuildWindow ()
+		public static void BuildWindow ()
 		{
-			if (Dialog != null)
-				throw new Exception ();
+			if (Dialog == null)
+				throw new Exception ("TaskPropertyDialogMaker not initialized");
 			
-			Dialog = (Dialog)Builder.GetObject ("TaskPropertyDialog");
 			Dialog.Title = string.Format ("Editando {0}", Task.Name);
 			((Entry)Builder.GetObject ("EntryNombre")).Text = Task.Name;
 			((Entry)Builder.GetObject ("EntryDescrip")).Text = Task.Descript;
 			((Entry)Builder.GetObject ("EntryDuración")).Text = Task.TotalActivityTime.ToString ();
 
-			Dialog.Response += dialog_Response;
+			buildCatStore ();
+
 		}
 
-		void dialog_Response (object o, ResponseArgs args)
+		static void buildCatStore ()
+		{
+			var cats = Task.Collection.OfType<Category> ();
+			var store = ((ListStore)Builder.GetObject ("CatStoreInDialog"));
+			store.Clear ();
+
+			foreach (var cat in cats)
+				store.AppendValues (cat.Id, cat.Name, Task.HasCategory (cat));
+		}
+
+		static void dialog_Response (object o, ResponseArgs args)
 		{
 			if (AutoUpdateTask && args.ResponseId == ResponseType.Ok)
 			{
 				Task.Name = ((Entry)Builder.GetObject ("EntryNombre")).Text;
 				Task.Descript = ((Entry)Builder.GetObject ("EntryDescrip")).Text;
+
+				// Update tasks
+				var catCol = (ListStore)Builder.GetObject ("CatStoreInDialog");
+				catCol.Foreach (delegate(ITreeModel model, TreePath path, TreeIter iter)
+				{
+					var catId = (int)model.GetValue (iter, 0);
+					var state = (bool)model.GetValue (iter, 2);
+					Task.SetCategory (catId, state);
+					return false;
+				});
+
 			}
 			Dialog.Hide ();
-			Dialog.Response -= dialog_Response;
 			AfterResponse?.Invoke ();
-			Dialog = null;
 		}
 
-		public System.Action AfterResponse;
+		public static System.Action AfterResponse;
 
-		public static Dialog GetDialog (Builder builder, Task task)
-		{
-			var maker = new TaskPropertyDialogMaker (builder, task);
-			maker.BuildWindow ();
-			return maker.Dialog;
-		}
-
+		/*
 		public TaskPropertyDialogMaker (Builder builder, Task task)
 		{
 			if (task == null)
@@ -57,6 +71,23 @@ namespace Taskman.Gui
 
 			Builder = builder;
 			Task = task;
+		}
+
+*/
+		public static void Initialize ()
+		{
+			Dialog = (Dialog)Builder.GetObject ("TaskPropertyDialog");
+			Dialog.Response += dialog_Response;
+
+			((CellRendererToggle)Builder.GetObject ("TaskDialog CatList HasCatToggle")).Toggled += 
+				delegate(object o, ToggledArgs args)
+			{
+				var store = (ListStore)Builder.GetObject ("CatStoreInDialog");
+				TreeIter iter;
+				store.GetIterFromString (out iter, args.Path);
+				var newState = !(bool)store.GetValue (iter, 2);
+				store.SetValue (iter, 2, newState);
+			};
 		}
 	}
 }

@@ -284,6 +284,20 @@ namespace Taskman
 			return _cats.Contains (cat.Id);
 		}
 
+		public void SetCategory (Category cat, bool value)
+		{
+			SetCategory (cat.Id, value);
+		}
+
+		// TEST
+		public void SetCategory (int catId, bool value)
+		{
+			if (value)
+				AddCategory (catId);
+			else
+				RemoveCategory (catId);
+		}
+
 		public bool HasCategory (int catId)
 		{
 			return _cats.Contains (catId);

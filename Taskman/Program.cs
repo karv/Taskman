@@ -66,6 +66,7 @@ namespace Taskman.Gui
 		public void Initialize ()
 		{
 			Builder.AddFromFile ("MainWin.glade");
+			TaskPropertyDialogMaker.Initialize ();
 
 			MainWindow = Builder.GetObject ("MainWindow") as Window;
 			MainWindow.Destroyed += app_quit;
@@ -203,16 +204,16 @@ namespace Taskman.Gui
 			RemoveTask.Activated += removeTask;
 			EditTask.Activated += delegate
 			{
-				var maker = new TaskPropertyDialogMaker (Builder, GetSelectedTask ());
-				maker.BuildWindow ();
-				maker.AfterResponse = delegate
+				TaskPropertyDialogMaker.Task = GetSelectedTask ();
+				TaskPropertyDialogMaker.BuildWindow ();
+				TaskPropertyDialogMaker.AfterResponse = delegate
 				{
 					// iter.HasValue is asserted
 					var iter = GetSelectedIter ().Value;
 					reloadIter (iter);
 				};
 
-				maker.Dialog.Run ();
+				TaskPropertyDialogMaker.Dialog.Run ();
 			};
 			StartTask.Activated += delegate
 			{
@@ -575,6 +576,7 @@ namespace Taskman.Gui
 		{
 			Builder = new Builder ();
 			Tasks = new TaskCollection ();
+			TaskPropertyDialogMaker.Builder = Builder;
 		}
 
 		/// <summary>
@@ -594,6 +596,7 @@ namespace Taskman.Gui
 
 		static void Exception_aru (UnhandledExceptionArgs args)
 		{
+			Console.WriteLine (args);
 			//throw new System.Exception (args.ToString ());
 		}
 	}
