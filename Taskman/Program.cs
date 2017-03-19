@@ -101,6 +101,19 @@ namespace Taskman.Gui
 			nameCellRendererText.Editable = true;
 			nameCellRendererText.Edited += nameChanged;
 
+			var catNameCellRender = (CellRendererText)Builder.GetObject ("CatStatusNameRender");
+			catNameCellRender.Editable = true;
+			catNameCellRender.Edited += 
+				delegate(object o, EditedArgs args)
+			{
+				TreeIter iter;
+				CatStore.GetIterFromString (out iter, args.Path);
+				CatStore.SetValue (iter, 1, args.NewText);
+				var catId = (int)CatStore.GetValue (iter, 0);
+				Tasks.GetById<Category> (catId).Name = args.NewText;
+			};
+
+
 			StatusBar = Builder.GetObject ("Status bar") as Statusbar;
 
 			NewTaskAction = Builder.GetObject ("actNewTask") as Gtk.Action;

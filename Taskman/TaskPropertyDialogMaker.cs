@@ -88,6 +88,8 @@ namespace Taskman.Gui
 				var newState = !(bool)store.GetValue (iter, 2);
 				store.SetValue (iter, 2, newState);
 			};
+
+
 		}
 	}
 }
