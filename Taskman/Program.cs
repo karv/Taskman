@@ -177,6 +177,10 @@ namespace Taskman.Gui
 
 			((Gtk.Action)Builder.GetObject ("actFilterAll")).Activated += delegate
 			{
+				var togActive = (ToggleToolButton)Builder.GetObject ("togFilterActive");
+				var togComplt = (ToggleToolButton)Builder.GetObject ("togFilterComplete");
+				togActive.Active = false;
+				togComplt.Active = false;
 				FilterOptions.ShowCompleted = true;
 				FilterOptions.ShowInactive = true;
 				CurrentFilter.Refilter ();

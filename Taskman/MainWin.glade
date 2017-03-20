@@ -118,17 +118,20 @@
     <child>
       <object class="GtkAction" id="actFilterAll">
         <property name="label" translatable="yes">_No filtrar</property>
+        <property name="icon_name">view-refresh</property>
       </object>
     </child>
     <child>
       <object class="GtkAction" id="actFilterActive">
         <property name="label" translatable="yes">Filtrar _Activos</property>
+        <property name="icon_name">document-open-recent</property>
       </object>
     </child>
     <child>
       <object class="GtkAction" id="actFilterUnfinished">
         <property name="label" translatable="yes">Filtrar _incompletos</property>
         <property name="short_label" translatable="yes">Incompletos</property>
+        <property name="icon_name">help-browser</property>
       </object>
     </child>
     <child>
@@ -505,6 +508,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="margin_top">3</property>
+                <property name="is_important">True</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-add</property>
                 <accelerator key="n" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
@@ -520,6 +524,7 @@
                 <property name="related_action">actNewChild</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="is_important">True</property>
                 <property name="use_underline">True</property>
               </object>
               <packing>
@@ -546,6 +551,7 @@
                 <property name="related_action">actEditTask</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="is_important">True</property>
                 <property name="use_underline">True</property>
               </object>
               <packing>
@@ -570,6 +576,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="tooltip_text" translatable="yes">Sets the current task as active</property>
+                <property name="is_important">True</property>
                 <property name="use_underline">True</property>
               </object>
               <packing>
@@ -583,6 +590,7 @@
                 <property name="related_action">actStop</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="is_important">True</property>
                 <property name="use_underline">True</property>
               </object>
               <packing>
@@ -596,6 +604,7 @@
                 <property name="related_action">actFinish</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="is_important">True</property>
                 <property name="use_underline">True</property>
               </object>
               <packing>
@@ -605,6 +614,55 @@
             </child>
             <child>
               <object class="GtkSeparatorToolItem" id="separatortoolitem1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToggleToolButton" id="togFilterActive">
+                <property name="use_action_appearance">True</property>
+                <property name="related_action">actFilterActive</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_underline">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToggleToolButton" id="togFilterComplete">
+                <property name="use_action_appearance">True</property>
+                <property name="related_action">actFilterUnfinished</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_underline">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="toolbutton5">
+                <property name="use_action_appearance">True</property>
+                <property name="related_action">actFilterAll</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_underline">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparatorToolItem" id="separatortoolitem2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
               </object>
