@@ -1,12 +1,13 @@
 ﻿using System;
-namespace Taskman
+
+namespace Taskman.Gui
 {
 	public partial class DefaultActionGroup : Gtk.ActionGroup
 	{
-		public DefaultActionGroup() :
-				base("Taskman.DefaultActionGroup")
+		public DefaultActionGroup () :
+			base ("Taskman.Gui.DefaultActionGroup")
 		{
-			this.Build();
+			Build ();
 		}
 	}
 }

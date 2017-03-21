@@ -1,7 +1,11 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taskman", "Taskman\Taskman.csproj", "{A3C44A1A-5A01-4B5D-B1C4-884E2F9DD01C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taskman.Core", "Taskman.Core\Taskman.Core.csproj", "{3A26DED5-483B-4FBB-9743-F9365FCF9FD8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Core", "Test.Core\Test.Core.csproj", "{D73DAF67-8844-4F67-8A7D-1837201ED537}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,9 +13,63 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3A26DED5-483B-4FBB-9743-F9365FCF9FD8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3A26DED5-483B-4FBB-9743-F9365FCF9FD8}.Debug|x86.Build.0 = Debug|Any CPU
+		{3A26DED5-483B-4FBB-9743-F9365FCF9FD8}.Release|x86.ActiveCfg = Release|Any CPU
+		{3A26DED5-483B-4FBB-9743-F9365FCF9FD8}.Release|x86.Build.0 = Release|Any CPU
 		{A3C44A1A-5A01-4B5D-B1C4-884E2F9DD01C}.Debug|x86.ActiveCfg = Debug|x86
 		{A3C44A1A-5A01-4B5D-B1C4-884E2F9DD01C}.Debug|x86.Build.0 = Debug|x86
 		{A3C44A1A-5A01-4B5D-B1C4-884E2F9DD01C}.Release|x86.ActiveCfg = Release|x86
 		{A3C44A1A-5A01-4B5D-B1C4-884E2F9DD01C}.Release|x86.Build.0 = Release|x86
+		{D73DAF67-8844-4F67-8A7D-1837201ED537}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D73DAF67-8844-4F67-8A7D-1837201ED537}.Debug|x86.Build.0 = Debug|Any CPU
+		{D73DAF67-8844-4F67-8A7D-1837201ED537}.Release|x86.ActiveCfg = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		Policies = $0
+		$0.TextStylePolicy = $1
+		$1.FileWidth = 110
+		$1.TabWidth = 2
+		$1.IndentWidth = 2
+		$1.inheritsSet = Mono
+		$1.inheritsScope = text/plain
+		$1.scope = text/x-csharp
+		$0.CSharpFormattingPolicy = $2
+		$2.IndentSwitchBody = True
+		$2.AutoPropertyFormatting = ForceOneLine
+		$2.AnonymousMethodBraceStyle = NextLine
+		$2.PropertyBraceStyle = NextLine
+		$2.PropertyGetBraceStyle = NextLine
+		$2.PropertySetBraceStyle = NextLine
+		$2.EventBraceStyle = NextLine
+		$2.EventAddBraceStyle = NextLine
+		$2.EventRemoveBraceStyle = NextLine
+		$2.StatementBraceStyle = NextLine
+		$2.ElseNewLinePlacement = NewLine
+		$2.CatchNewLinePlacement = NewLine
+		$2.FinallyNewLinePlacement = NewLine
+		$2.WhileNewLinePlacement = NewLine
+		$2.ArrayInitializerBraceStyle = NextLine
+		$2.NewLineBeforeConstructorInitializerColon = NewLine
+		$2.NewLineAfterConstructorInitializerColon = SameLine
+		$2.AfterDelegateDeclarationParameterComma = True
+		$2.BeforeSizeOfParentheses = True
+		$2.BeforeTypeOfParentheses = True
+		$2.SpacesBeforeArrayDeclarationBrackets = True
+		$2.MethodCallArgumentWrapping = WrapIfTooLong
+		$2.MethodDeclarationParameterWrapping = WrapIfTooLong
+		$2.IndexerDeclarationParameterWrapping = WrapIfTooLong
+		$2.IndexerArgumentWrapping = WrapIfTooLong
+		$2.inheritsSet = Mono
+		$2.inheritsScope = text/x-csharp
+		$2.scope = text/x-csharp
+		$0.TextStylePolicy = $3
+		$3.FileWidth = 120
+		$3.TabWidth = 2
+		$3.IndentWidth = 2
+		$3.inheritsSet = Mono
+		$3.inheritsScope = text/plain
+		$3.scope = text/plain
+		version = 0.0.1
 	EndGlobalSection
 EndGlobal
