@@ -32,6 +32,9 @@ Thumbs.db
 *.dmg
 *.app
 
+# Doxy files
+Taskman.Core/doc
+
 # resharper
 *_Resharper.*
 *.Resharper
