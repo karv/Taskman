@@ -60,8 +60,9 @@ namespace Taskman.Gui
 
 		void buildCats ()
 		{
-			foreach (var z in Tasks.OfType<Category> ())
-				CatStore.AppendValues (false, z.Name);
+			CatStore.Clear ();
+			foreach (var cat in Tasks.OfType<Category> ())
+				CatStore.AppendValues (cat.Id, cat.Name, true, true);
 		}
 
 		/// <summary>
@@ -279,6 +280,7 @@ namespace Taskman.Gui
 				{
 					Tasks = TaskCollection.Load (fileChooser.Filename);
 					rebuildStore ();
+					buildCats ();
 					CurrentFile = fileChooser.Filename;
 					StatusBar.Push (0, "Archivo cargado");
 				}
@@ -295,9 +297,7 @@ namespace Taskman.Gui
 		{
 			TaskStore.Clear ();
 			foreach (var task in Tasks.EnumerateRoots ())
-			{
 				addHerTaskToStore (task);
-			}
 		}
 
 		void addHerTaskToStore (Task task, TreeIter? father = null)
