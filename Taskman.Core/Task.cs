@@ -93,11 +93,19 @@ namespace Taskman
 			}
 		}
 
+		/// <summary>
+		/// Remove a category from this <see cref="Task"/>
+		/// </summary>
+		/// <param name="catId">The category identifier</param>
 		public void RemoveCategory (int catId)
 		{
 			_cats.Remove (catId);
 		}
 
+		/// <summary>
+		/// Add a category from this <see cref="Task"/>
+		/// </summary>
+		/// <param name="catId">The category identifier</param>
 		public void AddCategory (int catId)
 		{
 			_cats.Add (catId);
@@ -178,11 +186,7 @@ namespace Taskman
 		[JsonIgnore]
 		public bool IsDisposed { get; private set; }
 
-		/// <summary>
-		/// Initialize this task
-		/// </summary>
-		/// <param name="coll">Coll.</param>
-		public void Initialize (TaskCollection coll)
+		void IIdentificable.Initialize (TaskCollection coll)
 		{
 			_collection = coll;
 		}
@@ -279,16 +283,29 @@ namespace Taskman
 			IsDisposed = true;
 		}
 
+		/// <summary>
+		/// Determines whether this instance has the specified category
+		/// </summary>
+		/// <param name="cat">The category</param>
 		public bool HasCategory (Category cat)
 		{
 			return _cats.Contains (cat.Id);
 		}
 
-		public void SetCategory (Category cat, bool value)
+		/// <summary>
+		/// Determines whether this instance has the specified category
+		/// </summary>
+		/// <param name="catId">The category identifier</param>
+		public bool HasCategory (int catId)
 		{
-			SetCategory (cat.Id, value);
+			return _cats.Contains (catId);
 		}
 
+		/// <summary>
+		/// Sets whether this task has a specified category
+		/// </summary>
+		/// <param name="catId">Category identifier.</param>
+		/// <param name="value">If <c>true</c>, the category will be added, otherwise is removed</param>
 		// TEST
 		public void SetCategory (int catId, bool value)
 		{
@@ -298,11 +315,19 @@ namespace Taskman
 				RemoveCategory (catId);
 		}
 
-		public bool HasCategory (int catId)
+		/// <summary>
+		/// Sets whether this task has a specified category
+		/// </summary>
+		/// <param name="cat">Category</param>
+		/// <param name="value">If <c>true</c>, the category will be added, otherwise is removed</param>
+		public void SetCategory (Category cat, bool value)
 		{
-			return _cats.Contains (catId);
+			SetCategory (cat.Id, value);
 		}
 
+		/// <summary>
+		/// Remove and dispose ths task.
+		/// </summary>
 		public void Remove ()
 		{
 			if (IsDisposed)

@@ -4,15 +4,34 @@ using Gtk;
 
 namespace Taskman.Gui
 {
+	/// <summary>
+	/// Task property dialog maker.
+	/// </summary>
 	public static class TaskPropertyDialogMaker
 	{
+		/// <summary>
+		/// The Gtk objects builder
+		/// </summary>
 		public static Builder Builder;
+		/// <summary>
+		/// The currenty editing task
+		/// </summary>
 		public static Task Task;
 
+		/// <summary>
+		/// Determines if the task should be updated after acepting the dialog
+		/// </summary>
 		public static bool AutoUpdateTask = true;
 
+		/// <summary>
+		/// The <see cref="Dialog"/> window
+		/// </summary>
+		/// <value>The dialog.</value>
 		public static Dialog Dialog { get; private set; }
 
+		/// <summary>
+		/// Updates <see cref="Dialog"/> to match <see cref="Task"/>
+		/// </summary>
 		public static void BuildWindow ()
 		{
 			if (Dialog == null)
@@ -24,7 +43,6 @@ namespace Taskman.Gui
 			((Entry)Builder.GetObject ("EntryDuración")).Text = Task.TotalActivityTime.ToString ();
 
 			buildCatStore ();
-
 		}
 
 		static void buildCatStore ()
@@ -59,21 +77,14 @@ namespace Taskman.Gui
 			AfterResponse?.Invoke ();
 		}
 
+		/// <summary>
+		/// To be invoked right after the dialog hides
+		/// </summary>
 		public static System.Action AfterResponse;
 
-		/*
-		public TaskPropertyDialogMaker (Builder builder, Task task)
-		{
-			if (task == null)
-				throw new ArgumentNullException ("task");
-			if (builder == null)
-				throw new ArgumentNullException ("builder");
-
-			Builder = builder;
-			Task = task;
-		}
-
-*/
+		/// <summary>
+		/// Initialize this instance.
+		/// </summary>
 		public static void Initialize ()
 		{
 			Dialog = (Dialog)Builder.GetObject ("TaskPropertyDialog");
@@ -88,8 +99,6 @@ namespace Taskman.Gui
 				var newState = !(bool)store.GetValue (iter, 2);
 				store.SetValue (iter, 2, newState);
 			};
-
-
 		}
 	}
 }

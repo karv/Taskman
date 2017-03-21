@@ -28,6 +28,10 @@ namespace Taskman.Gui
 			return null;
 		}
 
+		/// <summary>
+		/// Gets the category selected in the category list.
+		/// </summary>
+		/// <returns>The selected category if any; <c>null</c> otherwise.</returns>
 		public Category GetSelectedCat ()
 		{
 			TreeIter selIter;
@@ -56,8 +60,9 @@ namespace Taskman.Gui
 
 		void buildCats ()
 		{
-			foreach (var z in Tasks.OfType<Category> ())
-				CatStore.AppendValues (false, z.Name);
+			CatStore.Clear ();
+			foreach (var cat in Tasks.OfType<Category> ())
+				CatStore.AppendValues (cat.Id, cat.Name, true, true);
 		}
 
 		/// <summary>
@@ -275,6 +280,7 @@ namespace Taskman.Gui
 				{
 					Tasks = TaskCollection.Load (fileChooser.Filename);
 					rebuildStore ();
+					buildCats ();
 					CurrentFile = fileChooser.Filename;
 					StatusBar.Push (0, "Archivo cargado");
 				}
@@ -291,9 +297,7 @@ namespace Taskman.Gui
 		{
 			TaskStore.Clear ();
 			foreach (var task in Tasks.EnumerateRoots ())
-			{
 				addHerTaskToStore (task);
-			}
 		}
 
 		void addHerTaskToStore (Task task, TreeIter? father = null)
@@ -495,8 +499,13 @@ namespace Taskman.Gui
 		/// The selection of <see cref="TaskList"/>
 		/// </summary>
 		public TreeSelection TaskSelection;
-
+		/// <summary>
+		/// The store for all categories and its filter state
+		/// </summary>
 		public ListStore CatStore;
+		/// <summary>
+		/// The selection for the category list
+		/// </summary>
 		public TreeSelection CatSelector;
 
 		#region Actions
@@ -526,6 +535,9 @@ namespace Taskman.Gui
 		/// </summary>
 		public Gtk.Action FinishTask;
 
+		/// <summary>
+		/// Edit selected task in the edition dialog
+		/// </summary>
 		public Gtk.Action EditTask;
 
 		#endregion
@@ -546,6 +558,9 @@ namespace Taskman.Gui
 		/// </summary>
 		public TreeModelFilter CurrentFilter;
 
+		/// <summary>
+		/// The filter used to display the task list
+		/// </summary>
 		public TaskFilter FilterOptions;
 
 		#endregion
