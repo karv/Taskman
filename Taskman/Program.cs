@@ -2,6 +2,8 @@ using System.Diagnostics;
 using System.Linq;
 using GLib;
 using Gtk;
+using System.Collections.Generic;
+using System;
 
 namespace Taskman.Gui
 {
@@ -21,7 +23,19 @@ namespace Taskman.Gui
 			{
 				selIter = CurrentFilter.ConvertIterToChildIter (selIter);
 				var id = (int)TaskStore.GetValue (selIter, 0);
-				return Tasks.GetById (id);
+				return Tasks.GetById<Task> (id);
+			}
+			return null;
+		}
+
+		public Category GetSelectedCat ()
+		{
+			TreeIter selIter;
+			if (TaskSelection.GetSelected (out selIter))
+			{
+				selIter = CurrentFilter.ConvertIterToChildIter (selIter);
+				var id = (int)TaskStore.GetValue (selIter, 0);
+				return Tasks.GetById<Category> (id);
 			}
 			return null;
 		}
@@ -40,12 +54,19 @@ namespace Taskman.Gui
 			return null;
 		}
 
+		void buildCats ()
+		{
+			foreach (var z in Tasks.OfType<Category> ())
+				CatStore.AppendValues (false, z.Name);
+		}
+
 		/// <summary>
 		/// Initializes
 		/// </summary>
 		public void Initialize ()
 		{
 			Builder.AddFromFile ("MainWin.glade");
+			TaskPropertyDialogMaker.Initialize ();
 
 			MainWindow = Builder.GetObject ("MainWindow") as Window;
 			MainWindow.Destroyed += app_quit;
@@ -55,19 +76,19 @@ namespace Taskman.Gui
 
 			TaskSelection = (TreeSelection)Builder.GetObject ("TaskSelection");
 
-			TaskStore = new TreeStore (GType.Int, GType.String, GType.String);
+			//TaskStore = new TreeStore (GType.Int, GType.String, GType.String);
+			TaskStore = (TreeStore)Builder.GetObject ("TaskStore");
+			CatStore = (ListStore)Builder.GetObject ("CatStore");
+			buildCats ();
 			TaskList.Model = TaskStore;
 
-			IdColumn = new TreeViewColumn { Title = "Id" };
-			NameColumn = new TreeViewColumn { Title = "Nombre" };
-			StateColumn = new TreeViewColumn { Title = "Estado" };
+			IdColumn = (TreeViewColumn)Builder.GetObject ("TaskIdColumn");
+			NameColumn = (TreeViewColumn)Builder.GetObject ("TaskNameColumn");
+			StateColumn = (TreeViewColumn)Builder.GetObject ("TaskStatusColumn");
 
 			var idCellRendererText = new CellRendererText ();
 			var nameCellRendererText = new CellRendererText ();
 			var stateCellRendererText = new CellRendererText ();
-
-			nameCellRendererText.Editable = true;
-			nameCellRendererText.Edited += nameChanged;
 
 			IdColumn.PackStart (idCellRendererText, true);
 			NameColumn.PackStart (nameCellRendererText, true);
@@ -77,72 +98,120 @@ namespace Taskman.Gui
 			NameColumn.AddAttribute (nameCellRendererText, "text", (int)ColAssign.Name);
 			StateColumn.AddAttribute (stateCellRendererText, "text", (int)ColAssign.State);
 
-			TaskList.AppendColumn (IdColumn);
-			TaskList.AppendColumn (StateColumn);
-			TaskList.AppendColumn (NameColumn);
+			nameCellRendererText.Editable = true;
+			nameCellRendererText.Edited += nameChanged;
+
+			var catNameCellRender = (CellRendererText)Builder.GetObject ("CatStatusNameRender");
+			catNameCellRender.Editable = true;
+			catNameCellRender.Edited += 
+				delegate(object o, EditedArgs args)
+			{
+				TreeIter iter;
+				CatStore.GetIterFromString (out iter, args.Path);
+				CatStore.SetValue (iter, 1, args.NewText);
+				var catId = (int)CatStore.GetValue (iter, 0);
+				Tasks.GetById<Category> (catId).Name = args.NewText;
+			};
+
 
 			StatusBar = Builder.GetObject ("Status bar") as Statusbar;
 
-			NewTaskAction = Builder.GetObject ("actNewTask") as Action;
-			NewChildTask = Builder.GetObject ("actNewChild") as Action;
-			RemoveTask = Builder.GetObject ("actRemove") as Action;
-			StartTask = Builder.GetObject ("actStart") as Action;
-			StopTask = Builder.GetObject ("actStop") as Action;
-			FinishTask = Builder.GetObject ("actFinish") as Action;
+			NewTaskAction = Builder.GetObject ("actNewTask") as Gtk.Action;
+			NewChildTask = Builder.GetObject ("actNewChild") as Gtk.Action;
+			RemoveTask = Builder.GetObject ("actRemove") as Gtk.Action;
+			StartTask = Builder.GetObject ("actStart") as Gtk.Action;
+			StopTask = Builder.GetObject ("actStop") as Gtk.Action;
+			FinishTask = Builder.GetObject ("actFinish") as Gtk.Action;
+			EditTask = Builder.GetObject ("actEditTask") as Gtk.Action;
 
-			((Action)Builder.GetObject ("actSave")).Activated += save;
-			((Action)Builder.GetObject ("actSaveAs")).Activated += saveAs;
-			((Action)Builder.GetObject ("actLoad")).Activated += load;
-			((Action)Builder.GetObject ("actExit")).Activated += app_quit;
+			((Gtk.Action)Builder.GetObject ("actSave")).Activated += save;
+			((Gtk.Action)Builder.GetObject ("actSaveAs")).Activated += saveAs;
+			((Gtk.Action)Builder.GetObject ("actLoad")).Activated += load;
+			((Gtk.Action)Builder.GetObject ("actExit")).Activated += app_quit;
+			((Gtk.Action)Builder.GetObject ("cat.AddCat")).Activated += delegate
+			{
+				var newCat = Tasks.AddCategory ();
+				newCat.Name = "Cat";
 
-			((Action)Builder.GetObject ("actContractAll")).Activated += delegate
+				CatStore.AppendValues (newCat.Id, newCat.Name, true, true);
+			};
+
+			var toggleCatRender = ((CellRendererToggle)Builder.GetObject ("CatStatusCellRender"));
+			toggleCatRender.Toggled += delegate(object o, ToggledArgs args)
+			{
+				TreeIter iter;
+				if (!CatStore.GetIterFromString (out iter, args.Path))
+					return;
+
+				var state = (bool)CatStore.GetValue (iter, 3);
+				var indet = (bool)CatStore.GetValue (iter, 2);
+
+				if (indet)
+				{
+					indet = false;
+					state = false;
+				}
+				else
+				{
+					if (state)
+						indet = true;
+					else
+						state = true;
+				}
+
+				CatStore.SetValue (iter, 3, state);
+				CatStore.SetValue (iter, 2, indet);
+
+				CurrentFilter.Refilter ();
+			};
+
+			((Gtk.Action)Builder.GetObject ("actContractAll")).Activated += delegate
 			{
 				TaskList.CollapseAll ();
 			};
 
-			((Action)Builder.GetObject ("actExpandAll")).Activated += delegate
+			((Gtk.Action)Builder.GetObject ("actExpandAll")).Activated += delegate
 			{
 				TaskList.ExpandAll ();
 			};
 
-			OnlyActiveFilter = delegate(ITreeModel model, TreeIter iter)
+			((Gtk.Action)Builder.GetObject ("actFilterAll")).Activated += delegate
 			{
-				var baseTask = getTask (iter);
-				return baseTask.Status == TaskStatus.Active ||
-				baseTask.EnumerateRecursiveSubtasks ().Any (z => z.Status == TaskStatus.Active);
+				var togActive = (ToggleToolButton)Builder.GetObject ("togFilterActive");
+				var togComplt = (ToggleToolButton)Builder.GetObject ("togFilterComplete");
+				togActive.Active = false;
+				togComplt.Active = false;
+				FilterOptions.ShowCompleted = true;
+				FilterOptions.ShowInactive = true;
+				CurrentFilter.Refilter ();
 			};
-			UnfinishedFilter = delegate(ITreeModel model, TreeIter iter)
+			((Gtk.Action)Builder.GetObject ("actFilterActive")).Activated += delegate
 			{
-				var baseTask = getTask (iter);
-				return baseTask.Status != TaskStatus.Completed ||
-				baseTask.EnumerateRecursiveSubtasks ().Any (z => z.Status != TaskStatus.Active);
+				FilterOptions.ShowInactive = !FilterOptions.ShowInactive;
+				CurrentFilter.Refilter ();
 			};
-
-			((Action)Builder.GetObject ("actFilterAll")).Activated += delegate
+			((Gtk.Action)Builder.GetObject ("actFilterUnfinished")).Activated += delegate
 			{
-				CurrentFilter = new TreeModelFilter (TaskStore, null);
-				TaskList.Model = CurrentFilter;
-			};
-			((Action)Builder.GetObject ("actFilterActive")).Activated += delegate
-			{
-				CurrentFilter = new TreeModelFilter (TaskStore, null)
-				{
-					VisibleFunc = OnlyActiveFilter
-				};
-				TaskList.Model = CurrentFilter;
-			};
-			((Action)Builder.GetObject ("actFilterUnfinished")).Activated += delegate
-			{
-				CurrentFilter = new TreeModelFilter (TaskStore, null)
-				{
-					VisibleFunc = UnfinishedFilter
-				};
-				TaskList.Model = CurrentFilter;
+				FilterOptions.ShowCompleted = !FilterOptions.ShowCompleted;
+				CurrentFilter.Refilter ();
 			};
 
 			NewTaskAction.Activated += newTask;
 			NewChildTask.Activated += newChild;
 			RemoveTask.Activated += removeTask;
+			EditTask.Activated += delegate
+			{
+				TaskPropertyDialogMaker.Task = GetSelectedTask ();
+				TaskPropertyDialogMaker.BuildWindow ();
+				TaskPropertyDialogMaker.AfterResponse = delegate
+				{
+					// iter.HasValue is asserted
+					var iter = GetSelectedIter ().Value;
+					reloadIter (iter);
+				};
+
+				TaskPropertyDialogMaker.Dialog.Run ();
+			};
 			StartTask.Activated += delegate
 			{
 				setTaskStatus (GetSelectedIter ().Value, TaskStatus.Active);
@@ -158,11 +227,35 @@ namespace Taskman.Gui
 				setTaskStatus (GetSelectedIter ().Value, TaskStatus.Completed);
 			};
 
+			FilterOptions = new TaskFilter (Tasks);
+			FilterOptions.CatRules = getCurrentCatFilter;
 			CurrentFilter = new TreeModelFilter (TaskStore, null);
+			CurrentFilter.VisibleFunc = FilterOptions.ApplyFilter;
 			TaskList.Model = CurrentFilter;
 
-			updateSensibility (this, null);
 			TaskSelection.Changed += updateSensibility;
+			updateSensibility (this, null);
+		}
+
+		List<Tuple<Category, bool>> getCurrentCatFilter ()
+		{
+			var ret = new List<Tuple<Category, bool>> ();
+			CatStore.Foreach (
+				delegate(ITreeModel model, TreePath path, TreeIter iter)
+				{
+					var indet = (bool)model.GetValue (iter, 2);
+					if (!indet)
+					{
+						var state = (bool)model.GetValue (iter, 3);
+						var catId = (int)model.GetValue (iter, 0);
+						var cat = Tasks.GetById<Category> (catId);
+						ret.Add (new Tuple<Category, bool> (cat, state));
+					}
+					return false;
+				}
+			);
+
+			return ret;
 		}
 
 		void load (object sender, System.EventArgs e)
@@ -280,7 +373,7 @@ namespace Taskman.Gui
 		Task getTask (TreeIter iter)
 		{
 			var id = (int)TaskStore.GetValue (iter, (int)ColAssign.Id);
-			return Tasks.GetById (id);
+			return Tasks.GetById<Task> (id);
 		}
 
 		void removeTask (object sender, System.EventArgs e)
@@ -296,7 +389,7 @@ namespace Taskman.Gui
 			TreeIter iter;
 			TaskStore.GetIterFromString (out iter, args.Path);
 			var id = (int)TaskStore.GetValue (iter, (int)ColAssign.Id);
-			var task = Tasks.GetById (id);
+			var task = Tasks.GetById<Task> (id);
 			task.Name = args.NewText;
 			Debug.WriteLine (string.Format ("renamed task to {0}", task.Name));
 			TaskStore.SetValue (iter, (int)ColAssign.Name, task.Name);
@@ -305,7 +398,7 @@ namespace Taskman.Gui
 		void updateSensibility (object sender, System.EventArgs e)
 		{
 			var selTask = GetSelectedTask ();
-			foreach (var act in new [] {NewChildTask, RemoveTask, StartTask, StopTask, FinishTask})
+			foreach (var act in new [] {NewChildTask, RemoveTask, StartTask, StopTask, FinishTask, EditTask})
 				act.Sensitive = selTask != null;
 		}
 
@@ -325,7 +418,7 @@ namespace Taskman.Gui
 			var iter = addTask (null);
 			var path = TaskStore.GetPath (iter);
 			TaskList.ExpandToPath (path);
-			TaskSelection.SelectIter (iter);
+			//TaskSelection.SelectIter (iter);
 		}
 
 		void newChild (object sender, System.EventArgs e)
@@ -353,7 +446,7 @@ namespace Taskman.Gui
 			}
 			else
 			{
-				var master = Tasks.GetById ((int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
+				var master = Tasks.GetById<Task> ((int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
 				task = master.CreateSubtask ();
 				task.Name = task.MasterTask.Name + ".Nueva tarea";
 				var ret = TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
@@ -377,6 +470,7 @@ namespace Taskman.Gui
 		/// The status bar.
 		/// </summary>
 		public Statusbar StatusBar;
+
 		/// <summary>
 		/// The name column
 		/// </summary>
@@ -402,32 +496,37 @@ namespace Taskman.Gui
 		/// </summary>
 		public TreeSelection TaskSelection;
 
+		public ListStore CatStore;
+		public TreeSelection CatSelector;
+
 		#region Actions
 
 		/// <summary>
 		/// New task
 		/// </summary>
-		public Action NewTaskAction;
+		public Gtk.Action NewTaskAction;
 		/// <summary>
 		/// New child
 		/// </summary>
-		public Action NewChildTask;
+		public Gtk.Action NewChildTask;
 		/// <summary>
 		/// Remove selected task
 		/// </summary>
-		public Action RemoveTask;
+		public Gtk.Action RemoveTask;
 		/// <summary>
 		/// Change status to active
 		/// </summary>
-		public Action StartTask;
+		public Gtk.Action StartTask;
 		/// <summary>
 		/// Change status to inactive
 		/// </summary>
-		public Action StopTask;
+		public Gtk.Action StopTask;
 		/// <summary>
 		/// Marks the selected task as finished
 		/// </summary>
-		public Action FinishTask;
+		public Gtk.Action FinishTask;
+
+		public Gtk.Action EditTask;
 
 		#endregion
 
@@ -446,6 +545,8 @@ namespace Taskman.Gui
 		/// The current filter
 		/// </summary>
 		public TreeModelFilter CurrentFilter;
+
+		public TaskFilter FilterOptions;
 
 		#endregion
 
@@ -466,6 +567,7 @@ namespace Taskman.Gui
 		{
 			Builder = new Builder ();
 			Tasks = new TaskCollection ();
+			TaskPropertyDialogMaker.Builder = Builder;
 		}
 
 		/// <summary>
@@ -485,6 +587,7 @@ namespace Taskman.Gui
 
 		static void Exception_aru (UnhandledExceptionArgs args)
 		{
+			Console.WriteLine (args);
 			//throw new System.Exception (args.ToString ());
 		}
 	}

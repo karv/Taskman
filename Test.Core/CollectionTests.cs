@@ -62,7 +62,7 @@ namespace Test
 			for (int i = 0; i < numTasks - numRoots; i++)
 			{
 				var ls = Collection.ToArray ();
-				var master = ls [r.Next (ls.Length)];
+				var master = ls [r.Next (ls.Length)] as Task;
 				master.CreateSubtask ();
 			}
 
@@ -80,6 +80,18 @@ namespace Test
 					Assert.True (Collection.Contains (task));
 			}
 			Assert.AreEqual (numTasks, sum);
+		}
+
+		[Test]
+		public void CategoryNullFalse ()
+		{
+			var cat = Collection.AddCategory ();
+			Assert.NotNull (cat);
+			cat.Name = "Oi";
+
+			var task = Collection.AddNew ();
+			task.AddCategory (cat.Id);
+			Assert.True (task.HasCategory (cat));
 		}
 	}
 }

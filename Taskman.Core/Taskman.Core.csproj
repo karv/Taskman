@@ -41,6 +41,9 @@
     <Compile Include="TaskCollection.cs" />
     <Compile Include="SegmentedTimeSpan.cs" />
     <Compile Include="TimeInterval.cs" />
+    <Compile Include="Category.cs" />
+    <Compile Include="IIdentificable.cs" />
+    <Compile Include="IdentifyComparer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

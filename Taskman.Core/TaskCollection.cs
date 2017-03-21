@@ -1,23 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
-using System.IO;
 
 namespace Taskman
 {
 	/// <summary>
 	/// Manages a collection of tasks
 	/// </summary>
-	public class TaskCollection : IEnumerable<Task>
+	public class TaskCollection : IEnumerable<IIdentificable>
 	{
 		[JsonProperty ("Collection")]
-		readonly HashSet<Task> _collection;
+		internal readonly HashSet<IIdentificable> _collection;
 
 		/// <summary>
 		/// Gets the tasks equality comparer
 		/// </summary>
-		public IEqualityComparer<Task> Comparer { get; }
+		public IEqualityComparer<IIdentificable> Comparer { get; }
 
 		readonly Random _r = new Random ();
 
@@ -35,12 +35,23 @@ namespace Taskman
 			return id;
 		}
 
+		public IEnumerable<Task> EnumerateTasks ()
+		{
+			return _collection.OfType<Task> ();
+		}
+
 		/// <summary>
 		/// Gets a task determined by its id
 		/// </summary>
-		public Task GetById (int id)
+		public IIdentificable GetById (int id)
 		{
 			return _collection.FirstOrDefault (z => z.Id == id);
+		}
+
+		public T GetById<T> (int id)
+			where T : IIdentificable
+		{
+			return (T)GetById (id);
 		}
 
 		/// <summary>
@@ -48,13 +59,13 @@ namespace Taskman
 		/// </summary>
 		public void Initialize ()
 		{
-			foreach (var c in _collection)
+			foreach (var c in _collection.OfType<Task> ())
 				c.Initialize (this);
 		}
 
 		#region ICollection implementation
 
-		internal void Add (Task item)
+		internal void Add (IIdentificable item)
 		{
 			_collection.Add (item);
 			item.Initialize (this);
@@ -70,12 +81,19 @@ namespace Taskman
 			return ret;
 		}
 
+		public Category AddCategory ()
+		{
+			var ret = new Category (this);
+			Add (ret);
+			return ret;
+		}
+
 		/// <summary>
 		/// Empties this collection, and disposes its tasks
 		/// </summary>
 		public void Clear ()
 		{
-			foreach (var task in _collection)
+			foreach (var task in _collection.OfType<Task> ())
 				task.Dispose ();
 			_collection.Clear ();
 		}
@@ -101,24 +119,16 @@ namespace Taskman
 			var f = new StreamReader (fileName);
 			var str = f.ReadToEnd ();
 			f.Close ();
-			return JsonConvert.DeserializeObject<TaskCollection> (str);
+			return JsonConvert.DeserializeObject<TaskCollection> (str, jsonSets);
 		}
 
 
 		/// <summary>
 		/// Removes a task from this collection
 		/// </summary>
-		public bool Remove (Task item)
+		public void Remove (IIdentificable item)
 		{
-			if (item.IsDisposed)
-				throw new ObjectDisposedException ("task is disposed");
-			
-			item.MasterTask?._subtasks.Remove (item.Id);
-			var ret = _collection.Remove (item);
-			if (ret)
-				item.Dispose ();
-
-			return ret;
+			item.Remove ();
 		}
 
 		/// <summary>
@@ -130,7 +140,7 @@ namespace Taskman
 
 		#region IEnumerable implementation
 
-		IEnumerator<Task> IEnumerable<Task>.GetEnumerator ()
+		IEnumerator<IIdentificable> IEnumerable<IIdentificable>.GetEnumerator ()
 		{
 			return _collection.GetEnumerator ();
 		}
@@ -152,7 +162,7 @@ namespace Taskman
 		/// <returns>The roots.</returns>
 		public IEnumerable<Task> EnumerateRoots ()
 		{
-			return _collection.Where (isRoot);
+			return _collection.OfType<Task> ().Where (isRoot);
 		}
 
 		static bool isRoot (Task task)
@@ -162,7 +172,7 @@ namespace Taskman
 
 		static JsonSerializerSettings jsonSets = new JsonSerializerSettings
 		{
-			TypeNameHandling = TypeNameHandling.Auto,
+			TypeNameHandling = TypeNameHandling.Objects,
 			ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
 			PreserveReferencesHandling = PreserveReferencesHandling.None,
 			ObjectCreationHandling = ObjectCreationHandling.Reuse,
@@ -174,15 +184,15 @@ namespace Taskman
 		/// </summary>
 		public TaskCollection ()
 		{
-			Comparer = EqualityComparer<Task>.Default;
-			_collection = new HashSet<Task> (Comparer);
+			Comparer = new IdentifyComparer ();
+			_collection = new HashSet<IIdentificable> (Comparer);
 		}
 
 		[JsonConstructor]
-		TaskCollection (IEnumerable <Task> Collection)
+		TaskCollection (IEnumerable <IIdentificable> Collection)
 		{
-			Comparer = EqualityComparer<Task>.Default;
-			_collection = new HashSet<Task> (Collection, Comparer);
+			Comparer = new IdentifyComparer ();
+			_collection = new HashSet<IIdentificable> (Collection, Comparer);
 
 			Initialize ();
 		}
