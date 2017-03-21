@@ -21,6 +21,10 @@ namespace Test
 			var task = Collection.AddNew ();
 			Assert.IsNotNull (task);
 			Assert.NotNull (task.ActivityTime);
+
+			var subTask = task.CreateSubtask ();
+			Assert.IsNotNull (subTask);
+			Assert.NotNull (subTask.ActivityTime);
 		}
 
 		static void switchAndTest (Task task, TaskStatus newStatus)

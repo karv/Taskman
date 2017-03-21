@@ -362,6 +362,7 @@ namespace Taskman
 			CreationTime = DateTime.Now;
 			masterId = masterTask.Id;
 			masterTask._subtasks.Add (Id);
+			ActivityTime = SegmentedTimeSpan.Empty;
 			_cats = new HashSet<int> ();
 			_subtasks = new HashSet<int> ();
 		}
