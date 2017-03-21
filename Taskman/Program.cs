@@ -28,6 +28,10 @@ namespace Taskman.Gui
 			return null;
 		}
 
+		/// <summary>
+		/// Gets the category selected in the category list.
+		/// </summary>
+		/// <returns>The selected category if any; <c>null</c> otherwise.</returns>
 		public Category GetSelectedCat ()
 		{
 			TreeIter selIter;
@@ -495,8 +499,13 @@ namespace Taskman.Gui
 		/// The selection of <see cref="TaskList"/>
 		/// </summary>
 		public TreeSelection TaskSelection;
-
+		/// <summary>
+		/// The store for all categories and its filter state
+		/// </summary>
 		public ListStore CatStore;
+		/// <summary>
+		/// The selection for the category list
+		/// </summary>
 		public TreeSelection CatSelector;
 
 		#region Actions
@@ -526,6 +535,9 @@ namespace Taskman.Gui
 		/// </summary>
 		public Gtk.Action FinishTask;
 
+		/// <summary>
+		/// Edit selected task in the edition dialog
+		/// </summary>
 		public Gtk.Action EditTask;
 
 		#endregion
@@ -546,6 +558,9 @@ namespace Taskman.Gui
 		/// </summary>
 		public TreeModelFilter CurrentFilter;
 
+		/// <summary>
+		/// The filter used to display the task list
+		/// </summary>
 		public TaskFilter FilterOptions;
 
 		#endregion

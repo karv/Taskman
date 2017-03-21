@@ -35,6 +35,9 @@ namespace Taskman
 			return id;
 		}
 
+		/// <summary>
+		/// Enumerates the tasks
+		/// </summary>
 		public IEnumerable<Task> EnumerateTasks ()
 		{
 			return _collection.OfType<Task> ();
@@ -48,6 +51,11 @@ namespace Taskman
 			return _collection.FirstOrDefault (z => z.Id == id);
 		}
 
+		/// <summary>
+		/// Gets the object determined by its identifier
+		/// </summary>
+		/// <param name="id">Identifier</param>
+		/// <typeparam name="T">Type of object to get</typeparam>
 		public T GetById<T> (int id)
 			where T : IIdentificable
 		{
@@ -59,7 +67,7 @@ namespace Taskman
 		/// </summary>
 		public void Initialize ()
 		{
-			foreach (var c in _collection.OfType<Task> ())
+			foreach (var c in _collection.OfType<Task> ().Cast<IIdentificable> ())
 				c.Initialize (this);
 		}
 
@@ -81,6 +89,9 @@ namespace Taskman
 			return ret;
 		}
 
+		/// <summary>
+		/// Add a new category to the collection
+		/// </summary>
 		public Category AddCategory ()
 		{
 			var ret = new Category (this);
