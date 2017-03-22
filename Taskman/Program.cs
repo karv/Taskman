@@ -65,6 +65,11 @@ namespace Taskman.Gui
 				CatStore.AppendValues (cat.Id, cat.Name, true, true);
 		}
 
+		void expandTasks (object sender = null, System.EventArgs args = null)
+		{
+			TaskList.ExpandAll ();
+		}
+
 		/// <summary>
 		/// Initializes
 		/// </summary>
@@ -175,10 +180,7 @@ namespace Taskman.Gui
 				TaskList.CollapseAll ();
 			};
 
-			((Gtk.Action)Builder.GetObject ("actExpandAll")).Activated += delegate
-			{
-				TaskList.ExpandAll ();
-			};
+			((Gtk.Action)Builder.GetObject ("actExpandAll")).Activated += expandTasks;
 
 			((Gtk.Action)Builder.GetObject ("actFilterAll")).Activated += delegate
 			{
@@ -283,6 +285,7 @@ namespace Taskman.Gui
 					buildCats ();
 					CurrentFile = fileChooser.Filename;
 					StatusBar.Push (0, "Archivo cargado");
+					expandTasks ();
 				}
 				catch (System.Exception ex)
 				{
