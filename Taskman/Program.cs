@@ -281,16 +281,17 @@ namespace Taskman.Gui
 				try
 				{
 					Tasks = TaskCollection.Load (fileChooser.Filename);
+					FilterOptions.Tasks = Tasks;
 					rebuildStore ();
 					buildCats ();
 					CurrentFile = fileChooser.Filename;
 					StatusBar.Push (0, "Archivo cargado");
 					expandTasks ();
 				}
-				catch (System.Exception ex)
+				catch (Exception ex)
 				{
 					StatusBar.Push (0, "Error cargando archivo");
-					Debug.WriteLine ("Something wrong.\n" + ex);
+					Debug.WriteLine ("Something is wrong.\n" + ex);
 				}
 			}
 			fileChooser.Destroy ();
@@ -299,8 +300,10 @@ namespace Taskman.Gui
 		void rebuildStore ()
 		{
 			TaskStore.Clear ();
+			CurrentFilter.ClearCache ();
 			foreach (var task in Tasks.EnumerateRoots ())
 				addHerTaskToStore (task);
+			CurrentFilter.Refilter ();
 		}
 
 		void addHerTaskToStore (Task task, TreeIter? father = null)

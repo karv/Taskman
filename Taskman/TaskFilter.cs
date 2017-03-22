@@ -2,6 +2,7 @@
 using System.Linq;
 using Gtk;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Taskman.Gui
 {
@@ -26,7 +27,7 @@ namespace Taskman.Gui
 		/// <summary>
 		/// The collection of tasks
 		/// </summary>
-		public readonly TaskCollection Tasks;
+		public TaskCollection Tasks;
 
 		/// <summary>
 		/// The asignation that lists the current category filter
@@ -41,7 +42,14 @@ namespace Taskman.Gui
 		public bool ApplyFilter (ITreeModel model, TreeIter iter)
 		{
 			var taskId = (int)model.GetValue (iter, 0);
+			if (taskId == 0)
+			{
+				Debug.WriteLine ("Cannot print null task.");
+				return false;
+			}
 			var task = Tasks.GetById<Task> (taskId);
+			if (task == null)
+				throw new Exception ();
 			return ApplyFilter (task);
 		}
 
