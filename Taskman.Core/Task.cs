@@ -340,40 +340,6 @@ namespace Taskman
 		}
 
 		/// <summary>
-		/// Gets a value determining wheter this and all its subtasks are marked as complete
-		/// </summary>
-		public bool IsFullyComplete
-		{
-			get
-			{
-				return Status == TaskStatus.Completed && GetSubtasks ().All (z => z.IsFullyComplete);
-			}
-		}
-
-		/// <summary>
-		/// Gets a value determining wheter this and all its subtasks are marked as inactive
-		/// </summary>
-		public bool IsFullyInactive
-		{
-			get
-			{
-				return Status == TaskStatus.Completed && GetSubtasks ().All (z => z.IsFullyInactive);
-			}
-		}
-
-		public bool HasOrExistSubtaskWithCategory (int catId, bool value)
-		{
-			return _cats.Contains (Id) == value ||
-			_subtasks.Any (z => Collection.GetById<Task> (z).HasOrExistSubtaskWithCategory (catId, value));
-		}
-
-		//TEST
-		public bool HasOrExistSubtaskWithCategory (Category cat, bool value)
-		{
-			return HasOrExistSubtaskWithCategory (cat.Id, value);
-		}
-
-		/// <summary>
 		/// Returns a <see cref="System.String"/> that represents the current <see cref="Taskman.Task"/>.
 		/// </summary>
 		public override string ToString ()

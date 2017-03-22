@@ -55,15 +55,6 @@ namespace Taskman.Gui
 			return filter.All (z => task.HasCategory (z.Item1) == z.Item2) &&
 			(ShowCompleted || task.Status != TaskStatus.Completed) &&
 			(ShowInactive || task.Status == TaskStatus.Active);
-			/*
-			// If exist a rule z such that for any subtask whose catValue does not coincide with z, return false
-			if (filter.Any (z => !task.HasOrExistSubtaskWithCategory (z.Item1, z.Item2)))
-				return false;
-			var visSubTask = task.GetSubtasks ().Where (ApplyFilter);
-			return 
-			(ShowCompleted || task.Status != TaskStatus.Completed) &&
-			(ShowInactive || task.Status == TaskStatus.Active);
-			*/
 		}
 
 		/// <param name="tasks">Task collection</param>
