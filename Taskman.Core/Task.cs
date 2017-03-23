@@ -341,8 +341,6 @@ namespace Taskman
 
 		#region Dependency
 
-		// TEST whole region
-
 		[JsonProperty ("Dependients")]
 		readonly HashSet<int> _dependencyIds;
 
@@ -364,7 +362,7 @@ namespace Taskman
 				var depTask = Collection.GetById<Task> (taskId);
 				if (depTask.Status != TaskStatus.Completed)
 				{
-					yield return taskId;
+					yield return depTask;
 					foreach (var subId in depTask.EnumerateRecursivelyIncompleteTasks ())
 						yield return subId;
 				}
@@ -374,6 +372,7 @@ namespace Taskman
 		/// <summary>
 		/// Gets a value indicating whether this task has incomplete dependencies.
 		/// </summary>
+		[JsonIgnore]
 		public bool HasIncompleteDependencies
 		{ get { return EnumerateRecursivelyIncompleteTasks ().Any (); } }
 
@@ -453,6 +452,7 @@ namespace Taskman
 			ActivityTime = SegmentedTimeSpan.Empty;
 			_cats = new HashSet<int> ();
 			_subtasks = new HashSet<int> ();
+			_dependencyIds = new HashSet<int> ();
 		}
 	}
 }

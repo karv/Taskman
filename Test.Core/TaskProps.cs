@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NUnit.Framework;
 using Taskman;
 
@@ -80,6 +81,65 @@ namespace Test
 
 			foreach (var z in master.GetSubtasks ())
 				Assert.NotNull (z);
+		}
+
+		[Test]
+		public void AddRemoveDependency ()
+		{
+			var task = Collection.AddNew ();
+			var dep = Collection.AddNew ();
+			task.AddDependency (dep.Id);
+			Assert.AreEqual (1, task.RequieredTasks ().Length);
+			task.RemoveDependency (0);
+			Assert.AreEqual (1, task.RequieredTasks ().Length);
+			task.RemoveDependency (dep.Id);
+			Assert.IsEmpty (task.RequieredTasks ());
+		}
+
+		[Test]
+		public void AutoDependency ()
+		{
+			var r = new Random ();
+			var circLen = r.Next (20);
+			var task = Collection.AddNew ();
+			var dep = task;
+			for (int i = 0; i < circLen; i++)
+			{
+				var dep2 = Collection.AddNew ();
+				dep2.AddDependency (dep.Id);
+				dep = dep2;
+			}
+			Assert.Throws<Exception> (delegate
+			{
+				// complete a dependency circle
+				dep.AddDependency (task.Id);
+			});
+		}
+
+		[Test]
+		public void DedendenceDependence ()
+		{
+			var task = Collection.AddNew ();
+			var dep = Collection.AddNew ();
+			var dep2 = Collection.AddNew ();
+			task.AddDependency (dep.Id);
+			dep.AddDependency (dep2.Id);
+			Assert.True (task.EnumerateRecursivelyIncompleteTasks ().Contains (dep2));
+		}
+
+		[Test]
+		public void CompletlyComplete ()
+		{
+			var task = Collection.AddNew ();
+			var dep = Collection.AddNew ();
+			var dep2 = Collection.AddNew ();
+			task.AddDependency (dep.Id);
+			task.AddDependency (dep2.Id);
+			Assert.True (task.HasIncompleteDependencies);
+			dep.Status = TaskStatus.Completed;
+			Assert.True (task.HasIncompleteDependencies);
+			dep2.Status = TaskStatus.Completed;
+			Assert.False (task.HasIncompleteDependencies);
 		}
 	}
 }
