@@ -339,6 +339,62 @@ namespace Taskman
 				Dispose ();
 		}
 
+		#region Dependency
+
+		[JsonProperty ("Dependients")]
+		readonly HashSet<int> _dependencyIds;
+
+		/// <summary>
+		/// Gets an array with the requiered finalized task to mark this as active or complete
+		/// </summary>
+		public Task[] RequieredTasks ()
+		{
+			return _dependencyIds.Select (Collection.GetById<Task>).ToArray ();
+		}
+
+		/// <summary>
+		/// Enumerates the incomplete nodes from the dependency tree
+		/// </summary>
+		public IEnumerable<Task> EnumerateRecursivelyIncompleteTasks ()
+		{
+			foreach (var taskId in _dependencyIds)
+			{
+				var depTask = Collection.GetById<Task> (taskId);
+				if (depTask.Status != TaskStatus.Completed)
+				{
+					yield return taskId;
+					foreach (var subId in depTask.EnumerateRecursivelyIncompleteTasks ())
+						yield return subId;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Gets a value indicating whether this task has incomplete dependencies.
+		/// </summary>
+		public bool HasIncompleteDependencies
+		{ get { return EnumerateRecursivelyIncompleteTasks ().Any (); } }
+
+		/// <summary>
+		/// Adds a dependency
+		/// </summary>
+		/// <param name="taskId">Task identifier.</param>
+		public void AddDependency (int taskId)
+		{
+			_dependencyIds.Add (taskId);
+		}
+
+		/// <summary>
+		/// Removes a dependency
+		/// </summary>
+		/// <param name="taskId">Task identifier.</param>
+		public void RemoveDependency (int taskId)
+		{
+			_dependencyIds.Remove (taskId);
+		}
+
+		#endregion
+
 		/// <summary>
 		/// Returns a <see cref="System.String"/> that represents the current <see cref="Taskman.Task"/>.
 		/// </summary>
@@ -356,6 +412,7 @@ namespace Taskman
 			CreationTime = DateTime.Now;
 			ActivityTime = SegmentedTimeSpan.Empty;
 			_subtasks = new HashSet<int> ();
+			_dependencyIds = new HashSet<int> ();
 			_cats = new HashSet<int> ();
 			_id = Collection.GetUnusedId ();
 		}
