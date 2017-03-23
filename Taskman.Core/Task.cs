@@ -99,13 +99,20 @@ namespace Taskman
 		/// <param name="newMasterId">New master identifier, remind 0 = no-master</param>
 		public void Rebase (int newMasterId)
 		{
-			if (newMasterId != 0 && Collection.GetById (newMasterId) == null)
-				throw new IdNotFoundException (Collection, newMasterId);
-
+			var newMaster = Collection.GetById<Task> (newMasterId);
 			RemoveMaster ();
 
 			if (newMasterId == 0)
 				return;
+
+			// check for circularity
+			var iterMaster = newMaster;
+			while (iterMaster != null)
+			{
+				if (iterMaster == this)
+					throw new CircularDependencyException (this);
+				iterMaster = iterMaster.MasterTask;
+			}
 
 			masterId = newMasterId;
 			MasterTask._subtasks.Add (Id);
