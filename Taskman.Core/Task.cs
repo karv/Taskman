@@ -341,6 +341,8 @@ namespace Taskman
 
 		#region Dependency
 
+		// TEST whole region
+
 		[JsonProperty ("Dependients")]
 		readonly HashSet<int> _dependencyIds;
 
@@ -382,6 +384,8 @@ namespace Taskman
 		public void AddDependency (int taskId)
 		{
 			_dependencyIds.Add (taskId);
+			if (Status == TaskStatus.Completed && HasIncompleteDependencies)
+				Status = TaskStatus.Inactive;
 		}
 
 		/// <summary>
