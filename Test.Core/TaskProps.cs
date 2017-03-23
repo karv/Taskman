@@ -107,7 +107,7 @@ namespace Test
 			for (int i = 0; i < circLen; i++)
 			{
 				var dep2 = Collection.AddNew ();
-				dep2.AddDependency (dep.Id);
+				dep.AddDependency (dep2.Id);
 				dep = dep2;
 			}
 			Assert.Throws<CircularDependencyException> (delegate

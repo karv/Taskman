@@ -404,7 +404,9 @@ namespace Taskman
 		/// <param name="taskId">Task identifier.</param>
 		public void AddDependency (int taskId)
 		{
-			if (EnumerateRecursivelyDependency ().Contains (Id))
+			var newDep = Collection.GetById<Task> (taskId);
+			var depent = newDep.EnumerateRecursivelyDependency ();
+			if (depent.Contains (Id))
 				// Circular dependency
 				throw new CircularDependencyException (this);
 			_dependencyIds.Add (taskId);
