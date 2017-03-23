@@ -32,7 +32,6 @@ namespace Taskman
 			}
 		}
 
-
 		[JsonIgnore]
 		readonly int _id;
 
@@ -91,6 +90,43 @@ namespace Taskman
 
 				throw new Exception ("Cannot get the finished time from an unfinished task.");
 			}
+		}
+
+		/// <summary>
+		/// Changes the master of this task
+		/// </summary>
+		/// <param name="newMasterId">New master identifier, remind 0 = no-master</param>
+		public void Rebase (int newMasterId)
+		{
+			var newMaster = Collection.GetById<Task> (newMasterId);
+			RemoveMaster ();
+
+			if (newMasterId == 0)
+				return;
+
+			// check for circularity
+			var iterMaster = newMaster;
+			while (iterMaster != null)
+			{
+				if (iterMaster == this)
+					throw new CircularDependencyException (this);
+				iterMaster = iterMaster.MasterTask;
+			}
+
+			masterId = newMasterId;
+			MasterTask._subtasks.Add (Id);
+		}
+
+		/// <summary>
+		/// Make this task a root task
+		/// </summary>
+		public void RemoveMaster ()
+		{
+			if (masterId == 0)
+				return; // nothing to do
+
+			MasterTask._subtasks.Remove (Id);
+			masterId = 0;
 		}
 
 		/// <summary>
@@ -204,7 +240,7 @@ namespace Taskman
 		public Task MasterTask { get { return masterId == 0 ? null : Collection.GetById<Task> (masterId); } }
 
 		[JsonProperty ("MasterId")]
-		readonly int masterId;
+		int masterId;
 
 		/// <summary>
 		/// Gets a value indicating whether this task is root.

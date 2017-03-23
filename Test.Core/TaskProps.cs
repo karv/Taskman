@@ -155,5 +155,58 @@ namespace Test
 			var enumera = task.EnumerateRecursivelyDependency ();
 			Assert.True (expectedSet.SetEquals (enumera));
 		}
+
+		[Test]
+		public void ClearMaster ()
+		{
+			var task = Collection.AddNew ();
+			var sub = task.CreateSubtask ();
+			Assert.True (sub.MasterTask == task);
+			sub.RemoveMaster ();
+			Assert.IsEmpty (task.GetSubtasks ());
+			Assert.True (sub.MasterTask == null);
+			Assert.True (sub.IsRoot);
+		}
+
+		[Test]
+		public void RebaseTo ()
+		{
+			var task = Collection.AddNew ();
+			var newBase = Collection.AddNew ();
+			var sub = task.CreateSubtask ();
+			Assert.True (sub.MasterTask == task);
+			sub.Rebase (newBase.Id);
+			Assert.AreEqual (newBase, sub.MasterTask);
+			Assert.True (newBase.GetSubtasks ().Contains (sub));
+		}
+
+		/// <summary>
+		/// Check whether rebase can produce infinite regresion
+		/// </summary>
+		[Test]
+		public void RebaseIllFoundedOneStep ()
+		{
+			var task = Collection.AddNew ();
+			Assert.Throws<CircularDependencyException> (delegate
+			{
+				// Rebase to itself
+				task.Rebase (task.Id);
+			});
+		}
+
+		/// <summary>
+		/// Check whether rebase can produce infinite regresion
+		/// </summary>
+		[Test]
+		public void RebaseIllFoundedTwoSteps ()
+		{
+			var task = Collection.AddNew ();
+			var task2 = task.CreateSubtask ();
+			Assert.Throws<CircularDependencyException> (delegate
+			{
+				// Rebase to itself
+				task.Rebase (task2.Id);
+			});
+		}
 	}
 }
