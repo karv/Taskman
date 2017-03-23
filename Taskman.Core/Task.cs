@@ -92,7 +92,6 @@ namespace Taskman
 			}
 		}
 
-		// TEST
 		/// <summary>
 		/// Changes the master of this task
 		/// </summary>
@@ -118,7 +117,6 @@ namespace Taskman
 			MasterTask._subtasks.Add (Id);
 		}
 
-		//TEST
 		/// <summary>
 		/// Make this task a root task
 		/// </summary>
