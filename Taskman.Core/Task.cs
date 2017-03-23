@@ -426,13 +426,15 @@ namespace Taskman
 		      SegmentedTimeSpan ActivityTime, 
 		      int Id, 
 		      int [] Subtasks, 
-		      int [] Categories)
+		      int [] Categories,
+		      int [] Dependients)
 		{
 			_id = Id;
 			masterId = MasterId;
 			this.ActivityTime = ActivityTime ?? SegmentedTimeSpan.Empty;
 			_cats = new HashSet<int> (Categories);
 			_subtasks = new HashSet<int> (Subtasks);
+			_dependencyIds = new HashSet<int> (Dependients);
 		}
 
 		internal Task (TaskCollection collection, Task masterTask)
