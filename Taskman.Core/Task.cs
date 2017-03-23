@@ -144,6 +144,8 @@ namespace Taskman
 		/// <param name="catId">The category identifier</param>
 		public void AddCategory (int catId)
 		{
+			if (!Collection.ExistObject (catId))
+				throw new IdNotFoundException (Collection, catId);
 			_cats.Add (catId);
 		}
 
@@ -342,7 +344,6 @@ namespace Taskman
 		/// </summary>
 		/// <param name="catId">Category identifier.</param>
 		/// <param name="value">If <c>true</c>, the category will be added, otherwise is removed</param>
-		// TEST
 		public void SetCategory (int catId, bool value)
 		{
 			if (value)

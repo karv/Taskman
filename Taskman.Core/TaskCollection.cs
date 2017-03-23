@@ -35,6 +35,11 @@ namespace Taskman
 			return id;
 		}
 
+		public bool ExistObject (int id)
+		{
+			return id == 0 || GetById (id) != null;
+		}
+
 		/// <summary>
 		/// Enumerates the tasks
 		/// </summary>
@@ -144,7 +149,7 @@ namespace Taskman
 
 
 		/// <summary>
-		/// Removes a task from this collection
+		/// Removes a task or category from this collection
 		/// </summary>
 		public void Remove (IIdentificable item)
 		{

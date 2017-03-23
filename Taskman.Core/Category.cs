@@ -15,9 +15,17 @@ namespace Taskman
 		/// </summary>
 		public void Remove ()
 		{
+			Clear ();
+			_collection._collection.Remove (this);
+		}
+
+		/// <summary>
+		/// Removes this <see cref="Category"/> from every task in the collection
+		/// </summary>
+		public void Clear ()
+		{
 			foreach (var task in _collection.EnumerateTasks ().Where (z => z.HasCategory (this)))
 				task.RemoveCategory (Id);
-			_collection._collection.Remove (this);
 		}
 
 		void IIdentificable.Initialize (TaskCollection coll)

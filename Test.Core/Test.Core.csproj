@@ -40,6 +40,7 @@
     <Compile Include="Segmented.cs" />
     <Compile Include="LoadSave.cs" />
     <Compile Include="TaskProps.cs" />
+    <Compile Include="Cats.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
