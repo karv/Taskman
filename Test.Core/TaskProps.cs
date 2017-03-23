@@ -2,6 +2,7 @@
 using System.Linq;
 using NUnit.Framework;
 using Taskman;
+using System.Collections.Generic;
 
 namespace Test
 {
@@ -109,7 +110,7 @@ namespace Test
 				dep2.AddDependency (dep.Id);
 				dep = dep2;
 			}
-			Assert.Throws<Exception> (delegate
+			Assert.Throws<CircularDependencyException> (delegate
 			{
 				// complete a dependency circle
 				dep.AddDependency (task.Id);
@@ -140,6 +141,19 @@ namespace Test
 			Assert.True (task.HasIncompleteDependencies);
 			dep2.Status = TaskStatus.Completed;
 			Assert.False (task.HasIncompleteDependencies);
+		}
+
+		[Test]
+		public void EnumerateDependencyTask ()
+		{
+			var task = Collection.AddNew ();
+			var dep = Collection.AddNew ();
+			var dep2 = Collection.AddNew ();
+			task.AddDependency (dep.Id);
+			task.AddDependency (dep2.Id);
+			var expectedSet = new HashSet<int> (new [] { dep.Id, dep2.Id });
+			var enumera = task.EnumerateRecursivelyDependency ();
+			Assert.True (expectedSet.SetEquals (enumera));
 		}
 	}
 }

@@ -341,7 +341,7 @@ namespace Taskman
 
 		#region Dependency
 
-		[JsonProperty ("Dependients")]
+		[JsonProperty ("Dependents")]
 		readonly HashSet<int> _dependencyIds;
 
 		/// <summary>
@@ -369,6 +369,28 @@ namespace Taskman
 			}
 		}
 
+		void addRecursivelyDependency (ICollection<int> accumulativeRet, bool includeSelf = false)
+		{
+			if (includeSelf)
+				accumulativeRet.Add (Id);
+			foreach (var depId in _dependencyIds)
+			{
+				var dep = Collection.GetById<Task> (depId);
+				dep.addRecursivelyDependency (accumulativeRet, true);
+			}
+		}
+
+		/// <summary>
+		/// Enumerates the dependency tree (xcludes itself)
+		/// </summary>
+		public IEnumerable<int> EnumerateRecursivelyDependency (bool includeSelf = false)
+		{
+			var ret = new List<int> ();
+			addRecursivelyDependency (ret, includeSelf);
+
+			return ret;
+		}
+
 		/// <summary>
 		/// Gets a value indicating whether this task has incomplete dependencies.
 		/// </summary>
@@ -382,6 +404,9 @@ namespace Taskman
 		/// <param name="taskId">Task identifier.</param>
 		public void AddDependency (int taskId)
 		{
+			if (EnumerateRecursivelyDependency ().Contains (Id))
+				// Circular dependency
+				throw new CircularDependencyException (this);
 			_dependencyIds.Add (taskId);
 			if (Status == TaskStatus.Completed && HasIncompleteDependencies)
 				Status = TaskStatus.Inactive;
@@ -426,14 +451,14 @@ namespace Taskman
 		      int Id, 
 		      int [] Subtasks, 
 		      int [] Categories,
-		      int [] Dependients)
+		      int [] Dependents)
 		{
 			_id = Id;
 			masterId = MasterId;
 			this.ActivityTime = ActivityTime ?? SegmentedTimeSpan.Empty;
 			_cats = new HashSet<int> (Categories);
 			_subtasks = new HashSet<int> (Subtasks);
-			_dependencyIds = new HashSet<int> (Dependients);
+			_dependencyIds = new HashSet<int> (Dependents);
 		}
 
 		internal Task (TaskCollection collection, Task masterTask)

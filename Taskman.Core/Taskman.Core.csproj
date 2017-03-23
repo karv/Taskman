@@ -45,6 +45,7 @@
     <Compile Include="Category.cs" />
     <Compile Include="IIdentificable.cs" />
     <Compile Include="IdentifyComparer.cs" />
+    <Compile Include="CircularDependencyException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
