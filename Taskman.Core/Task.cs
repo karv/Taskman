@@ -32,7 +32,6 @@ namespace Taskman
 			}
 		}
 
-
 		[JsonIgnore]
 		readonly int _id;
 

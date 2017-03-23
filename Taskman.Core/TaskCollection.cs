@@ -48,7 +48,16 @@ namespace Taskman
 		/// </summary>
 		public IIdentificable GetById (int id)
 		{
-			return _collection.FirstOrDefault (z => z.Id == id);
+			if (id == 0)
+				return null;
+			try
+			{
+				return _collection.FirstOrDefault (z => z.Id == id);
+			}
+			catch (Exception ex)
+			{
+				throw new IdNotFoundException (this, id, string.Format ("{0} not found", id), ex);
+			}
 		}
 
 		/// <summary>
