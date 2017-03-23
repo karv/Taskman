@@ -2,7 +2,6 @@ using System;
 
 namespace Taskman
 {
-	
 	[Serializable]
 	public class CircularDependencyException : Exception
 	{
