@@ -47,9 +47,14 @@
     <Compile Include="IdentifyComparer.cs" />
     <Compile Include="CircularDependencyException.cs" />
     <Compile Include="IdNotFoundException.cs" />
+    <Compile Include="Import\CategoryImporter.cs" />
+    <Compile Include="Import\CategoryImportOptions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Import\" />
   </ItemGroup>
 </Project>
