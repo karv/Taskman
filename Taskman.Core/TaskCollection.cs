@@ -49,6 +49,14 @@ namespace Taskman
 		}
 
 		/// <summary>
+		/// Enumerates the categories
+		/// </summary>
+		public IEnumerable<Category> EnumerateCategories ()
+		{
+			return _collection.OfType<Category> ();
+		}
+
+		/// <summary>
 		/// Gets a task determined by its id
 		/// </summary>
 		public IIdentificable GetById (int id)

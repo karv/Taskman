@@ -41,6 +41,7 @@
     <Compile Include="LoadSave.cs" />
     <Compile Include="TaskProps.cs" />
     <Compile Include="Cats.cs" />
+    <Compile Include="Import.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
