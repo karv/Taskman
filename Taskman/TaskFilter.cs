@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Gtk;
-using System.Collections.Generic;
 
 namespace Taskman.Gui
 {
@@ -23,10 +24,24 @@ namespace Taskman.Gui
 		/// </summary>
 		public bool FilterCats = true;
 
+		TaskCollection tasks;
+
 		/// <summary>
 		/// The collection of tasks
 		/// </summary>
-		public readonly TaskCollection Tasks;
+		public TaskCollection Tasks
+		{
+			get
+			{
+				return tasks;
+			}
+			set
+			{
+				if (value == null)
+					throw new NullReferenceException ("Tasks cannot be null.");
+				tasks = value;
+			}
+		}
 
 		/// <summary>
 		/// The asignation that lists the current category filter
@@ -41,16 +56,26 @@ namespace Taskman.Gui
 		public bool ApplyFilter (ITreeModel model, TreeIter iter)
 		{
 			var taskId = (int)model.GetValue (iter, 0);
-			var task = Tasks.GetById<Task> (taskId);
+			if (taskId == 0)
+			{
+				Debug.WriteLine ("Cannot print null task.");
+				return false;
+			}
+			var task = tasks.GetById<Task> (taskId);
+			if (task == null)
+				throw new Exception ();
 			return ApplyFilter (task);
 		}
 
+		/// <summary>
+		/// Determines if a <see cref="Task"/> is visible
+		/// </summary>
 		public bool ApplyFilter (Task task)
 		{
-			// TODO
 			if (task.GetSubtasks ().Any (ApplyFilter))
 				return true;
-			// Supose task has ot visible childs
+
+			// Assume task has not visible childs
 			var filter = CatRules ();
 			return filter.All (z => task.HasCategory (z.Item1) == z.Item2) &&
 			(ShowCompleted || task.Status != TaskStatus.Completed) &&
@@ -60,7 +85,7 @@ namespace Taskman.Gui
 		/// <param name="tasks">Task collection</param>
 		public TaskFilter (TaskCollection tasks)
 		{
-			Tasks = tasks;
+			this.tasks = tasks;
 		}
 	}
 }

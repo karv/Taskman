@@ -1,9 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using GLib;
 using Gtk;
-using System.Collections.Generic;
-using System;
 
 namespace Taskman.Gui
 {
@@ -281,16 +281,17 @@ namespace Taskman.Gui
 				try
 				{
 					Tasks = TaskCollection.Load (fileChooser.Filename);
+					FilterOptions.Tasks = Tasks;
 					rebuildStore ();
 					buildCats ();
 					CurrentFile = fileChooser.Filename;
 					StatusBar.Push (0, "Archivo cargado");
 					expandTasks ();
 				}
-				catch (System.Exception ex)
+				catch (Exception ex)
 				{
 					StatusBar.Push (0, "Error cargando archivo");
-					Debug.WriteLine ("Something wrong.\n" + ex);
+					Debug.WriteLine ("Something is wrong.\n" + ex);
 				}
 			}
 			fileChooser.Destroy ();
@@ -299,8 +300,10 @@ namespace Taskman.Gui
 		void rebuildStore ()
 		{
 			TaskStore.Clear ();
+			CurrentFilter.ClearCache ();
 			foreach (var task in Tasks.EnumerateRoots ())
 				addHerTaskToStore (task);
+			CurrentFilter.Refilter ();
 		}
 
 		void addHerTaskToStore (Task task, TreeIter? father = null)
@@ -331,7 +334,7 @@ namespace Taskman.Gui
 					Tasks.Save (CurrentFile);
 					StatusBar.Push (0, "Guardado");
 				}
-				catch (System.Exception ex)
+				catch (Exception ex)
 				{
 					StatusBar.Push (0, "Error guardando archivo");
 					Debug.WriteLine (ex);
@@ -348,7 +351,7 @@ namespace Taskman.Gui
 				Tasks.Save (fileName);
 				StatusBar.Push (0, "Guardado");
 			}
-			catch (System.Exception ex)
+			catch (Exception ex)
 			{
 				StatusBar.Push (0, "Algo salió mal al guardar");
 				Debug.WriteLine (ex);
@@ -406,7 +409,9 @@ namespace Taskman.Gui
 		{
 			var selTask = GetSelectedTask ();
 			foreach (var act in new [] {NewChildTask, RemoveTask, StartTask, StopTask, FinishTask, EditTask})
-				act.Sensitive = selTask != null;
+			#pragma warning disable 618
+			act.Sensitive = selTask != null;
+			#pragma warning restore 618
 		}
 
 		void app_quit (object sender, System.EventArgs e)
