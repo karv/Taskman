@@ -24,10 +24,25 @@ namespace Taskman.Gui
 		/// </summary>
 		public bool FilterCats = true;
 
+
 		/// <summary>
 		/// The collection of tasks
 		/// </summary>
-		public TaskCollection Tasks;
+		public TaskCollection tasks;
+
+		public TaskCollection Tasks
+		{
+			get
+			{
+				return tasks;
+			}
+			set
+			{
+				if (value == null)
+					throw new NullReferenceException ("Tasks cannot be null.");
+				tasks = value;
+			}
+		}
 
 		/// <summary>
 		/// The asignation that lists the current category filter
@@ -47,7 +62,7 @@ namespace Taskman.Gui
 				Debug.WriteLine ("Cannot print null task.");
 				return false;
 			}
-			var task = Tasks.GetById<Task> (taskId);
+			var task = tasks.GetById<Task> (taskId);
 			if (task == null)
 				throw new Exception ();
 			return ApplyFilter (task);
@@ -68,7 +83,7 @@ namespace Taskman.Gui
 		/// <param name="tasks">Task collection</param>
 		public TaskFilter (TaskCollection tasks)
 		{
-			Tasks = tasks;
+			this.tasks = tasks;
 		}
 	}
 }
