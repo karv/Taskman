@@ -493,6 +493,9 @@ namespace Taskman
 		      int [] Dependents)
 		{
 			_id = Id;
+			Dependents = Dependents ?? new int[] { };
+			Subtasks = Subtasks ?? new int[] { };
+			Categories = Categories ?? new int[] { };
 			masterId = MasterId;
 			this.ActivityTime = ActivityTime ?? SegmentedTimeSpan.Empty;
 			_cats = new HashSet<int> (Categories);
