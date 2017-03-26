@@ -73,6 +73,6 @@ Global
 		$0.DotNetNamingPolicy = $4
 		$4.DirectoryNamespaceAssociation = PrefixedHierarchical
 		$4.ResourceNamePolicy = FileFormatDefault
-		version = 0.0.1
+		version = 0.0.2
 	EndGlobalSection
 EndGlobal
