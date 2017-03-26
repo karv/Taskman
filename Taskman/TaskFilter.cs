@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Linq;
-using Gtk;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using Gtk;
 
 namespace Taskman.Gui
 {
@@ -24,12 +24,11 @@ namespace Taskman.Gui
 		/// </summary>
 		public bool FilterCats = true;
 
+		TaskCollection tasks;
 
 		/// <summary>
 		/// The collection of tasks
 		/// </summary>
-		public TaskCollection tasks;
-
 		public TaskCollection Tasks
 		{
 			get
@@ -68,12 +67,15 @@ namespace Taskman.Gui
 			return ApplyFilter (task);
 		}
 
+		/// <summary>
+		/// Determines if a <see cref="Task"/> is visible
+		/// </summary>
 		public bool ApplyFilter (Task task)
 		{
-			// TODO
 			if (task.GetSubtasks ().Any (ApplyFilter))
 				return true;
-			// Supose task has ot visible childs
+
+			// Assume task has not visible childs
 			var filter = CatRules ();
 			return filter.All (z => task.HasCategory (z.Item1) == z.Item2) &&
 			(ShowCompleted || task.Status != TaskStatus.Completed) &&

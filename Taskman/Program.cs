@@ -1,9 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using GLib;
 using Gtk;
-using System.Collections.Generic;
-using System;
 
 namespace Taskman.Gui
 {
@@ -334,7 +334,7 @@ namespace Taskman.Gui
 					Tasks.Save (CurrentFile);
 					StatusBar.Push (0, "Guardado");
 				}
-				catch (System.Exception ex)
+				catch (Exception ex)
 				{
 					StatusBar.Push (0, "Error guardando archivo");
 					Debug.WriteLine (ex);
@@ -351,7 +351,7 @@ namespace Taskman.Gui
 				Tasks.Save (fileName);
 				StatusBar.Push (0, "Guardado");
 			}
-			catch (System.Exception ex)
+			catch (Exception ex)
 			{
 				StatusBar.Push (0, "Algo salió mal al guardar");
 				Debug.WriteLine (ex);
@@ -409,7 +409,9 @@ namespace Taskman.Gui
 		{
 			var selTask = GetSelectedTask ();
 			foreach (var act in new [] {NewChildTask, RemoveTask, StartTask, StopTask, FinishTask, EditTask})
-				act.Sensitive = selTask != null;
+			#pragma warning disable 618
+			act.Sensitive = selTask != null;
+			#pragma warning restore 618
 		}
 
 		void app_quit (object sender, System.EventArgs e)
