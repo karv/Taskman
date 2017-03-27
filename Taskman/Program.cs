@@ -429,19 +429,27 @@ namespace Taskman.Gui
 		void newTask (object sender, System.EventArgs e)
 		{
 			var iter = addTask (null);
-			var path = TaskStore.GetPath (iter);
-			TaskList.ExpandToPath (path);
-			//TaskSelection.SelectIter (iter);
+			setCursorOnIter (iter);
 		}
 
 		void newChild (object sender, System.EventArgs e)
 		{
 			var iter = addTask (GetSelectedIter ());
 
-			var path = TaskStore.GetPath (iter);
-			TaskList.ExpandToPath (path);
-			TaskSelection.SelectIter (CurrentFilter.ConvertChildIterToIter (iter));
-			TaskList.SetCursor (path, NameColumn, true);
+			setCursorOnIter (iter);
+		}
+
+
+		void setCursorOnIter (TreeIter storeIter)
+		{
+			var childIter = CurrentFilter.ConvertChildIterToIter (storeIter);
+			var path = CurrentFilter.GetPath (childIter);
+			if (path != null)
+			{
+				TaskList.ExpandToPath (path);
+				TaskSelection.SelectIter (childIter);
+				TaskList.SetCursor (path, NameColumn, true);
+			}
 		}
 
 		/// <summary>
