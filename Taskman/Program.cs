@@ -45,7 +45,7 @@ namespace Taskman.Gui
 		}
 
 		/// <summary>
-		/// Gets the iter or null
+		/// Gets the (non filtered) iter or null
 		/// </summary>
 		public TreeIter? GetSelectedIter ()
 		{
@@ -439,10 +439,14 @@ namespace Taskman.Gui
 
 			var path = TaskStore.GetPath (iter);
 			TaskList.ExpandToPath (path);
-			TaskSelection.SelectIter (iter);
+			TaskSelection.SelectIter (CurrentFilter.ConvertChildIterToIter (iter));
 			TaskList.SetCursor (path, NameColumn, true);
 		}
 
+		/// <summary>
+		/// </summary>
+		/// <returns>The store level new task's iter</returns>
+		/// <param name="iter">Store level iter</param>
 		TreeIter addTask (TreeIter? iter)
 		{
 			Task task;
@@ -450,19 +454,16 @@ namespace Taskman.Gui
 			{
 				task = Tasks.AddNew ();
 				task.Name = "Nueva tarea";
-				var ret = TaskStore.AppendValues (task.Id, task.Name, task.Status.ToString ());
-				var filteredRet = CurrentFilter.ConvertChildIterToIter (ret);
-				var path = CurrentFilter.GetPath (filteredRet);
-				TaskList.SetCursor (path, NameColumn, true);
-				return ret;
+				return TaskStore.AppendValues (task.Id, task.Name, task.Status.ToString ());
 			}
 			else
 			{
 				var master = Tasks.GetById<Task> ((int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
 				task = master.CreateSubtask ();
 				task.Name = task.MasterTask.Name + ".Nueva tarea";
-				var ret = TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
-				return ret;
+				//var storeIter = CurrentFilter.ConvertIterToChildIter (iter.Value);
+				return TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
+				//return CurrentFilter.ConvertChildIterToIter (ret);
 			}
 		}
 
