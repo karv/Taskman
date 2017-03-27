@@ -397,12 +397,13 @@ namespace Taskman.Gui
 		void nameChanged (object o, EditedArgs args)
 		{
 			TreeIter iter;
-			TaskStore.GetIterFromString (out iter, args.Path);
-			var id = (int)TaskStore.GetValue (iter, (int)ColAssign.Id);
+			CurrentFilter.GetIterFromString (out iter, args.Path);
+			var storeIter = CurrentFilter.ConvertIterToChildIter (iter);
+			var id = (int)TaskStore.GetValue (storeIter, (int)ColAssign.Id);
 			var task = Tasks.GetById<Task> (id);
 			task.Name = args.NewText;
-			Debug.WriteLine (string.Format ("renamed task to {0}", task.Name));
-			TaskStore.SetValue (iter, (int)ColAssign.Name, task.Name);
+			Debug.WriteLine (string.Format ("{1} renamed task to {0}", task.Name, task.Id));
+			TaskStore.SetValue (storeIter, (int)ColAssign.Name, task.Name);
 		}
 
 		void updateSensibility (object sender, System.EventArgs e)
