@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace Taskman
@@ -31,7 +31,6 @@ namespace Taskman
 				descript = value;
 			}
 		}
-
 
 		[JsonIgnore]
 		readonly int _id;
@@ -94,6 +93,43 @@ namespace Taskman
 		}
 
 		/// <summary>
+		/// Changes the master of this task
+		/// </summary>
+		/// <param name="newMasterId">New master identifier, remind 0 = no-master</param>
+		public void Rebase (int newMasterId)
+		{
+			var newMaster = Collection.GetById<Task> (newMasterId);
+			RemoveMaster ();
+
+			if (newMasterId == 0)
+				return;
+
+			// check for circularity
+			var iterMaster = newMaster;
+			while (iterMaster != null)
+			{
+				if (iterMaster == this)
+					throw new CircularDependencyException (this);
+				iterMaster = iterMaster.MasterTask;
+			}
+
+			masterId = newMasterId;
+			MasterTask._subtasks.Add (Id);
+		}
+
+		/// <summary>
+		/// Make this task a root task
+		/// </summary>
+		public void RemoveMaster ()
+		{
+			if (masterId == 0)
+				return; // nothing to do
+
+			MasterTask._subtasks.Remove (Id);
+			masterId = 0;
+		}
+
+		/// <summary>
 		/// Remove a category from this <see cref="Task"/>
 		/// </summary>
 		/// <param name="catId">The category identifier</param>
@@ -108,6 +144,8 @@ namespace Taskman
 		/// <param name="catId">The category identifier</param>
 		public void AddCategory (int catId)
 		{
+			if (!Collection.ExistObject (catId))
+				throw new IdNotFoundException (Collection, catId);
 			_cats.Add (catId);
 		}
 
@@ -204,7 +242,7 @@ namespace Taskman
 		public Task MasterTask { get { return masterId == 0 ? null : Collection.GetById<Task> (masterId); } }
 
 		[JsonProperty ("MasterId")]
-		readonly int masterId;
+		int masterId;
 
 		/// <summary>
 		/// Gets a value indicating whether this task is root.
@@ -306,7 +344,6 @@ namespace Taskman
 		/// </summary>
 		/// <param name="catId">Category identifier.</param>
 		/// <param name="value">If <c>true</c>, the category will be added, otherwise is removed</param>
-		// TEST
 		public void SetCategory (int catId, bool value)
 		{
 			if (value)
@@ -339,6 +376,92 @@ namespace Taskman
 				Dispose ();
 		}
 
+		#region Dependency
+
+		[JsonProperty ("Dependents")]
+		readonly HashSet<int> _dependencyIds;
+
+		/// <summary>
+		/// Gets an array with the requiered finalized task to mark this as active or complete
+		/// </summary>
+		public Task[] RequieredTasks ()
+		{
+			return _dependencyIds.Select (Collection.GetById<Task>).ToArray ();
+		}
+
+		/// <summary>
+		/// Enumerates the incomplete nodes from the dependency tree
+		/// </summary>
+		public IEnumerable<Task> EnumerateRecursivelyIncompleteTasks ()
+		{
+			foreach (var taskId in _dependencyIds)
+			{
+				var depTask = Collection.GetById<Task> (taskId);
+				if (depTask.Status != TaskStatus.Completed)
+				{
+					yield return depTask;
+					foreach (var subId in depTask.EnumerateRecursivelyIncompleteTasks ())
+						yield return subId;
+				}
+			}
+		}
+
+		void addRecursivelyDependency (ICollection<int> accumulativeRet, bool includeSelf = false)
+		{
+			if (includeSelf)
+				accumulativeRet.Add (Id);
+			foreach (var depId in _dependencyIds)
+			{
+				var dep = Collection.GetById<Task> (depId);
+				dep.addRecursivelyDependency (accumulativeRet, true);
+			}
+		}
+
+		/// <summary>
+		/// Enumerates the dependency tree (xcludes itself)
+		/// </summary>
+		public IEnumerable<int> EnumerateRecursivelyDependency (bool includeSelf = false)
+		{
+			var ret = new List<int> ();
+			addRecursivelyDependency (ret, includeSelf);
+
+			return ret;
+		}
+
+		/// <summary>
+		/// Gets a value indicating whether this task has incomplete dependencies.
+		/// </summary>
+		[JsonIgnore]
+		public bool HasIncompleteDependencies
+		{ get { return EnumerateRecursivelyIncompleteTasks ().Any (); } }
+
+		/// <summary>
+		/// Adds a dependency
+		/// </summary>
+		/// <param name="taskId">Task identifier.</param>
+		public void AddDependency (int taskId)
+		{
+			var newDep = Collection.GetById<Task> (taskId);
+			var depent = newDep.EnumerateRecursivelyDependency ();
+			if (depent.Contains (Id))
+				// Circular dependency
+				throw new CircularDependencyException (this);
+			_dependencyIds.Add (taskId);
+			if (Status == TaskStatus.Completed && HasIncompleteDependencies)
+				Status = TaskStatus.Inactive;
+		}
+
+		/// <summary>
+		/// Removes a dependency
+		/// </summary>
+		/// <param name="taskId">Task identifier.</param>
+		public void RemoveDependency (int taskId)
+		{
+			_dependencyIds.Remove (taskId);
+		}
+
+		#endregion
+
 		/// <summary>
 		/// Returns a <see cref="System.String"/> that represents the current <see cref="Taskman.Task"/>.
 		/// </summary>
@@ -356,6 +479,7 @@ namespace Taskman
 			CreationTime = DateTime.Now;
 			ActivityTime = SegmentedTimeSpan.Empty;
 			_subtasks = new HashSet<int> ();
+			_dependencyIds = new HashSet<int> ();
 			_cats = new HashSet<int> ();
 			_id = Collection.GetUnusedId ();
 		}
@@ -365,13 +489,18 @@ namespace Taskman
 		      SegmentedTimeSpan ActivityTime, 
 		      int Id, 
 		      int [] Subtasks, 
-		      int [] Categories)
+		      int [] Categories,
+		      int [] Dependents)
 		{
 			_id = Id;
+			Dependents = Dependents ?? new int[] { };
+			Subtasks = Subtasks ?? new int[] { };
+			Categories = Categories ?? new int[] { };
 			masterId = MasterId;
 			this.ActivityTime = ActivityTime ?? SegmentedTimeSpan.Empty;
 			_cats = new HashSet<int> (Categories);
 			_subtasks = new HashSet<int> (Subtasks);
+			_dependencyIds = new HashSet<int> (Dependents);
 		}
 
 		internal Task (TaskCollection collection, Task masterTask)
@@ -390,6 +519,7 @@ namespace Taskman
 			ActivityTime = SegmentedTimeSpan.Empty;
 			_cats = new HashSet<int> ();
 			_subtasks = new HashSet<int> ();
+			_dependencyIds = new HashSet<int> ();
 		}
 	}
 }

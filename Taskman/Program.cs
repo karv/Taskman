@@ -1,9 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using GLib;
 using Gtk;
-using System.Collections.Generic;
-using System;
 
 namespace Taskman.Gui
 {
@@ -45,7 +45,7 @@ namespace Taskman.Gui
 		}
 
 		/// <summary>
-		/// Gets the iter or null
+		/// Gets the (non filtered) iter or null
 		/// </summary>
 		public TreeIter? GetSelectedIter ()
 		{
@@ -63,6 +63,11 @@ namespace Taskman.Gui
 			CatStore.Clear ();
 			foreach (var cat in Tasks.OfType<Category> ())
 				CatStore.AppendValues (cat.Id, cat.Name, true, true);
+		}
+
+		void expandTasks (object sender = null, System.EventArgs args = null)
+		{
+			TaskList.ExpandAll ();
 		}
 
 		/// <summary>
@@ -175,10 +180,7 @@ namespace Taskman.Gui
 				TaskList.CollapseAll ();
 			};
 
-			((Gtk.Action)Builder.GetObject ("actExpandAll")).Activated += delegate
-			{
-				TaskList.ExpandAll ();
-			};
+			((Gtk.Action)Builder.GetObject ("actExpandAll")).Activated += expandTasks;
 
 			((Gtk.Action)Builder.GetObject ("actFilterAll")).Activated += delegate
 			{
@@ -279,15 +281,17 @@ namespace Taskman.Gui
 				try
 				{
 					Tasks = TaskCollection.Load (fileChooser.Filename);
+					FilterOptions.Tasks = Tasks;
 					rebuildStore ();
 					buildCats ();
 					CurrentFile = fileChooser.Filename;
 					StatusBar.Push (0, "Archivo cargado");
+					expandTasks ();
 				}
-				catch (System.Exception ex)
+				catch (Exception ex)
 				{
 					StatusBar.Push (0, "Error cargando archivo");
-					Debug.WriteLine ("Something wrong.\n" + ex);
+					Debug.WriteLine ("Something is wrong.\n" + ex);
 				}
 			}
 			fileChooser.Destroy ();
@@ -296,8 +300,10 @@ namespace Taskman.Gui
 		void rebuildStore ()
 		{
 			TaskStore.Clear ();
+			CurrentFilter.ClearCache ();
 			foreach (var task in Tasks.EnumerateRoots ())
 				addHerTaskToStore (task);
+			CurrentFilter.Refilter ();
 		}
 
 		void addHerTaskToStore (Task task, TreeIter? father = null)
@@ -328,7 +334,7 @@ namespace Taskman.Gui
 					Tasks.Save (CurrentFile);
 					StatusBar.Push (0, "Guardado");
 				}
-				catch (System.Exception ex)
+				catch (Exception ex)
 				{
 					StatusBar.Push (0, "Error guardando archivo");
 					Debug.WriteLine (ex);
@@ -345,7 +351,7 @@ namespace Taskman.Gui
 				Tasks.Save (fileName);
 				StatusBar.Push (0, "Guardado");
 			}
-			catch (System.Exception ex)
+			catch (Exception ex)
 			{
 				StatusBar.Push (0, "Algo salió mal al guardar");
 				Debug.WriteLine (ex);
@@ -391,19 +397,22 @@ namespace Taskman.Gui
 		void nameChanged (object o, EditedArgs args)
 		{
 			TreeIter iter;
-			TaskStore.GetIterFromString (out iter, args.Path);
-			var id = (int)TaskStore.GetValue (iter, (int)ColAssign.Id);
+			CurrentFilter.GetIterFromString (out iter, args.Path);
+			var storeIter = CurrentFilter.ConvertIterToChildIter (iter);
+			var id = (int)TaskStore.GetValue (storeIter, (int)ColAssign.Id);
 			var task = Tasks.GetById<Task> (id);
 			task.Name = args.NewText;
-			Debug.WriteLine (string.Format ("renamed task to {0}", task.Name));
-			TaskStore.SetValue (iter, (int)ColAssign.Name, task.Name);
+			Debug.WriteLine (string.Format ("{1} renamed task to {0}", task.Name, task.Id));
+			TaskStore.SetValue (storeIter, (int)ColAssign.Name, task.Name);
 		}
 
 		void updateSensibility (object sender, System.EventArgs e)
 		{
 			var selTask = GetSelectedTask ();
 			foreach (var act in new [] {NewChildTask, RemoveTask, StartTask, StopTask, FinishTask, EditTask})
-				act.Sensitive = selTask != null;
+			#pragma warning disable 618
+			act.Sensitive = selTask != null;
+			#pragma warning restore 618
 		}
 
 		void app_quit (object sender, System.EventArgs e)
@@ -420,21 +429,33 @@ namespace Taskman.Gui
 		void newTask (object sender, System.EventArgs e)
 		{
 			var iter = addTask (null);
-			var path = TaskStore.GetPath (iter);
-			TaskList.ExpandToPath (path);
-			//TaskSelection.SelectIter (iter);
+			setCursorOnIter (iter);
 		}
 
 		void newChild (object sender, System.EventArgs e)
 		{
 			var iter = addTask (GetSelectedIter ());
 
-			var path = TaskStore.GetPath (iter);
-			TaskList.ExpandToPath (path);
-			TaskSelection.SelectIter (iter);
-			TaskList.SetCursor (path, NameColumn, true);
+			setCursorOnIter (iter);
 		}
 
+
+		void setCursorOnIter (TreeIter storeIter)
+		{
+			var childIter = CurrentFilter.ConvertChildIterToIter (storeIter);
+			var path = CurrentFilter.GetPath (childIter);
+			if (path != null)
+			{
+				TaskList.ExpandToPath (path);
+				TaskSelection.SelectIter (childIter);
+				TaskList.SetCursor (path, NameColumn, true);
+			}
+		}
+
+		/// <summary>
+		/// </summary>
+		/// <returns>The store level new task's iter</returns>
+		/// <param name="iter">Store level iter</param>
 		TreeIter addTask (TreeIter? iter)
 		{
 			Task task;
@@ -442,19 +463,16 @@ namespace Taskman.Gui
 			{
 				task = Tasks.AddNew ();
 				task.Name = "Nueva tarea";
-				var ret = TaskStore.AppendValues (task.Id, task.Name, task.Status.ToString ());
-				var filteredRet = CurrentFilter.ConvertChildIterToIter (ret);
-				var path = CurrentFilter.GetPath (filteredRet);
-				TaskList.SetCursor (path, NameColumn, true);
-				return ret;
+				return TaskStore.AppendValues (task.Id, task.Name, task.Status.ToString ());
 			}
 			else
 			{
 				var master = Tasks.GetById<Task> ((int)TaskStore.GetValue (iter.Value, (int)ColAssign.Id));
 				task = master.CreateSubtask ();
 				task.Name = task.MasterTask.Name + ".Nueva tarea";
-				var ret = TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
-				return ret;
+				//var storeIter = CurrentFilter.ConvertIterToChildIter (iter.Value);
+				return TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
+				//return CurrentFilter.ConvertChildIterToIter (ret);
 			}
 		}
 

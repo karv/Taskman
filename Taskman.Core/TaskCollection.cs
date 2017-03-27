@@ -36,6 +36,14 @@ namespace Taskman
 		}
 
 		/// <summary>
+		/// Determines whether an Id links to an existing object
+		/// </summary>
+		public bool ExistObject (int id)
+		{
+			return id == 0 || GetById (id) != null;
+		}
+
+		/// <summary>
 		/// Enumerates the tasks
 		/// </summary>
 		public IEnumerable<Task> EnumerateTasks ()
@@ -44,11 +52,28 @@ namespace Taskman
 		}
 
 		/// <summary>
+		/// Enumerates the categories
+		/// </summary>
+		public IEnumerable<Category> EnumerateCategories ()
+		{
+			return _collection.OfType<Category> ();
+		}
+
+		/// <summary>
 		/// Gets a task determined by its id
 		/// </summary>
 		public IIdentificable GetById (int id)
 		{
-			return _collection.FirstOrDefault (z => z.Id == id);
+			if (id == 0)
+				return null;
+			try
+			{
+				return _collection.FirstOrDefault (z => z.Id == id);
+			}
+			catch (Exception ex)
+			{
+				throw new IdNotFoundException (this, id, string.Format ("{0} not found", id), ex);
+			}
 		}
 
 		/// <summary>
@@ -135,7 +160,7 @@ namespace Taskman
 
 
 		/// <summary>
-		/// Removes a task from this collection
+		/// Removes a task or category from this collection
 		/// </summary>
 		public void Remove (IIdentificable item)
 		{
