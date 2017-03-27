@@ -1,6 +1,9 @@
 
 namespace Taskman.Import
 {
+	/// <summary>
+	/// Options for <see cref="CategoryImporter"/>
+	/// </summary>
 	public struct CategoryImportOptions
 	{
 		/// <summary>

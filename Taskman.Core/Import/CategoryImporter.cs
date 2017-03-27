@@ -4,14 +4,29 @@ using System.Linq;
 
 namespace Taskman.Import
 {
+	/// <summary>
+	/// Provides methods to import <see cref="Category"/> from a file or a <see cref="TaskCollection"/>
+	/// </summary>
 	public static class CategoryImporter
 	{
+		/// <summary>
+		/// Imports the categories from a file
+		/// </summary>
+		/// <returns>Collection of imported <see cref="Category"/></returns>
+		/// <param name="coll">The collection where to import the categories</param>
+		/// <param name="fileName">File name where is located the collection to import</param>
 		public static Category[] ImportCategory (this TaskCollection coll,
 		                                         string fileName)
 		{
 			return ImportCategory (coll, fileName, CategoryImportOptions.Default);
 		}
 
+		/// <summary>
+		/// Imports the categories from a file
+		/// </summary>
+		/// <returns>Collection of imported <see cref="Category"/></returns>
+		/// <param name="coll">The collection where to import the categories</param>
+		/// <param name="importingCollection">The collection to import</param>
 		public static Category[] ImportCategory (this TaskCollection coll,
 		                                         TaskCollection importingCollection)
 		{
@@ -33,6 +48,13 @@ namespace Taskman.Import
 			return ImportCategory (coll, otherColl, opts);
 		}
 
+		/// <summary>
+		/// Imports the categories from a file
+		/// </summary>
+		/// <returns>Collection of imported <see cref="Category"/></returns>
+		/// <param name="coll">The collection where to import the categories</param>
+		/// <param name="importingCollection">The collection to import</param>
+		/// <param name="opts">Options</param>
 		public static Category[] ImportCategory (this TaskCollection coll,
 		                                         TaskCollection importingCollection,
 		                                         CategoryImportOptions opts)
@@ -54,7 +76,7 @@ namespace Taskman.Import
 					return coll.EnumerateCategories ().First (
 						z => string.Equals (z.Name, importCat.Name, StringComparison.CurrentCultureIgnoreCase));
 				}
-				catch (Exception ex)
+				catch (Exception)
 				{
 					return importCat.clone (coll);
 				}

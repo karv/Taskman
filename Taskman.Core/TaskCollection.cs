@@ -35,6 +35,9 @@ namespace Taskman
 			return id;
 		}
 
+		/// <summary>
+		/// Determines whether an Id links to an existing object
+		/// </summary>
 		public bool ExistObject (int id)
 		{
 			return id == 0 || GetById (id) != null;

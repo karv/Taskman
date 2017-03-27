@@ -18,7 +18,7 @@ namespace Taskman
 		public readonly int Id;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="T:IdNotFoundException"/> class
+		/// Initializes a new instance of the <see cref="IdNotFoundException"/> class
 		/// </summary>
 		public IdNotFoundException (
 			TaskCollection collection, 
@@ -33,7 +33,7 @@ namespace Taskman
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="T:IdNotFoundException"/> class
+		/// Initializes a new instance of the <see cref="IdNotFoundException"/> class
 		/// </summary>
 		/// <param name="context">The contextual information about the source or destination.</param>
 		/// <param name="info">The object that holds the serialized object data.</param>
