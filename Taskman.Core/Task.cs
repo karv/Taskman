@@ -24,6 +24,7 @@ namespace Taskman
 		/// <summary>
 		/// Priority (recursive, operated by max) of this task;
 		/// </summary>
+		[JsonIgnore]
 		public int RecursivePriority
 		{
 			get
@@ -32,7 +33,6 @@ namespace Taskman
 				return subTasks.Length == 0 ? 
 					SelfPriority : 
 					Math.Max (SelfPriority, subTasks.Max (z => RecursivePriority));
-
 			}
 		}
 
