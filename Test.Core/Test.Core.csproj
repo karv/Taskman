@@ -42,6 +42,7 @@
     <Compile Include="Cats.cs" />
     <Compile Include="Import.cs" />
     <Compile Include="TaskPriority.cs" />
+    <Compile Include="TaskAutocompletation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
