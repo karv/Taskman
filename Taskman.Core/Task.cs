@@ -36,6 +36,38 @@ namespace Taskman
 			}
 		}
 
+		bool autoCompletable;
+
+		/// <summary>
+		/// Gets or sets a value indicating whether this <see cref="Task"/> sets to complete whenever all its
+		/// childs are completed
+		/// </summary>
+		/// <value><c>true</c> if auto completable; otherwise, <c>false</c>.</value>
+		public bool AutoCompletable
+		{
+			get{ return autoCompletable; }
+			set
+			{
+				autoCompletable = value;
+				updateAutocompletableStatus ();
+			}
+		}
+
+		void updateAutocompletableStatus ()
+		{
+			if (AutoCompletable && AllChildCompleted)
+				Status = TaskStatus.Completed;
+		}
+
+		/// <summary>
+		/// Returns <c>true</c> only when all its child <see cref="Task"/> are marked as 
+		/// <see cref="TaskStatus.Completed"/>
+		/// </summary>
+		public bool AllChildCompleted
+		{
+			get{ return GetSubtasks ().All (z => z.Status == TaskStatus.Completed); }
+		}
+
 		string descript;
 
 		/// <summary>
@@ -206,6 +238,7 @@ namespace Taskman
 						var tInter = new TimeInterval (contextualTime, DateTime.Now);
 						ActivityTime.Add (tInter);
 						status = TaskStatus.Completed;
+						MasterTask?.updateAutocompletableStatus ();
 					}
 					else
 					{
@@ -234,6 +267,7 @@ namespace Taskman
 					else
 					{
 						status = TaskStatus.Completed;
+						MasterTask?.updateAutocompletableStatus ();
 					}
 					return;
 			}
