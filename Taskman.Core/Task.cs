@@ -15,6 +15,27 @@ namespace Taskman
 		/// </summary>
 		public string Name;
 
+		/// <summary>
+		/// Priority of this task;
+		/// not affected by childrens
+		/// </summary>
+		public int SelfPriority;
+
+		/// <summary>
+		/// Priority (recursive, operated by max) of this task;
+		/// </summary>
+		[JsonIgnore]
+		public int RecursivePriority
+		{
+			get
+			{
+				var subTasks = GetSubtasks ();
+				return subTasks.Length == 0 ? 
+					SelfPriority : 
+					Math.Max (SelfPriority, subTasks.Max (z => RecursivePriority));
+			}
+		}
+
 		string descript;
 
 		/// <summary>
