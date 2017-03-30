@@ -10,6 +10,8 @@ namespace Taskman
 	/// </summary>
 	public class Task : IEquatable<Task>, IIdentificable
 	{
+		#region General
+
 		/// <summary>
 		/// Displaying name
 		/// </summary>
@@ -59,15 +61,6 @@ namespace Taskman
 				Status = TaskStatus.Completed;
 		}
 
-		/// <summary>
-		/// Returns <c>true</c> only when all its child <see cref="Task"/> are marked as 
-		/// <see cref="TaskStatus.Completed"/>
-		/// </summary>
-		public bool AllChildCompleted
-		{
-			get{ return GetSubtasks ().All (z => z.Status == TaskStatus.Completed); }
-		}
-
 		string descript;
 
 		/// <summary>
@@ -100,110 +93,6 @@ namespace Taskman
 				return _id;
 			}
 		}
-
-		[JsonProperty ("Categories")]
-		readonly HashSet<int> _cats;
-
-		DateTime contextualTime;
-		/// <summary>
-		/// The creation time
-		/// </summary>
-		public DateTime CreationTime;
-
-		/// <summary>
-		/// The time of this task as active
-		/// </summary>
-		public SegmentedTimeSpan ActivityTime;
-
-		/// <summary>
-		/// Gets a <see cref="TimeSpan"/> representing the tile this task being active.
-		/// </summary>
-		[JsonIgnore]
-		public TimeSpan TotalActivityTime
-		{
-			get{ return ActivityTime.Duration; }
-		}
-
-		/// <summary>
-		/// The begin time
-		/// </summary>
-		[JsonIgnore]
-		public DateTime BeginTime { get { return ActivityTime.Min (); } }
-
-		/// <summary>
-		/// The termination time
-		/// </summary>
-		[JsonIgnore]
-		public DateTime TerminationTime
-		{
-			get
-			{
-				if (status == TaskStatus.Completed)
-					return ActivityTime.Max ();
-
-				throw new Exception ("Cannot get the finished time from an unfinished task.");
-			}
-		}
-
-		/// <summary>
-		/// Changes the master of this task
-		/// </summary>
-		/// <param name="newMasterId">New master identifier, remind 0 = no-master</param>
-		public void Rebase (int newMasterId)
-		{
-			var newMaster = Collection.GetById<Task> (newMasterId);
-			RemoveMaster ();
-
-			if (newMasterId == 0)
-				return;
-
-			// check for circularity
-			var iterMaster = newMaster;
-			while (iterMaster != null)
-			{
-				if (iterMaster == this)
-					throw new CircularDependencyException (this);
-				iterMaster = iterMaster.MasterTask;
-			}
-
-			masterId = newMasterId;
-			MasterTask._subtasks.Add (Id);
-		}
-
-		/// <summary>
-		/// Make this task a root task
-		/// </summary>
-		public void RemoveMaster ()
-		{
-			if (masterId == 0)
-				return; // nothing to do
-
-			MasterTask._subtasks.Remove (Id);
-			masterId = 0;
-		}
-
-		/// <summary>
-		/// Remove a category from this <see cref="Task"/>
-		/// </summary>
-		/// <param name="catId">The category identifier</param>
-		public void RemoveCategory (int catId)
-		{
-			_cats.Remove (catId);
-		}
-
-		/// <summary>
-		/// Add a category from this <see cref="Task"/>
-		/// </summary>
-		/// <param name="catId">The category identifier</param>
-		public void AddCategory (int catId)
-		{
-			if (!Collection.ExistObject (catId))
-				throw new IdNotFoundException (Collection, catId);
-			_cats.Add (catId);
-		}
-
-		[JsonProperty ("Subtasks")]
-		internal readonly HashSet<int> _subtasks;
 
 		TaskStatus status;
 
@@ -291,6 +180,78 @@ namespace Taskman
 		TaskCollection _collection;
 
 		/// <summary>
+		/// Gets the collection of tasks
+		/// </summary>
+		[JsonIgnore]
+		public TaskCollection Collection
+		{
+			get
+			{
+				if (IsDisposed)
+					throw new ObjectDisposedException ("Cannot get the collection from a disposed task.");
+				return _collection;
+			}
+		}
+
+		/// <summary>
+		/// Marks this task as disposed, so it cannot have acces to <see cref="Collection"/>
+		/// </summary>
+		internal void Dispose ()
+		{
+			IsDisposed = true;
+		}
+
+		/// <summary>
+		/// Remove and dispose ths task.
+		/// </summary>
+		public void Remove ()
+		{
+			if (IsDisposed)
+				throw new ObjectDisposedException ("task is disposed");
+
+			MasterTask?._subtasks.Remove (Id);
+			var ret = _collection._collection.Remove (this);
+			if (ret)
+				Dispose ();
+		}
+
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="Taskman.Task"/>.
+		/// </summary>
+		public override string ToString ()
+		{
+			return string.IsNullOrEmpty (Name) ? Id.ToString () : Name;
+		}
+
+		#endregion
+
+		#region Master-Child
+
+		/// <summary>
+		/// Returns <c>true</c> only when all its child <see cref="Task"/> are marked as 
+		/// <see cref="TaskStatus.Completed"/>
+		/// </summary>
+		public bool AllChildCompleted
+		{
+			get{ return GetSubtasks ().All (z => z.Status == TaskStatus.Completed); }
+		}
+
+		/// <summary>
+		/// Make this task a root task
+		/// </summary>
+		public void RemoveMaster ()
+		{
+			if (masterId == 0)
+				return; // nothing to do
+
+			MasterTask._subtasks.Remove (Id);
+			masterId = 0;
+		}
+
+		[JsonProperty ("Subtasks")]
+		internal readonly HashSet<int> _subtasks;
+
+		/// <summary>
 		/// If not root, returns the master task, <c>null</c> otherwise.
 		/// </summary>
 		[JsonIgnore]
@@ -335,28 +296,6 @@ namespace Taskman
 			return EnumerateRecursiveSubtasks ().ToArray ();
 		}
 
-		/// <summary>
-		/// Gets the collection of tasks
-		/// </summary>
-		[JsonIgnore]
-		public TaskCollection Collection
-		{
-			get
-			{
-				if (IsDisposed)
-					throw new ObjectDisposedException ("Cannot get the collection from a disposed task.");
-				return _collection;
-			}
-		}
-
-		#region IEquatable implementation
-
-		bool IEquatable<Task>.Equals (Task other)
-		{
-			return other == null || other?.Id == Id;
-		}
-
-		#endregion
 
 		/// <summary>
 		/// Creates and returns a new subtask
@@ -368,12 +307,31 @@ namespace Taskman
 			return ret;
 		}
 
+		#endregion
+
+		#region Cats
+
+		[JsonProperty ("Categories")]
+		readonly HashSet<int> _cats;
+
 		/// <summary>
-		/// Marks this task as disposed, so it cannot have acces to <see cref="Collection"/>
+		/// Remove a category from this <see cref="Task"/>
 		/// </summary>
-		internal void Dispose ()
+		/// <param name="catId">The category identifier</param>
+		public void RemoveCategory (int catId)
 		{
-			IsDisposed = true;
+			_cats.Remove (catId);
+		}
+
+		/// <summary>
+		/// Add a category from this <see cref="Task"/>
+		/// </summary>
+		/// <param name="catId">The category identifier</param>
+		public void AddCategory (int catId)
+		{
+			if (!Collection.ExistObject (catId))
+				throw new IdNotFoundException (Collection, catId);
+			_cats.Add (catId);
 		}
 
 		/// <summary>
@@ -417,19 +375,90 @@ namespace Taskman
 			SetCategory (cat.Id, value);
 		}
 
-		/// <summary>
-		/// Remove and dispose ths task.
-		/// </summary>
-		public void Remove ()
-		{
-			if (IsDisposed)
-				throw new ObjectDisposedException ("task is disposed");
+		#endregion
 
-			MasterTask?._subtasks.Remove (Id);
-			var ret = _collection._collection.Remove (this);
-			if (ret)
-				Dispose ();
+		#region Time
+
+		DateTime contextualTime;
+		/// <summary>
+		/// The creation time
+		/// </summary>
+		public DateTime CreationTime;
+
+		/// <summary>
+		/// The time of this task as active
+		/// </summary>
+		public SegmentedTimeSpan ActivityTime;
+
+		/// <summary>
+		/// Gets a <see cref="TimeSpan"/> representing the tile this task being active.
+		/// </summary>
+		[JsonIgnore]
+		public TimeSpan TotalActivityTime
+		{
+			get{ return ActivityTime.Duration; }
 		}
+
+		/// <summary>
+		/// The begin time
+		/// </summary>
+		[JsonIgnore]
+		public DateTime BeginTime { get { return ActivityTime.Min (); } }
+
+		/// <summary>
+		/// The termination time
+		/// </summary>
+		[JsonIgnore]
+		public DateTime TerminationTime
+		{
+			get
+			{
+				if (status == TaskStatus.Completed)
+					return ActivityTime.Max ();
+
+				throw new Exception ("Cannot get the finished time from an unfinished task.");
+			}
+		}
+
+		#endregion
+
+		#region Dynamics
+
+		/// <summary>
+		/// Changes the master of this task
+		/// </summary>
+		/// <param name="newMasterId">New master identifier, remind 0 = no-master</param>
+		public void Rebase (int newMasterId)
+		{
+			var newMaster = Collection.GetById<Task> (newMasterId);
+			RemoveMaster ();
+
+			if (newMasterId == 0)
+				return;
+
+			// check for circularity
+			var iterMaster = newMaster;
+			while (iterMaster != null)
+			{
+				if (iterMaster == this)
+					throw new CircularDependencyException (this);
+				iterMaster = iterMaster.MasterTask;
+			}
+
+			masterId = newMasterId;
+			MasterTask._subtasks.Add (Id);
+		}
+
+		#endregion
+
+		#region IEquatable implementation
+
+		bool IEquatable<Task>.Equals (Task other)
+		{
+			return other == null || other?.Id == Id;
+		}
+
+		#endregion
 
 		#region Dependency
 
@@ -517,13 +546,7 @@ namespace Taskman
 
 		#endregion
 
-		/// <summary>
-		/// Returns a <see cref="System.String"/> that represents the current <see cref="Taskman.Task"/>.
-		/// </summary>
-		public override string ToString ()
-		{
-			return string.IsNullOrEmpty (Name) ? Id.ToString () : Name;
-		}
+		#region ctor
 
 		internal Task (TaskCollection collection)
 		{
@@ -576,5 +599,7 @@ namespace Taskman
 			_subtasks = new HashSet<int> ();
 			_dependencyIds = new HashSet<int> ();
 		}
+
+		#endregion
 	}
 }
