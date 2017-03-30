@@ -34,7 +34,7 @@ namespace Taskman
 				var subTasks = GetSubtasks ();
 				return subTasks.Length == 0 ? 
 					SelfPriority : 
-					Math.Max (SelfPriority, subTasks.Max (z => RecursivePriority));
+					Math.Max (SelfPriority, subTasks.Max (z => z.RecursivePriority));
 			}
 		}
 
