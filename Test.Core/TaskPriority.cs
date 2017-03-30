@@ -14,6 +14,7 @@ namespace Test
 			Collection = new TaskCollection ();
 		}
 
+		[Test]
 		public void GoodCalculation ()
 		{
 			var root = Collection.AddNew ();
