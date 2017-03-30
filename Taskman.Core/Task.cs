@@ -57,7 +57,7 @@ namespace Taskman
 
 		void updateAutocompletableStatus ()
 		{
-			if (AutoCompletable && AllChildCompleted)
+			if (AutoCompletable && _subtasks.Any () && AllChildCompleted)
 				Status = TaskStatus.Completed;
 		}
 
@@ -304,6 +304,7 @@ namespace Taskman
 		{
 			var ret = new Task (Collection, this);
 			Collection.Add (ret);
+			updateAutocompletableStatus ();
 			return ret;
 		}
 
