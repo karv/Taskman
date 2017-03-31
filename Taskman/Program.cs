@@ -58,6 +58,8 @@ namespace Taskman.Gui
 			return null;
 		}
 
+		int copyId;
+
 		void buildCats ()
 		{
 			CatStore.Clear ();
@@ -179,6 +181,13 @@ namespace Taskman.Gui
 			{
 				TaskList.CollapseAll ();
 			};
+
+			((Gtk.Action)Builder.GetObject ("actCut")).Activated += delegate
+			{
+				copyId = GetSelectedTask ().Id;
+			};
+
+			((Gtk.Action)Builder.GetObject ("actPaste")).Activated += (s, e) => pasteSelected (); 
 
 			((Gtk.Action)Builder.GetObject ("actExpandAll")).Activated += expandTasks;
 
@@ -439,7 +448,6 @@ namespace Taskman.Gui
 			setCursorOnIter (iter);
 		}
 
-
 		void setCursorOnIter (TreeIter storeIter)
 		{
 			var childIter = CurrentFilter.ConvertChildIterToIter (storeIter);
@@ -481,6 +489,23 @@ namespace Taskman.Gui
 			return iter == null ? 
 				TaskStore.AppendValues (task.Id, task.Name, task.Status.ToString ()) : 
 				TaskStore.AppendValues (iter.Value, task.Id, task.Name, task.Status.ToString ());
+		}
+
+		void copySelected ()
+		{
+			copyId = GetSelectedTask ().Id;
+		}
+
+		void pasteSelected ()
+		{
+			var copyTask = Tasks.GetById<Task> (copyId);
+			if (copyTask == null)
+				return;
+			var rebaseTo = GetSelectedTask ().Id;
+			if (rebaseTo == 0)
+				return;
+			copyTask.Rebase (rebaseTo);
+			rebuildStore ();
 		}
 
 		/// <summary>
