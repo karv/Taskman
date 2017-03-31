@@ -867,6 +867,19 @@
             <property name="margin_bottom">6</property>
             <property name="homogeneous">True</property>
             <property name="baseline_position">bottom</property>
+            <child>
+              <object class="GtkImage" id="ReqSaveIcon">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="stock">gtk-floppy</property>
+                <property name="icon_size">1</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>

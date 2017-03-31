@@ -123,6 +123,7 @@ namespace Taskman.Gui
 				CatStore.SetValue (iter, 1, args.NewText);
 				var catId = (int)CatStore.GetValue (iter, 0);
 				Tasks.GetById<Category> (catId).Name = args.NewText;
+				RequireSave = true;
 			};
 
 
@@ -219,6 +220,7 @@ namespace Taskman.Gui
 			{
 				TaskPropertyDialogMaker.Task = GetSelectedTask ();
 				TaskPropertyDialogMaker.BuildWindow ();
+				RequireSave = true;
 				TaskPropertyDialogMaker.AfterResponse = delegate
 				{
 					// iter.HasValue is asserted
@@ -231,16 +233,19 @@ namespace Taskman.Gui
 			StartTask.Activated += delegate
 			{
 				setTaskStatus (GetSelectedIter ().Value, TaskStatus.Active);
+				RequireSave = true;
 			};
 
 			StopTask.Activated += delegate
 			{
 				setTaskStatus (GetSelectedIter ().Value, TaskStatus.Inactive);
+				RequireSave = true;
 			};
 
 			FinishTask.Activated += delegate
 			{
 				setTaskStatus (GetSelectedIter ().Value, TaskStatus.Completed);
+				RequireSave = true;
 			};
 
 			FilterOptions = new TaskFilter (Tasks);
@@ -248,6 +253,7 @@ namespace Taskman.Gui
 			CurrentFilter = new TreeModelFilter (TaskStore, null);
 			CurrentFilter.VisibleFunc = FilterOptions.ApplyFilter;
 			TaskList.Model = CurrentFilter;
+			RequireSave = false;
 
 			TaskSelection.Changed += updateSensibility;
 			updateSensibility (this, null);
@@ -290,6 +296,7 @@ namespace Taskman.Gui
 				try
 				{
 					Tasks = TaskCollection.Load (fileChooser.Filename);
+					RequireSave = false;
 					FilterOptions.Tasks = Tasks;
 					rebuildStore ();
 					buildCats ();
@@ -342,6 +349,7 @@ namespace Taskman.Gui
 					CurrentFile = fileChooser.Filename;
 					Tasks.Save (CurrentFile);
 					StatusBar.Push (0, "Guardado");
+					RequireSave = false;
 				}
 				catch (Exception ex)
 				{
@@ -358,6 +366,7 @@ namespace Taskman.Gui
 			try
 			{
 				Tasks.Save (fileName);
+				RequireSave = false;
 				StatusBar.Push (0, "Guardado");
 			}
 			catch (Exception ex)
@@ -401,6 +410,7 @@ namespace Taskman.Gui
 			var iter = GetSelectedIter ().Value;
 			Tasks.Remove (task);
 			TaskStore.Remove (ref iter);
+			RequireSave = true;
 		}
 
 		void nameChanged (object o, EditedArgs args)
@@ -413,6 +423,7 @@ namespace Taskman.Gui
 			task.Name = args.NewText;
 			Debug.WriteLine (string.Format ("{1} renamed task to {0}", task.Name, task.Id));
 			TaskStore.SetValue (storeIter, (int)ColAssign.Name, task.Name);
+			RequireSave = true;
 		}
 
 		void updateSensibility (object sender, System.EventArgs e)
@@ -426,12 +437,14 @@ namespace Taskman.Gui
 
 		void app_quit (object sender, System.EventArgs e)
 		{
-			var saveDial = (Dialog)Builder.GetObject ("SaveQuit Dialog");
-			var r = (ResponseType)(saveDial.Run ());
+			if (RequireSave)
+			{
+				var saveDial = (Dialog)Builder.GetObject ("SaveQuit Dialog");
+				var r = (ResponseType)(saveDial.Run ());
 
-			if (r == ResponseType.Yes)
-				save (sender, e);
-			
+				if (r == ResponseType.Yes)
+					save (sender, e);
+			}			
 			Gtk.Application.Quit ();
 		}
 
@@ -467,6 +480,7 @@ namespace Taskman.Gui
 		TreeIter addTask (TreeIter? iter)
 		{
 			Task task;
+			RequireSave = true;
 			if (iter == null)
 			{
 				task = Tasks.AddNew ();
@@ -612,6 +626,25 @@ namespace Taskman.Gui
 		/// The current editing file, <c>null</c> if not set
 		/// </summary>
 		public string CurrentFile;
+
+		bool requireSave;
+
+		/// <summary>
+		/// Gets or sets whether the opened file has been modified
+		/// </summary>
+		public bool RequireSave
+		{
+			get
+			{
+				return requireSave;
+			}
+			set
+			{
+				requireSave = value;
+				var img = (Image)Builder.GetObject ("ReqSaveIcon");
+				img.Visible = value;
+			}
+		}
 
 		/// <summary>
 		/// The link from glade
