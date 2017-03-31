@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using GLib;
 using Gtk;
+using System.IO;
 
 namespace Taskman.Gui
 {
@@ -280,6 +281,37 @@ namespace Taskman.Gui
 			return ret;
 		}
 
+		void loadOrCreate (string fileName)
+		{
+			if (File.Exists (fileName))
+				loadFile (fileName);
+			else
+				newFile (fileName);
+		}
+
+		void newFile (string fileName)
+		{
+			Tasks = new TaskCollection ();
+			RequireSave = false;
+			FilterOptions.Tasks = Tasks;
+			rebuildStore ();
+			buildCats ();
+			CurrentFile = fileName;
+			StatusBar.Push (0, "");
+		}
+
+		void loadFile (string fileName)
+		{
+			Tasks = TaskCollection.Load (fileName);
+			RequireSave = false;
+			FilterOptions.Tasks = Tasks;
+			rebuildStore ();
+			buildCats ();
+			CurrentFile = fileName;
+			StatusBar.Push (0, "Archivo cargado");
+			expandTasks ();
+		}
+
 		void load (object sender, System.EventArgs e)
 		{
 			requestSave (sender, e);
@@ -296,14 +328,7 @@ namespace Taskman.Gui
 			{
 				try
 				{
-					Tasks = TaskCollection.Load (fileChooser.Filename);
-					RequireSave = false;
-					FilterOptions.Tasks = Tasks;
-					rebuildStore ();
-					buildCats ();
-					CurrentFile = fileChooser.Filename;
-					StatusBar.Push (0, "Archivo cargado");
-					expandTasks ();
+					loadFile (fileChooser.Filename);
 				}
 				catch (Exception ex)
 				{
