@@ -372,10 +372,11 @@ namespace Taskman.Gui
 			{
 				try
 				{
-					CurrentFile = fileChooser.Filename;
-					Tasks.Save (CurrentFile);
+					var saveTo = fileChooser.Filename;
+					Tasks.Save (saveTo);
 					StatusBar.Push (0, "Guardado");
 					RequireSave = false;
+					CurrentFile = saveTo;
 				}
 				catch (Exception ex)
 				{
@@ -654,10 +655,23 @@ namespace Taskman.Gui
 
 		#endregion
 
+		public string currentFile;
+
 		/// <summary>
 		/// The current editing file, <c>null</c> if not set
 		/// </summary>
-		public string CurrentFile;
+		public string CurrentFile
+		{
+			get
+			{
+				return currentFile;
+			}
+			set
+			{
+				currentFile = value;
+				MainWindow.Title = string.IsNullOrEmpty (value) ? "TaskMan" : currentFile + " - TaskMan";
+			}
+		}
 
 		bool requireSave;
 
