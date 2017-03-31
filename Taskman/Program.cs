@@ -282,6 +282,7 @@ namespace Taskman.Gui
 
 		void load (object sender, System.EventArgs e)
 		{
+			requestSave (sender, e);
 			var filter = (FileFilter)Builder.GetObject ("FileFilter");
 			filter.Name = "TaskManager";
 			var fileChooser = new  FileChooserDialog ("Abrir...", null, FileChooserAction.Open);
@@ -435,7 +436,7 @@ namespace Taskman.Gui
 			#pragma warning restore 618
 		}
 
-		void app_quit (object sender, System.EventArgs e)
+		void requestSave (object sender, System.EventArgs e)
 		{
 			if (RequireSave)
 			{
@@ -444,7 +445,13 @@ namespace Taskman.Gui
 
 				if (r == ResponseType.Yes)
 					save (sender, e);
-			}			
+				saveDial.Hide ();
+			}	
+		}
+
+		void app_quit (object sender, System.EventArgs e)
+		{
+			requestSave (sender, e);
 			Gtk.Application.Quit ();
 		}
 
