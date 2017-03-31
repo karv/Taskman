@@ -696,13 +696,24 @@ namespace Taskman.Gui
 		/// <summary>
 		/// The entry point of the program, where the program control starts and ends.
 		/// </summary>
-		public static void Main ()
+		public static void Main (string [] args)
 		{
 			ExceptionManager.UnhandledException += Exception_aru;
 
 			Gtk.Application.Init ();
 			var app = new MainClass ();
 			app.Initialize ();
+			if (args.Length > 0)
+				try
+				{
+					app.loadOrCreate (args [0]);
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine ("Could not open or create the file {0}.", args [0]);
+					Console.WriteLine (ex);
+					return;
+				}
 			app.MainWindow.Show ();
 			Gtk.Application.Run ();
 		}
