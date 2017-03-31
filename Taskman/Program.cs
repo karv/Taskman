@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using GLib;
 using Gtk;
+using System.IO;
 
 namespace Taskman.Gui
 {
@@ -280,6 +281,37 @@ namespace Taskman.Gui
 			return ret;
 		}
 
+		void loadOrCreate (string fileName)
+		{
+			if (File.Exists (fileName))
+				loadFile (fileName);
+			else
+				newFile (fileName);
+		}
+
+		void newFile (string fileName)
+		{
+			Tasks = new TaskCollection ();
+			RequireSave = false;
+			FilterOptions.Tasks = Tasks;
+			rebuildStore ();
+			buildCats ();
+			CurrentFile = fileName;
+			StatusBar.Push (0, "");
+		}
+
+		void loadFile (string fileName)
+		{
+			Tasks = TaskCollection.Load (fileName);
+			RequireSave = false;
+			FilterOptions.Tasks = Tasks;
+			rebuildStore ();
+			buildCats ();
+			CurrentFile = fileName;
+			StatusBar.Push (0, "Archivo cargado");
+			expandTasks ();
+		}
+
 		void load (object sender, System.EventArgs e)
 		{
 			requestSave (sender, e);
@@ -296,14 +328,7 @@ namespace Taskman.Gui
 			{
 				try
 				{
-					Tasks = TaskCollection.Load (fileChooser.Filename);
-					RequireSave = false;
-					FilterOptions.Tasks = Tasks;
-					rebuildStore ();
-					buildCats ();
-					CurrentFile = fileChooser.Filename;
-					StatusBar.Push (0, "Archivo cargado");
-					expandTasks ();
+					loadFile (fileChooser.Filename);
 				}
 				catch (Exception ex)
 				{
@@ -347,10 +372,11 @@ namespace Taskman.Gui
 			{
 				try
 				{
-					CurrentFile = fileChooser.Filename;
-					Tasks.Save (CurrentFile);
+					var saveTo = fileChooser.Filename;
+					Tasks.Save (saveTo);
 					StatusBar.Push (0, "Guardado");
 					RequireSave = false;
+					CurrentFile = saveTo;
 				}
 				catch (Exception ex)
 				{
@@ -629,10 +655,23 @@ namespace Taskman.Gui
 
 		#endregion
 
+		public string currentFile;
+
 		/// <summary>
 		/// The current editing file, <c>null</c> if not set
 		/// </summary>
-		public string CurrentFile;
+		public string CurrentFile
+		{
+			get
+			{
+				return currentFile;
+			}
+			set
+			{
+				currentFile = value;
+				MainWindow.Title = string.IsNullOrEmpty (value) ? "TaskMan" : currentFile + " - TaskMan";
+			}
+		}
 
 		bool requireSave;
 
@@ -671,13 +710,24 @@ namespace Taskman.Gui
 		/// <summary>
 		/// The entry point of the program, where the program control starts and ends.
 		/// </summary>
-		public static void Main ()
+		public static void Main (string [] args)
 		{
 			ExceptionManager.UnhandledException += Exception_aru;
 
 			Gtk.Application.Init ();
 			var app = new MainClass ();
 			app.Initialize ();
+			if (args.Length > 0)
+				try
+				{
+					app.loadOrCreate (args [0]);
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine ("Could not open or create the file {0}.", args [0]);
+					Console.WriteLine (ex);
+					return;
+				}
 			app.MainWindow.Show ();
 			Gtk.Application.Run ();
 		}
