@@ -655,7 +655,7 @@ namespace Taskman.Gui
 
 		#endregion
 
-		public string currentFile;
+		string currentFile;
 
 		/// <summary>
 		/// The current editing file, <c>null</c> if not set
