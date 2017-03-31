@@ -569,7 +569,8 @@ namespace Taskman
 		      int Id, 
 		      int [] Subtasks, 
 		      int [] Categories,
-		      int [] Dependents)
+		      int [] Dependents,
+		      TaskStatus Status)
 		{
 			_id = Id;
 			Dependents = Dependents ?? new int[] { };
@@ -580,6 +581,7 @@ namespace Taskman
 			_cats = new HashSet<int> (Categories);
 			_subtasks = new HashSet<int> (Subtasks);
 			_dependencyIds = new HashSet<int> (Dependents);
+			status = Status;
 		}
 
 		internal Task (TaskCollection collection, Task masterTask)
